@@ -1,0 +1,12 @@
+{
+  "type": "mekanism:enriching",
+  "input": {
+    "amount": 3,
+    "ingredient": {
+      "item": "tpsthings:hope_pellet"
+    }
+  },
+  "output": {
+    "item": "tpsthings:hope_sheet"
+  }
+}

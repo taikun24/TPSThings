@@ -1,0 +1,22 @@
+{
+    "vertex": "tpsthings:sugoi_menu_screen",
+    "fragment": "tpsthings:sugoi_menu_screen",
+    "attributes": [
+        "Position",
+        "UV0"
+    ],
+    "samplers": [
+        { "name": "Sampler0" }
+    ],
+    "uniforms": [
+        { "name": "ModelViewMat", "type": "matrix4x4", "count": 16, "values": [ 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 ] },
+        { "name": "ProjMat", "type": "matrix4x4", "count": 16, "values": [ 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 ] },
+        { "name": "ScreenSize", "type": "float", "count": 2, "values": [ 1.0, 1.0 ] },
+        { "name": "Openness", "type": "float", "count": 1, "values": [ 0.0 ] },
+        { "name": "Time", "type": "float", "count": 1, "values": [ 0.0 ] },
+        { "name": "Center", "type": "float", "count": 2, "values": [ 0.5, 0.5 ] },
+        { "name": "WaveAge", "type": "float", "count": 1, "values": [ 10.0 ] },
+        { "name": "WaveSign", "type": "float", "count": 1, "values": [ 1.0 ] },
+        { "name": "Tint", "type": "float", "count": 3, "values": [ 1.0, 1.0, 1.0 ] }
+    ]
+}

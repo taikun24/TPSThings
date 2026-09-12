@@ -1,0 +1,28 @@
+# Gradle / ビルド成果物
+.gradle/
+build/
+out/
+bin/
+
+# Forge の実行環境。ワールド・ログ・他 Mod の jar・usercache が入る
+run/
+run-data/
+runs/
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+.classpath
+.project
+.eclipse/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude Code のローカル設定 (このマシン固有のパスが入る)
+.claude/settings.local.json

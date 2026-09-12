@@ -1,0 +1,16 @@
+{
+  "parent": "tpsthings:layer/undefined_shard",
+  "display": {
+    "icon": { "item": "tpsthings:frozen_tick" },
+    "title": { "translate": "advancements.tpsthings.layer.title", "with": [ "2", { "translate": "item.tpsthings.frozen_tick" } ] },
+    "description": { "translate": "item.tpsthings.frozen_tick.poem" },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtained": { "trigger": "minecraft:inventory_changed", "conditions": { "items": [ { "items": [ "tpsthings:frozen_tick" ] } ] } }
+  },
+  "requirements": [ [ "obtained" ] ]
+}

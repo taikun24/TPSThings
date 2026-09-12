@@ -1,0 +1,38 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:blaze_powder"
+    },
+    {
+      "item": "minecraft:nether_wart"
+    },
+    {
+      "item": "minecraft:sugar"
+    },
+    {
+      "item": "minecraft:glow_berries"
+    },
+    {
+      "item": "minecraft:sweet_berries"
+    },
+    {
+      "item": "minecraft:honey_bottle"
+    },
+    {
+        "item": "minecraft:carrot"
+    },
+    {
+        "item": "minecraft:cocoa_beans"
+    },
+    {
+        "item": "minecraft:chorus_fruit"
+    }
+
+  ],
+  "result": {
+    "count": 1,
+    "item": "tpsthings:spicy_spice"
+  }
+}

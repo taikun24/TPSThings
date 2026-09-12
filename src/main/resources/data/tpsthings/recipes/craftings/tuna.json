@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "AAA",
+    "ABA",
+    "AAA"
+  ],
+    "key": {
+        "A": {
+        "item": "tpsthings:hope_sheet"
+        },
+
+      "B": {
+        "item": "minecraft:cod"
+      }
+    },
+    "result": {
+        "item": "tpsthings:tuna",
+        "count": 1
+    }
+}

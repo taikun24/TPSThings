@@ -1,0 +1,16 @@
+{
+  "parent": "tpsthings:layer/frozen_tick",
+  "display": {
+    "icon": { "item": "tpsthings:invulnerable_flag" },
+    "title": { "translate": "advancements.tpsthings.layer.title", "with": [ "3", { "translate": "item.tpsthings.invulnerable_flag" } ] },
+    "description": { "translate": "item.tpsthings.invulnerable_flag.poem" },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtained": { "trigger": "minecraft:inventory_changed", "conditions": { "items": [ { "items": [ "tpsthings:invulnerable_flag" ] } ] } }
+  },
+  "requirements": [ [ "obtained" ] ]
+}

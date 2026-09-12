@@ -1,0 +1,20 @@
+{
+  "type": "mekanism:reaction",
+  "itemInput": {
+    "ingredient": { "item": "tpsthings:spicy_spice" }
+  },
+  "fluidInput": {
+    "fluid": "minecraft:water",
+    "amount": 100
+  },
+  "gasInput": {
+    "gas": "tpsthings:carbon_dioxide",
+    "amount": 1000
+  },
+  "energyRequired": 100,
+  "duration": 100,
+  "gasOutput": {
+    "gas": "tpsthings:nope_gas",
+    "amount": 100
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "   ",
+    " A ",
+    " B "
+    ],
+    "key": {
+        "A": {
+            "item": "tpsthings:spicy_spice"
+        },
+        "B": {
+            "item": "minecraft:glass_bottle"
+        }
+    },
+    "result": {
+      "item": "tpsthings:teacup",
+      "count": 1
+    }
+}

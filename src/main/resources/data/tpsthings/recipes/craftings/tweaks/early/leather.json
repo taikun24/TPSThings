@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " X ",
+    "XYX",
+    " X "
+  ],
+  "key": {
+    "X": {
+      "item": "minecraft:rotten_flesh"
+    },
+    "Y": {
+      "item": "tpsthings:qol"
+    }
+  },
+  "result": {
+    "item": "minecraft:leather",
+    "count": 1
+  }
+}

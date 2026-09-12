@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " A ",
+    "ABA",
+    " A "
+  ],
+  "key": {
+    "A": {
+      "item": "minecraft:wither_skeleton_skull"
+    },
+    "B": {
+      "item": "tpsthings:qolest"
+    }
+  },
+  "result": {
+    "item": "minecraft:nether_star"
+  }
+}

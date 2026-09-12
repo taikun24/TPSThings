@@ -1,0 +1,94 @@
+{
+  "variants": {
+    "active=false,facing=east,fluid_logged=empty": {
+      "model": "tpsthings:block/tps_generator",
+      "y": 90
+    },
+    "active=false,facing=east,fluid_logged=lava": {
+      "model": "tpsthings:block/tps_generator",
+      "y": 90
+    },
+    "active=false,facing=east,fluid_logged=water": {
+      "model": "tpsthings:block/tps_generator",
+      "y": 90
+    },
+    "active=false,facing=north,fluid_logged=empty": {
+      "model": "tpsthings:block/tps_generator"
+    },
+    "active=false,facing=north,fluid_logged=lava": {
+      "model": "tpsthings:block/tps_generator"
+    },
+    "active=false,facing=north,fluid_logged=water": {
+      "model": "tpsthings:block/tps_generator"
+    },
+    "active=false,facing=south,fluid_logged=empty": {
+      "model": "tpsthings:block/tps_generator",
+      "y": 180
+    },
+    "active=false,facing=south,fluid_logged=lava": {
+      "model": "tpsthings:block/tps_generator",
+      "y": 180
+    },
+    "active=false,facing=south,fluid_logged=water": {
+      "model": "tpsthings:block/tps_generator",
+      "y": 180
+    },
+    "active=false,facing=west,fluid_logged=empty": {
+      "model": "tpsthings:block/tps_generator",
+      "y": 270
+    },
+    "active=false,facing=west,fluid_logged=lava": {
+      "model": "tpsthings:block/tps_generator",
+      "y": 270
+    },
+    "active=false,facing=west,fluid_logged=water": {
+      "model": "tpsthings:block/tps_generator",
+      "y": 270
+    },
+    "active=true,facing=east,fluid_logged=empty": {
+      "model": "tpsthings:block/tps_generator_active",
+      "y": 90
+    },
+    "active=true,facing=east,fluid_logged=lava": {
+      "model": "tpsthings:block/tps_generator_active",
+      "y": 90
+    },
+    "active=true,facing=east,fluid_logged=water": {
+      "model": "tpsthings:block/tps_generator_active",
+      "y": 90
+    },
+    "active=true,facing=north,fluid_logged=empty": {
+      "model": "tpsthings:block/tps_generator_active"
+    },
+    "active=true,facing=north,fluid_logged=lava": {
+      "model": "tpsthings:block/tps_generator_active"
+    },
+    "active=true,facing=north,fluid_logged=water": {
+      "model": "tpsthings:block/tps_generator_active"
+    },
+    "active=true,facing=south,fluid_logged=empty": {
+      "model": "tpsthings:block/tps_generator_active",
+      "y": 180
+    },
+    "active=true,facing=south,fluid_logged=lava": {
+      "model": "tpsthings:block/tps_generator_active",
+      "y": 180
+    },
+    "active=true,facing=south,fluid_logged=water": {
+      "model": "tpsthings:block/tps_generator_active",
+      "y": 180
+    },
+    "active=true,facing=west,fluid_logged=empty": {
+      "model": "tpsthings:block/tps_generator_active",
+      "y": 270
+    },
+    "active=true,facing=west,fluid_logged=lava": {
+      "model": "tpsthings:block/tps_generator_active",
+      "y": 270
+    },
+    "active=true,facing=west,fluid_logged=water": {
+      "model": "tpsthings:block/tps_generator_active",
+      "y": 270
+    }
+  }
+}

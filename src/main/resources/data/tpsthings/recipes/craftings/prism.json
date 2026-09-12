@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "GAG",
+    "ACA",
+    "GAG"
+  ],
+  "key": {
+    "G": { "item": "minecraft:glass" },
+    "A": { "item": "minecraft:amethyst_shard" },
+    "C": { "item": "tpsthings:time_flux_crystal" }
+  },
+  "result": {
+    "item": "tpsthings:prism",
+    "count": 1
+  }
+}

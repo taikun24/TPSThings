@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+    "pattern": [
+        " CB",
+        " AC",
+        "A  "
+    ],
+  "key": {
+        "B": {
+            "item": "minecraft:cobblestone"
+        },
+        "A": {
+            "item": "minecraft:stick"
+        },
+    "C": {
+            "item": "minecraft:iron_ingot"
+        }
+    },
+  "result": {
+    "item": "tpsthings:acceleration_wand",
+    "count": 1
+  }
+}

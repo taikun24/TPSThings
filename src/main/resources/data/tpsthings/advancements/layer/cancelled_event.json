@@ -1,0 +1,16 @@
+{
+  "parent": "tpsthings:layer/undefined_behavior",
+  "display": {
+    "icon": { "item": "tpsthings:cancelled_event" },
+    "title": { "translate": "advancements.tpsthings.layer.title", "with": [ "5", { "translate": "item.tpsthings.cancelled_event" } ] },
+    "description": { "translate": "item.tpsthings.cancelled_event.poem" },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtained": { "trigger": "minecraft:inventory_changed", "conditions": { "items": [ { "items": [ "tpsthings:cancelled_event" ] } ] } }
+  },
+  "requirements": [ [ "obtained" ] ]
+}

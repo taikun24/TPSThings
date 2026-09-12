@@ -1,0 +1,19 @@
+{
+  "type": "mekanism:rotary",
+  "gasInput": {
+    "amount": 1,
+    "gas": "tpsthings:nope_gas"
+  },
+  "gasOutput": {
+    "amount": 1,
+    "gas": "tpsthings:nope_gas"
+  },
+  "fluidInput": {
+    "amount": 1,
+    "fluid": "tpsthings:nope"
+  },
+  "fluidOutput": {
+    "amount": 1,
+    "fluid": "tpsthings:nope"
+  }
+}

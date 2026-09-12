@@ -1,0 +1,19 @@
+{
+  "type": "mekanism:reaction",
+  "itemInput": {
+    "ingredient": { "item": "tpsthings:hope_substrate" }
+  },
+  "fluidInput": {
+    "fluid": "tpsthings:hope_ethylene",
+    "amount": 100
+  },
+  "gasInput": {
+    "gas": "tpsthings:hope_oxygen",
+    "amount": 100
+  },
+  "energyRequired": 100,
+  "duration": 100,
+  "itemOutput": {
+    "item": "tpsthings:hope_pellet"
+  }
+}

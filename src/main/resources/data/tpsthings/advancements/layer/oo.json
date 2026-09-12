@@ -1,0 +1,16 @@
+{
+  "parent": "tpsthings:layer/java_agent",
+  "display": {
+    "icon": { "item": "tpsthings:oo" },
+    "title": { "translate": "item.tpsthings.oo" },
+    "description": { "translate": "advancements.tpsthings.layer.oo.description" },
+    "frame": "challenge",
+    "show_toast": false,
+    "announce_to_chat": false,
+    "hidden": true
+  },
+  "criteria": {
+    "obtained": { "trigger": "minecraft:inventory_changed", "conditions": { "items": [ { "items": [ "tpsthings:oo" ] } ] } }
+  },
+  "requirements": [ [ "obtained" ] ]
+}

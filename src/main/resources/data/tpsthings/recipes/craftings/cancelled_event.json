@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "NAN",
+    "AUA",
+    "NAN"
+  ],
+  "key": {
+    "N": { "item": "tpsthings:not_oo" },
+    "A": { "item": "tpsthings:anti_hope_sheet" },
+    "U": { "item": "tpsthings:undefined_behavior" }
+  },
+  "result": {
+    "item": "tpsthings:cancelled_event",
+    "count": 1
+  }
+}

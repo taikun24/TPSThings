@@ -1,0 +1,11 @@
+{
+  "type": "mekanism:crystallizing",
+  "chemicalType": "gas",
+  "input": {
+    "amount": 200,
+    "gas": "tpsthings:time_flux"
+  },
+  "output": {
+    "item": "tpsthings:time_flux_crystal"
+  }
+}

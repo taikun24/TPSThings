@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:copper_ingot",
+      "count": 3
+    }
+  ],
+  "result": {
+    "count": 1,
+    "item": "minecraft:iron_ingot"
+  }
+}

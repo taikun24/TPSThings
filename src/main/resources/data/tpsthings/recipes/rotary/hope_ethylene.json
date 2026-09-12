@@ -1,0 +1,19 @@
+{
+  "type": "mekanism:rotary",
+  "gasInput": {
+    "amount": 1,
+    "gas": "tpsthings:hope_ethylene"
+  },
+  "gasOutput": {
+    "amount": 1,
+    "gas": "tpsthings:hope_ethylene"
+  },
+  "fluidInput": {
+    "amount": 1,
+    "fluid": "tpsthings:hope_ethylene"
+  },
+  "fluidOutput": {
+    "amount": 1,
+    "fluid": "tpsthings:hope_ethylene"
+  }
+}

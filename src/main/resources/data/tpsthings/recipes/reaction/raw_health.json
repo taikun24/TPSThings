@@ -1,0 +1,23 @@
+{
+  "type": "mekanism:reaction",
+  "itemInput": {
+    "ingredient": { "item": "tpsthings:cancelled_event" }
+  },
+  "fluidInput": {
+    "fluid": "tpsthings:nope",
+    "amount": 500
+  },
+  "gasInput": {
+    "gas": "tpsthings:hope_hydrogen",
+    "amount": 500
+  },
+  "energyRequired": 5000,
+  "duration": 200,
+  "itemOutput": {
+    "item": "tpsthings:raw_health"
+  },
+  "gasOutput": {
+    "gas": "tpsthings:carbon_dioxide",
+    "amount": 100
+  }
+}

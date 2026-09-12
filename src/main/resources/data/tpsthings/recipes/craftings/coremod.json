@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SMS",
+    "DQR",
+    "SMS"
+  ],
+  "key": {
+    "S": { "item": "tpsthings:undefined_shard" },
+    "M": { "item": "tpsthings:mixin" },
+    "D": { "item": "tpsthings:death_hook" },
+    "R": { "item": "tpsthings:removal_veto" },
+    "Q": { "item": "tpsthings:qolest" }
+  },
+  "result": {
+    "item": "tpsthings:coremod",
+    "count": 1
+  }
+}

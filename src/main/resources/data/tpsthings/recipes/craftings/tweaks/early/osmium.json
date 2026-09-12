@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:iron_ingot",
+      "count": 2
+    },
+    {
+      "item": "tpsthings:qol"
+    }
+    ],
+    "result": {
+      "item": "mekanism:osmium_ingot",
+      "count": 1
+    }
+
+}

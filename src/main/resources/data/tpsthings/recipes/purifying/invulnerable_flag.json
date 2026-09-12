@@ -1,0 +1,13 @@
+{
+  "type": "mekanism:purifying",
+  "itemInput": {
+    "ingredient": { "item": "tpsthings:frozen_tick" }
+  },
+  "chemicalInput": {
+    "amount": 5,
+    "gas": "tpsthings:hope_oxygen"
+  },
+  "output": {
+    "item": "tpsthings:invulnerable_flag"
+  }
+}

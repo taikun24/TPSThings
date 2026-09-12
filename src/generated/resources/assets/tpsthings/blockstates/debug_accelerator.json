@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "tpsthings:block/debug_accelerator"
+    }
+  }
+}

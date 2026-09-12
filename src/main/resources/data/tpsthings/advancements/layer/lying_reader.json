@@ -1,0 +1,16 @@
+{
+  "parent": "tpsthings:layer/raw_health",
+  "display": {
+    "icon": { "item": "tpsthings:lying_reader" },
+    "title": { "translate": "advancements.tpsthings.layer.title", "with": [ "7", { "translate": "item.tpsthings.lying_reader" } ] },
+    "description": { "translate": "item.tpsthings.lying_reader.poem" },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtained": { "trigger": "minecraft:inventory_changed", "conditions": { "items": [ { "items": [ "tpsthings:lying_reader" ] } ] } }
+  },
+  "requirements": [ [ "obtained" ] ]
+}

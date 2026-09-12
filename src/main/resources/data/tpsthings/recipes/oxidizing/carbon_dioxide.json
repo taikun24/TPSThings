@@ -1,0 +1,12 @@
+{
+  "type": "mekanism:oxidizing",
+  "input": {
+    "ingredient": {
+      "item": "minecraft:coal"
+    }
+  },
+  "output": {
+    "amount": 1000,
+    "gas": "tpsthings:carbon_dioxide"
+  }
+}

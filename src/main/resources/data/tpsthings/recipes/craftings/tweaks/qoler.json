@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+    "pattern": [
+      " A ",
+      "ABA",
+      " A "
+    ],
+    "key": {
+      "A": {
+        "item": "minecraft:copper_ingot"
+      },
+        "B": {
+        "item": "tpsthings:qol"
+        }
+    },
+    "result": {
+      "item": "tpsthings:qoler"
+    }
+}

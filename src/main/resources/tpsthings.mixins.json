@@ -1,0 +1,46 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "jp.main.taikun.tpsthings.mixin",
+  "plugin": "jp.main.taikun.tpsthings.mixin.AgentBootstrapPlugin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "tpsthings.refmap.json",
+  "mixins": [
+    "AccessorTileEntityMultiblock",
+    "AccessorServerLevel",
+    "AccessorPersistentEntitySectionManager",
+    "AccessorChunkMap",
+    "AccessorEntity",
+    "AccessorLivingEntity",
+    "MixinBlockEntityTickProfile",
+    "MixinLevelEntityTickProfile",
+    "MixinEntityMotionGuard",
+    "MixinEntityPushImmunity",
+    "MixinLivingEntityKnockbackImmunity",
+    "MixinEntityRemoveGuard",
+    "MixinLivingEntityDamageGuard",
+    "MixinSynchedEntityDataGuard",
+    "MixinDataItemGuard",
+    "MixinServerPlayerDeathGuard",
+    "MixinEntityLookupGuard",
+    "MixinEntityCallbackRemoveGuard",
+    "MixinConnectionOutbound",
+    "MixinPlayerListRespawnGuard",
+    "MixinRespawnRequestGuard",
+    "MixinServerTickGuard",
+    "MixinPlayerKeepInventory"
+  ],
+  "client": [
+    "AccessorGui",
+    "AccessorPostChain",
+    "MixinMinecraftMenuPause",
+    "MixinMinecraftDeathGuard",
+    "MixinGameRendererAbyss"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}

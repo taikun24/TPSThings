@@ -1,0 +1,19 @@
+{
+  "type": "mekanism:reaction",
+  "itemInput": {
+    "ingredient": { "item": "tpsthings:hope_sheet" }
+  },
+  "fluidInput": {
+    "fluid": "tpsthings:nope",
+    "amount": 1000
+  },
+  "gasInput": {
+    "gas": "tpsthings:nope_gas",
+    "amount": 1000
+  },
+  "energyRequired": 10000,
+  "duration": 400,
+  "itemOutput": {
+    "item": "tpsthings:anti_hope_sheet"
+  }
+}

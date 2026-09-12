@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    { "item": "tpsthings:raw_health" },
+    { "item": "tpsthings:lying_reader" },
+    { "item": "tpsthings:undefined_behavior" },
+    { "item": "tpsthings:prism" }
+  ],
+  "result": {
+    "item": "tpsthings:mixin",
+    "count": 1
+  }
+}

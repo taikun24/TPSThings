@@ -1,0 +1,16 @@
+{
+  "parent": "tpsthings:layer/coremod",
+  "display": {
+    "icon": { "item": "tpsthings:erased_index" },
+    "title": { "translate": "advancements.tpsthings.layer.title", "with": [ "10", { "translate": "item.tpsthings.erased_index" } ] },
+    "description": { "translate": "item.tpsthings.erased_index.poem" },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtained": { "trigger": "minecraft:inventory_changed", "conditions": { "items": [ { "items": [ "tpsthings:erased_index" ] } ] } }
+  },
+  "requirements": [ [ "obtained" ] ]
+}

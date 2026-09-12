@@ -1,0 +1,16 @@
+{
+  "parent": "tpsthings:layer/anti_hope_sheet",
+  "display": {
+    "icon": { "item": "tpsthings:undefined_shard" },
+    "title": { "translate": "advancements.tpsthings.layer.title", "with": [ "2", { "translate": "item.tpsthings.undefined_shard" } ] },
+    "description": { "translate": "item.tpsthings.undefined_shard.poem" },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtained": { "trigger": "minecraft:inventory_changed", "conditions": { "items": [ { "items": [ "tpsthings:undefined_shard" ] } ] } }
+  },
+  "requirements": [ [ "obtained" ] ]
+}
