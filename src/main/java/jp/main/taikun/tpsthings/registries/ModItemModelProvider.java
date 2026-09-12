@@ -57,8 +57,9 @@ public class ModItemModelProvider extends ItemModelProvider {
         this.basicItem(ModItems.NOT_OO.get());
         this.basicItem(ModItems.MIXIN.get());
         // 専用テクスチャができるまでの仮。undefined_shard はモデルも持たせない
+        // 反 HOPE シートは HOPE シートと同じ絵。見分けは ClientRegister の色で付ける
         singleUnchecked("anti_hope_sheet",    rl("mekanism", "item/hdpe_sheet"));
-        singleUnchecked("undefined_behavior", modLoc("item/mixin"));
+        singleUnchecked("undefined_behavior", rl("minecraft", "item/dragon_breath"));
         singleUnchecked("coremod",            rl("minecraft", "item/knowledge_book"));
         singleUnchecked("java_agent",         rl("minecraft", "item/enchanted_book"));
         singleUnchecked("frozen_tick",        rl("minecraft", "item/clock_00"));

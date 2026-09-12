@@ -34,7 +34,7 @@ public class BELagGenerator extends BETpsGeneratorBase {
     }
 
     @Override
-    public String getConditionText() {
-        return "重いほど回る";
+    public net.minecraft.network.chat.Component getConditionText() {
+        return net.minecraft.network.chat.Component.translatable("gui.tpsthings.lag_generator.condition");
     }
 }

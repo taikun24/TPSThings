@@ -33,7 +33,7 @@ public class BETpsGenerator extends BETpsGeneratorBase {
     }
 
     @Override
-    public String getConditionText() {
-        return "軽いほど回る";
+    public net.minecraft.network.chat.Component getConditionText() {
+        return net.minecraft.network.chat.Component.translatable("gui.tpsthings.tps_generator.condition");
     }
 }

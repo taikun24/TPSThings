@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:block",
+  "random_sequence": "tpsthings:blocks/absolute_life_anchor",
+  "pools": [
+    {
+      "name": "main",
+      "rolls": 1,
+      "bonus_rolls": 0,
+      "entries": [
+        { "type": "minecraft:item", "name": "tpsthings:absolute_life_anchor" }
+      ],
+      "conditions": [
+        { "condition": "minecraft:survives_explosion" }
+      ]
+    }
+  ]
+}

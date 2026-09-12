@@ -33,7 +33,7 @@ public class BlockDebugAccelerator extends Block implements EntityBlock {
             BEDebugAccelerator accelerator = (BEDebugAccelerator) level.getBlockEntity(pos);
             if (accelerator != null) {
                 int result = accelerator.changeSpeed(item == Items.DIRT);
-                p_60506_.displayClientMessage(net.minecraft.network.chat.Component.literal("Speed changed into: " + result), true);
+                p_60506_.displayClientMessage(net.minecraft.network.chat.Component.translatable("message.tpsthings.debug_accelerator.speed", result), true);
             }
             return InteractionResult.SUCCESS;
         }

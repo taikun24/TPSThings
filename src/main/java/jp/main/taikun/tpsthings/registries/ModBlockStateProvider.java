@@ -57,10 +57,19 @@ private void simpleBlockWithItem(Block block) {
  * 舐める。手で書き並べるとプロパティが 1 つ増えただけで読み込みに失敗するので。
  */
 private void machineWithItem(Block block, String id) {
+    machineWithItem(block, id, modLoc("block/" + id + "_front"), modLoc("block/" + id + "_front_active"));
+}
+
+/**
+ * 顔のテクスチャを外から渡す版。まだ専用テクスチャが無い機械のための逃げ道。
+ */
+private void machineWithItem(Block block, String id,
+                             net.minecraft.resources.ResourceLocation front,
+                             net.minecraft.resources.ResourceLocation frontActive) {
     ModelFile idle = models().orientable("block/" + id,
-            mcLoc("block/iron_block"), modLoc("block/" + id + "_front"), mcLoc("block/iron_block"));
+            mcLoc("block/iron_block"), front, mcLoc("block/iron_block"));
     ModelFile active = models().orientable("block/" + id + "_active",
-            mcLoc("block/iron_block"), modLoc("block/" + id + "_front_active"), mcLoc("block/iron_block"));
+            mcLoc("block/iron_block"), frontActive, mcLoc("block/iron_block"));
 
     getVariantBuilder(block).forAllStates(state -> {
         boolean running = state.getProperties().stream()
@@ -93,46 +102,9 @@ protected void registerStatesAndModels() {
     machineWithItem(ModBlocks.TPS_GENERATOR.getBlock(), "tps_generator");
     machineWithItem(ModBlocks.LAG_GENERATOR.getBlock(), "lag_generator");
     machineWithItem(ModBlocks.TIME_ACCELERATOR.getBlock(), "time_accelerator");
-    /*
-    MachineRegistry.INSTANCE.forEachMachine(baseMachine -> {
-        Block block = baseMachine.machineBlock.getBlock();
+    // TODO: 専用テクスチャができるまで、顔はかまどを借りる
+    machineWithItem(ModBlocks.TIME_FLUX_COLLECTOR.getBlock(), "time_flux_collector",
+            mcLoc("block/furnace_front"), mcLoc("block/furnace_front_on"));
 
-        getVariantBuilder(block).forAllStates(state -> {
-            // 1. "active" プロパティの取得 (Boolean)
-            boolean active = state.getProperties().stream()
-                    .filter(p -> p.getName().equals("active") && p instanceof net.minecraft.world.level.block.state.properties.BooleanProperty)
-                    .map(p -> state.getValue((net.minecraft.world.level.block.state.properties.BooleanProperty) p))
-                    .findFirst()
-                    .orElse(false);
-
-            // 2. "facing" プロパティの取得 (Direction)
-            net.minecraft.core.Direction facing = state.getValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING);
-
-            // 3. "fluid_logged" プロパティの取得 (Enum)
-            // JSONの出力として "empty", "water", "lava" が文字列で入るため、持っているPropertyの値の値を文字列として取得します
-            String fluidLogged = state.getProperties().stream()
-                    .filter(p -> p.getName().equals("fluid_logged"))
-                    .map(p -> state.getValue(p).toString().toLowerCase(java.util.Locale.ROOT))
-                    .findFirst()
-                    .orElse("empty"); // デフォルト値
-
-            // アクティブ状態によるモデルファイルの切り替え
-            String modelName = active ? baseMachine.getId() + "_active" : baseMachine.getId();
-
-            // 向きによる回転角度の決定 (JSONに合わせて負数ではなく正数に丸める場合は 270 にします)
-            int yRotation = switch (facing) {
-                case NORTH -> 0;
-                case SOUTH -> 180;
-                case EAST  -> 90;
-                case WEST  -> 270; // JSONの -90 と同じ回転になります（270推奨ですが、既存データ互換で必要なら -90 でも機能します）
-                default    -> 0;
-            };
-
-            return ConfiguredModel.builder()
-                    .modelFile(models().getExistingFile(modLoc("block/" + modelName)))
-                    .rotationY(yRotation)
-                    .build();
-        });
-    });*/
 }
 }

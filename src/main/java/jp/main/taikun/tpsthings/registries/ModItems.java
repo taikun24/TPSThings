@@ -26,7 +26,8 @@ public class ModItems {
      public static final RegistryObject<Item> OO = ITEMS.register("oo", ItemOo::new);
      public static final RegistryObject<Item> NOT_OO = ITEMS.register("not_oo", ()->new Item(new Item.Properties().rarity(Rarity.EPIC)));
      public static final RegistryObject<Item> TUNA = ITEMS.register("tuna", ()->new Item(new Item.Properties()));
-     public static final RegistryObject<Item> TEACUP = ITEMS.register("teacup", ()->new Item(new Item.Properties().food(new FoodProperties.Builder().nutrition(3).saturationMod(3).alwaysEat().build())));
+     // saturationMod は倍率。3 にすると飽和度 18 (エンチャント金リンゴ相当) になるので 0.6 に留める
+     public static final RegistryObject<Item> TEACUP = ITEMS.register("teacup", ()->new Item(new Item.Properties().stacksTo(16).food(new FoodProperties.Builder().nutrition(6).saturationMod(0.6F).alwaysEat().build())));
      public static final RegistryObject<Item> FLUORESCENT_LIGHT = ITEMS.register("fluorescent_light", ItemFluorescentLight::new);
      public static final RegistryObject<Item> TIME_FLUX_CRYSTAL = ITEMS.register("time_flux_crystal", ()->new FoilItem(new Item.Properties()));
      public static final RegistryObject<Item> CAT_TEASER = ITEMS.register("cat_teaser", ItemCatTeaser::new);

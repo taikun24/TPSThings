@@ -35,9 +35,9 @@ public class GuiTpsGenerator<BE extends BETpsGeneratorBase>
         addRenderableWidget(new GuiVerticalPowerBar(this, tile.getEnergyContainer(), 164, 15));
         // 発電機なので MachineEnergyContainer ではない。タブには自前の文言を出す
         addRenderableWidget(new GuiEnergyTab(this, () -> List.of(
-                Component.literal(String.format("TPS: %.2f", tile.getDisplayTps())),
-                Component.literal(String.format("出力: %.0f J/t", tile.getDisplayOutput())),
-                Component.literal(tile.getConditionText()))));
+                Component.translatable("gui.tpsthings.generator.tps_tab", String.format("%.2f", tile.getDisplayTps())),
+                Component.translatable("gui.tpsthings.generator.output_tab", String.format("%.0f", tile.getDisplayOutput())),
+                tile.getConditionText())));
     }
 
     @Override
@@ -50,14 +50,14 @@ public class GuiTpsGenerator<BE extends BETpsGeneratorBase>
         ChatFormatting tpsColor = tps >= 19.0F ? ChatFormatting.GREEN
                 : tps >= 15.0F ? ChatFormatting.YELLOW : ChatFormatting.RED;
 
-        drawString(guiGraphics, Component.literal(String.format("TPS %.2f", tps))
+        drawString(guiGraphics, Component.translatable("gui.tpsthings.generator.tps", String.format("%.2f", tps))
                 .withStyle(tpsColor), 20, 22, titleTextColor());
-        drawString(guiGraphics, Component.literal(output > 0.0F
-                        ? String.format("%.0f J/t", output)
-                        : "回っていない")
+        drawString(guiGraphics, (output > 0.0F
+                        ? Component.translatable("gui.tpsthings.generator.output", String.format("%.0f", output))
+                        : Component.translatable("gui.tpsthings.generator.idle"))
                 .withStyle(output > 0.0F ? ChatFormatting.WHITE : ChatFormatting.DARK_GRAY),
                 20, 34, titleTextColor());
-        drawString(guiGraphics, Component.literal(tile.getConditionText())
+        drawString(guiGraphics, tile.getConditionText().copy()
                 .withStyle(ChatFormatting.GRAY), 20, 46, titleTextColor());
 
         super.drawForegroundText(guiGraphics, mouseX, mouseY);

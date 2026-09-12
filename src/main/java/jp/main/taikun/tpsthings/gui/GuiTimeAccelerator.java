@@ -90,16 +90,18 @@ public class GuiTimeAccelerator extends GuiMekanismTile<BETimeAccelerator, Mekan
 
         int range = tile.getRange();
         int diameter = range * 2 + 1;
-        drawString(guiGraphics, Component.literal("範囲 " + range + " (" + diameter + "角)")
+        drawString(guiGraphics, Component.translatable("gui.tpsthings.accelerator.range", range, diameter)
                 .withStyle(ChatFormatting.WHITE), 40, 26, titleTextColor());
-        drawString(guiGraphics, Component.literal("速さ x" + tile.getSpeed())
+        drawString(guiGraphics, Component.translatable("gui.tpsthings.accelerator.speed", tile.getSpeed())
                 .withStyle(ChatFormatting.WHITE), 40, 44, titleTextColor());
 
         int targets = tile.getDisplayTargets();
         boolean running = tile.getDisplayRunning() != 0;
-        drawString(guiGraphics, Component.literal(targets == 0
-                        ? "対象なし"
-                        : targets + " 台 / " + (running ? "稼働中" : "資源不足"))
+        drawString(guiGraphics, (targets == 0
+                        ? Component.translatable("gui.tpsthings.accelerator.no_target")
+                        : Component.translatable("gui.tpsthings.accelerator.targets", targets,
+                                Component.translatable(running ? "gui.tpsthings.accelerator.running"
+                                        : "gui.tpsthings.accelerator.starved")))
                 .withStyle(targets == 0 ? ChatFormatting.DARK_GRAY
                         : running ? ChatFormatting.GREEN : ChatFormatting.RED), 40, 62, titleTextColor());
 

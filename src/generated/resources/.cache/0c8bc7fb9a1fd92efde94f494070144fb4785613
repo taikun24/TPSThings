@@ -1,8 +1,9 @@
-// 1.20.1	2026-09-10T20:24:41.4130409	Block States: tpsthings
+// 1.20.1	2026-09-12T19:01:12.6912785	Block States: tpsthings
 f876da7d3794f332d03a2ca8c68fe75b6927dd87 assets/tpsthings/blockstates/annihilation_chamber.json
 09562fec56048418dac1fc6e19080ae837b421f1 assets/tpsthings/blockstates/debug_accelerator.json
 49e1ab62192fd77ee2d40463da996e3828a18a34 assets/tpsthings/blockstates/lag_generator.json
 011a529f04d38a20bf7919225f8c61885200c8fc assets/tpsthings/blockstates/time_accelerator.json
+f3f928a197066db526643d907574c9fe247a1cf7 assets/tpsthings/blockstates/time_flux_collector.json
 d7f732a005c78ac1c6690b69367d21e73bc8fb5f assets/tpsthings/blockstates/tps_generator.json
 4bf1d1f009260f4291bc83c06b83565dfd9772f4 assets/tpsthings/models/block/annihilation_chamber.json
 e1c653583c3ab67297393cdb5bf1ea07c5b0cb40 assets/tpsthings/models/block/debug_accelerator.json
@@ -10,10 +11,13 @@ e1c653583c3ab67297393cdb5bf1ea07c5b0cb40 assets/tpsthings/models/block/debug_acc
 a9089b7d535db2296f0dcc7d443a6aec7ae9c219 assets/tpsthings/models/block/lag_generator_active.json
 40494742f3d9f06e03ca44a33d54aa8f1d59889c assets/tpsthings/models/block/time_accelerator.json
 9b55f4ead849853d5e37951f0c38532d5c8af35e assets/tpsthings/models/block/time_accelerator_active.json
+529ba59e5694d3b0c7a619e4e83455682993ee1d assets/tpsthings/models/block/time_flux_collector.json
+51cf544c04646f208252ba712bb9df5750b451c8 assets/tpsthings/models/block/time_flux_collector_active.json
 4b956fff36d8c9c5b768df84c3a9d671166d18fc assets/tpsthings/models/block/tps_generator.json
 a7f528c89958f99022b68aceb3b4c7bd03042b09 assets/tpsthings/models/block/tps_generator_active.json
 44595e5a990a756b129c51de43c052b59a5afa1f assets/tpsthings/models/item/annihilation_chamber.json
 14f5253654d0c1702113fde1d42a3b2d6f6db8e2 assets/tpsthings/models/item/debug_accelerator.json
 2d5e7837ec06f3c6236b396a1f1b9bff799ed524 assets/tpsthings/models/item/lag_generator.json
 5a31cb38acceef3b180e7b6f989749672c0ec672 assets/tpsthings/models/item/time_accelerator.json
+c88ea485dafd7bb2efeff457811ec64a3bc11ab9 assets/tpsthings/models/item/time_flux_collector.json
 e139ee7e4e5d53278d0cdecabe2df92d02e67446 assets/tpsthings/models/item/tps_generator.json

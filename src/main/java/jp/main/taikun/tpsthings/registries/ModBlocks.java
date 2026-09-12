@@ -10,13 +10,11 @@ import jp.main.taikun.tpsthings.blocks.BlockAbsoluteLifeAnchor;
 import jp.main.taikun.tpsthings.blocks.BlockAnnihilationChamber;
 import jp.main.taikun.tpsthings.blocks.BlockDebugAccelerator;
 import jp.main.taikun.tpsthings.blocks.BlockExtendedCrafter;
-import jp.main.taikun.tpsthings.machines.BaseMachine;
 import mekanism.common.block.prefab.BlockTile;
 import mekanism.common.content.blocktype.Machine;
 import mekanism.common.registration.impl.BlockDeferredRegister;
 import mekanism.common.registration.impl.BlockRegistryObject;
 import mekanism.common.resource.BlockResourceInfo;
-import mekanism.common.tile.base.TileEntityMekanism;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -54,18 +52,8 @@ public class ModBlocks {
         public static final RegistryObject<Block> EXTENDED_CRAFTER = registerBlockWithItem("extended_crafter", BlockExtendedCrafter::new);
         public static final RegistryObject<Block> ANNIHILATION_CHAMBER = registerBlockWithItem("annihilation_chamber", BlockAnnihilationChamber::new);
         public static void register(IEventBus bus) {
-                // ループ内からジェネリックメソッドを呼び出す
-                MachineRegistry.INSTANCE.forEachMachine(ModBlocks::registerSingleMachine);
-
                 BLOCKS.register(bus);
                 SIMPLE_BLOCKS.register(bus);
                 BLOCK_ITEMS.register(bus);
-        }
-        // 追加するヘルパーメソッド: ここで <BE> を明示することで、Javaの型推論を助けます
-        private static <BE extends TileEntityMekanism> void registerSingleMachine(BaseMachine<BE> machine) {
-                machine.machineBlock = BLOCKS.register(machine.getId(),
-                        () -> new BlockTile.BlockTileModel<>(machine.machineBlockType,
-                                properties -> properties.mapColor(BlockResourceInfo.STEEL.getMapColor()))
-                );
         }
 }

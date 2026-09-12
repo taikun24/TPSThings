@@ -61,3 +61,20 @@ mandatory = true
 versionRange = "${minecraft_version_range}"
 ordering = "NONE"
 side = "BOTH"
+
+# Mekanism。ブロック・ガス・流体・レシピの型を直接使っているので、
+# 無いとクラスロードの時点で落ちる。任意依存にはできない
+[[dependencies."${mod_id}"]]
+modId = "mekanism"
+mandatory = true
+versionRange = "${mekanism_version_range}"
+ordering = "AFTER"
+side = "BOTH"
+
+# JEI。@JeiPlugin は JEI 側から読まれるので、無ければ何も起きない
+[[dependencies."${mod_id}"]]
+modId = "jei"
+mandatory = false
+versionRange = "${jei_version_range}"
+ordering = "AFTER"
+side = "CLIENT"

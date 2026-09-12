@@ -26,11 +26,13 @@ public class Tpsthings {
     public static final String MODID = "tpsthings";
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
+    /** クリエイティブタブの翻訳キー。タブ自身の getId() はここでは触れない (自己参照になる) */
+    public static final String TAB_KEY = "itemGroup." + MODID;
     public static final DeferredRegister<CreativeModeTab> MOD_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
     public static final RegistryObject<CreativeModeTab> TAB = MOD_TABS.register("tpsthings",
             () -> CreativeModeTab.builder()
                     .icon(Items.DIAMOND::getDefaultInstance)
-                    .title(Component.literal("TPS Things"))
+                    .title(Component.translatable(TAB_KEY))
                     .displayItems((param, output) -> {
                         // output.accept(ModBlocks.EXAMPLE_MACHINE.getBlock());
                         // output.accept(ModBlocks.TIME_FLUX_COLLECTOR.getBlock());

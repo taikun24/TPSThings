@@ -68,7 +68,7 @@ public class ItemOo extends ArmorItem implements WavyNameItem {
 
     @Override
     public @NotNull Component getDescription() {
-        return Component.literal("It's wow...");
+        return Component.translatable("item.tpsthings.oo.description");
     }
     
 

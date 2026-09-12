@@ -52,7 +52,7 @@ public final class ItemPoemTooltip {
     }
 
     /** おおの独り言。シフトを押している間だけ、最後の行の上に 1 つ出る。 */
-    private static final String[] OO_MURMURS = {"It's wow...", "おぉ", "これはおおだろ", "おおじゃないが"};
+    private static final int OO_MURMUR_COUNT = 4;
 
     /**
      * 系譜を降りきった果ての言葉を、おおのツールチップの最後の行に置く。
@@ -67,9 +67,11 @@ public final class ItemPoemTooltip {
         }
         List<Component> tooltip = event.getToolTip();
         if (Screen.hasShiftDown()) {
-            String murmur = OO_MURMURS[(int) (Util.getMillis() / 5000L % OO_MURMURS.length)];
-            tooltip.add(Component.literal(murmur).withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
+            int murmur = (int) (Util.getMillis() / 5000L % OO_MURMUR_COUNT);
+            tooltip.add(Component.translatable("tooltip.tpsthings.oo.murmur." + murmur)
+                    .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
         }
-        tooltip.add(Component.literal("おお").withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.ITALIC));
+        tooltip.add(Component.translatable("tooltip.tpsthings.oo")
+                .withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.ITALIC));
     }
 }

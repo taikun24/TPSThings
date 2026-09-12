@@ -131,7 +131,7 @@ public abstract class BETpsGeneratorBase extends TileEntityMekanism implements I
     }
 
     /** 画面に出す一言。何をしているときに回るのかが伝わらないと理不尽に見える。 */
-    public abstract String getConditionText();
+    public abstract net.minecraft.network.chat.Component getConditionText();
 
     @Override
     public void addContainerTrackers(MekanismContainer container) {

@@ -10,7 +10,6 @@ import jp.main.taikun.tpsthings.blockentities.BETpsGenerator;
 import jp.main.taikun.tpsthings.gui.GuiTimeAccelerator;
 import jp.main.taikun.tpsthings.gui.GuiTimeFluxCollector;
 import jp.main.taikun.tpsthings.gui.GuiTpsGenerator;
-import jp.main.taikun.tpsthings.machines.BaseMachine;
 import mekanism.client.ClientRegistrationUtil;
 import mekanism.common.tile.base.TileEntityMekanism;
 import net.minecraft.client.Minecraft;
@@ -157,6 +156,19 @@ public class ClientRegister {
                 jp.main.taikun.tpsthings.gui.AbyssOverlay.invalidateChain());
     }
 
+    /**
+     * 反 HOPE シートの色。HOPE シートと同じ絵を借りているので、色で裏返す。
+     *
+     * <p>{@code item/generated} は layer0 に tintindex 0 を振るので、色を返すだけで掛かる。
+     */
+    private static final int ANTI_HOPE_TINT = 0x6E1743;
+
+    @SubscribeEvent
+    public static void registerItemColors(net.minecraftforge.client.event.RegisterColorHandlersEvent.Item event) {
+        event.register((stack, tintIndex) -> tintIndex == 0 ? ANTI_HOPE_TINT : 0xFFFFFF,
+                ModItems.ANTI_HOPE_SHEET.get());
+    }
+
     @SubscribeEvent
     public static void registerTooltipComponents(RegisterClientTooltipComponentFactoriesEvent event) {
         event.register(ItemPrism.ShaderTooltip.class, ClientShaderTooltip::new);
@@ -174,15 +186,5 @@ public class ClientRegister {
         event.register(Registries.MENU, menuTypeRegisterHelper -> ClientRegistrationUtil.registerScreen(ModContainerTypes.TIME_ACCELERATOR, GuiTimeAccelerator::new));
         event.register(Registries.MENU, menuTypeRegisterHelper -> ClientRegistrationUtil.registerScreen(ModContainerTypes.TPS_GENERATOR, GuiTpsGenerator<BETpsGenerator>::new));
         event.register(Registries.MENU, menuTypeRegisterHelper -> ClientRegistrationUtil.registerScreen(ModContainerTypes.LAG_GENERATOR, GuiTpsGenerator<BELagGenerator>::new));
-
-        // ヘルパーメソッドを介して登録を呼び出す
-        MachineRegistry.INSTANCE.forEachMachine(machine -> registerMachineScreenHelper(event, machine));
-    }
-
-    // 型キャプチャエラーを回避するためのジェネリックヘルパーメソッド
-    private static <BE extends TileEntityMekanism> void registerMachineScreenHelper(RegisterEvent event, BaseMachine<BE> machine) {
-        event.register(Registries.MENU, menuTypeRegisterHelper ->
-                ClientRegistrationUtil.registerScreen(machine.tileContainer, machine.getGuiSupplier())
-        );
     }
 }

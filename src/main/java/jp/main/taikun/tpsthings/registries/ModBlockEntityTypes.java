@@ -2,7 +2,6 @@ package jp.main.taikun.tpsthings.registries;
 
 import jp.main.taikun.tpsthings.Tpsthings;
 import jp.main.taikun.tpsthings.blockentities.*;
-import jp.main.taikun.tpsthings.machines.BaseMachine;
 import mekanism.common.registration.impl.TileEntityTypeDeferredRegister;
 import mekanism.common.registration.impl.TileEntityTypeRegistryObject;
 import mekanism.common.tile.base.TileEntityMekanism;
@@ -52,18 +51,7 @@ public class ModBlockEntityTypes {
             = SIMPLE_BLOCK_ENTITY_TYPES.register("annihilation_chamber", ()->BlockEntityType.Builder.of(BEAnnihilationChamber::new, ModBlocks.ANNIHILATION_CHAMBER.get()).build(null));
 
     public static void register(IEventBus eventBus) {
-        // ヘルパーメソッドを介して登録・代入を行う
-        MachineRegistry.INSTANCE.forEachMachine(ModBlockEntityTypes::registerBlockEntityHelper);
-
         BLOCK_ENTITY_TYPES.register(eventBus);
         SIMPLE_BLOCK_ENTITY_TYPES.register(eventBus);
-    }
-
-    // 型キャプチャエラーを回避するためのジェネリックヘルパーメソッド
-    private static <BE extends TileEntityMekanism> void registerBlockEntityHelper(BaseMachine<BE> machine) {
-        machine.blockEntityType = BLOCK_ENTITY_TYPES.builder(machine.machineBlock, machine.getMachineSupplier())
-                .clientTicker(TileEntityMekanism::tickClient)
-                .serverTicker(TileEntityMekanism::tickServer)
-                .build();
     }
 }

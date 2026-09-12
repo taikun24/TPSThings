@@ -278,7 +278,7 @@ public class BEAnnihilationChamber extends BlockEntity {
         server.sendParticles(ParticleTypes.END_ROD, x, y, z, 12, 0.1, 0.1, 0.1, 0.01);
         server.playSound(null, this.worldPosition, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.BLOCKS, 1.5F, 0.8F);
         // 誰の名前も付けずに
-        server.getServer().getPlayerList().broadcastSystemMessage(Component.literal("おお"), false);
+        server.getServer().getPlayerList().broadcastSystemMessage(Component.translatable("message.tpsthings.ritual.complete"), false);
 
         resetRitual();
     }

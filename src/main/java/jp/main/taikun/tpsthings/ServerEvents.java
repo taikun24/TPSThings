@@ -66,33 +66,57 @@ public class ServerEvents {
         if (event.getEntity().getMainHandItem().is(ModItems.OO.get()) && !event.getEntity().level().isClientSide()) {
             ItemOo.whenAttack(event.getEntity(), event.getTarget());
         }
-        if (event.getEntity().getMainHandItem().is(ModItems.FLUORESCENT_LIGHT.get())) {
+        // 殴れる相手は生き物とは限らない (ボート・額縁・トロッコ)。生き物でなければ
+        // 体力も効果も無いので、普通の殴打に任せる
+        if (event.getEntity().getMainHandItem().is(ModItems.FLUORESCENT_LIGHT.get())
+                && !event.getEntity().level().isClientSide()
+                && event.getTarget() instanceof LivingEntity target) {
             event.cancel();
-            float targetEntityHP = ((LivingEntity)event.getTarget()).getHealth();
-            targetEntityHP  *= 4f/5f;
-            event.getTarget().hurt(event.getEntity().damageSources().playerAttack(event.getEntity()), targetEntityHP);
-            ((LivingEntity) event.getTarget()).addEffect(new MobEffectInstance(MobEffects.DARKNESS, 12000, 1));
-            ((LivingEntity) event.getTarget()).addEffect(new MobEffectInstance(MobEffects.CONFUSION, 12000, 1));
+            float targetEntityHP = target.getHealth() * FLUORESCENT_HP_RATIO;
+            target.hurt(event.getEntity().damageSources().playerAttack(event.getEntity()), targetEntityHP);
+            target.addEffect(new MobEffectInstance(MobEffects.DARKNESS, FLUORESCENT_EFFECT_TICKS, 1));
+            target.addEffect(new MobEffectInstance(MobEffects.CONFUSION, FLUORESCENT_EFFECT_TICKS, 1));
             ItemStack stack = event.getEntity().getMainHandItem();
             stack.setDamageValue(stack.getDamageValue() + 1);
         }
     }
+
+    /** 蛍光灯が削る、今の体力の割合。 */
+    private static final float FLUORESCENT_HP_RATIO = 4f / 5f;
+    /** 目潰しの長さ (10 分)。 */
+    private static final int FLUORESCENT_EFFECT_TICKS = 12000;
+    /** まぐろ 1 本で並ぶ爆発の数。 */
+    private static final int TUNA_BLAST_COUNT = 10;
+    /** 爆発 1 発の威力 (バニラの TNT が 4)。 */
+    private static final float TUNA_BLAST_POWER = 10f;
+    /** 爆発の間隔 (ブロック)。 */
+    private static final double TUNA_BLAST_SPACING = 6.0;
+    /** 投げてから次を投げられるまで。 */
+    private static final int TUNA_COOLDOWN_TICKS = 100;
+
     @SubscribeEvent
     public static void whenRightClick(PlayerInteractEvent.RightClickItem event){
         if (!event.getSide().equals(LogicalSide.SERVER))return;
         if (event.getEntity().getMainHandItem().is(ModItems.TUNA.get())) {
-            Vec3 orig = event.getEntity().getEyePosition();
-            Vec3 headVec = event.getEntity().getViewVector(1);
-            headVec = headVec.normalize().scale(6);
-            for (int i = 0; i < 10; i++) {
+            Player player = event.getEntity();
+            ItemStack stack = player.getMainHandItem();
+            // 1 回投げたら無くなる。連打で一度に何本も消えないようクールダウンも置く
+            player.getCooldowns().addCooldown(ModItems.TUNA.get(), TUNA_COOLDOWN_TICKS);
+            if (!player.getAbilities().instabuild) {
+                stack.shrink(1);
+            }
+
+            Vec3 orig = player.getEyePosition();
+            Vec3 headVec = player.getViewVector(1).normalize().scale(TUNA_BLAST_SPACING);
+            Level level = player.level();
+            for (int i = 0; i < TUNA_BLAST_COUNT; i++) {
                 Vec3 pos = orig.add(headVec.scale(i + 1));
-                Level level = event.getEntity().level();
                 level.explode(
-                        event.getEntity(),
+                        player,
                         pos.x,
                         pos.y,
                         pos.z,
-                        10f,
+                        TUNA_BLAST_POWER,
                         Level.ExplosionInteraction.TNT
                 );
             }
@@ -115,16 +139,6 @@ public class ServerEvents {
         BlockEntity blockEntity = event.getLevel().getBlockEntity(event.getHitVec().getBlockPos());
         if (blockEntity instanceof BEAbsoluteLifeAnchor lifeAnchor && event.getSide() ==  LogicalSide.SERVER) {
             lifeAnchor.setAsPlayersAnchor((ServerPlayer) event.getEntity());
-        }
-    }
-    @SubscribeEvent
-    public static void whenFood(LivingEntityUseItemEvent.Finish event){
-        if (event.getEntity().getMainHandItem().is(ModItems.TEACUP.get())) {
-            Player player = (Player) event.getEntity();
-            FoodData data = player.getFoodData();
-            data.setFoodLevel(data.getFoodLevel() + 3);
-            data.setSaturation(data.getSaturationLevel() + 3);
-            player.addItem(new ItemStack(ModItems.TEACUP.get()));
         }
     }
     @SubscribeEvent
@@ -276,15 +290,18 @@ public class ServerEvents {
     }
     @SubscribeEvent
     public static void serverTickEvent(TickEvent.ServerTickEvent  event){
-        if (event.phase == TickEvent.Phase.END) {
-            TpsMeter.onServerTick();
-            TickProfiler.onServerTick();
-            ItemCatTeaser.tick(event.getServer());
-            // 見回りの中身は GuardTick に寄せた。イベントバスごと差し替えて
-            // tick のイベントを捨てる相手が居るので、サーバの tick に刺した関所からも
-            // 同じものを回す (同じ tick で二度は走らない)
-            GuardTick.run(event.getServer());
+        // ServerTickEvent は START と END の 2 回飛ぶ。END だけで回す
+        if (event.phase != TickEvent.Phase.END) {
+            return;
         }
+        TpsMeter.onServerTick();
+        TickProfiler.onServerTick();
+        ItemCatTeaser.tick(event.getServer());
+        // 見回りの中身は GuardTick に寄せた。イベントバスごと差し替えて
+        // tick のイベントを捨てる相手が居るので、サーバの tick に刺した関所からも
+        // 同じものを回す (同じ tick で二度は走らない)
+        GuardTick.run(event.getServer());
+
         event.getServer().getPlayerList().getPlayers().forEach(player -> {
             player.getArmorSlots().forEach(e -> {
                 if (e.is(ModItems.OO.get())){

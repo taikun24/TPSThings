@@ -69,7 +69,7 @@ public class ItemCatTeaser extends Item {
 
     @Override
     public @NotNull Component getDescription() {
-        return Component.literal("しゃかしゃか");
+        return Component.translatable("item.tpsthings.cat_teaser.description");
     }
 
     @Override
@@ -89,9 +89,9 @@ public class ItemCatTeaser extends Item {
                 SoundSource.PLAYERS, 0.7F, 1.0F + (player.getRandom().nextFloat() - 0.5F) * 0.3F);
         player.getCooldowns().addCooldown(this, COOLDOWN_TICKS);
 
-        player.sendSystemMessage(Component.literal(mobs.isEmpty()
-                        ? "だれも見ていない"
-                        : mobs.size() + " 匹が気になっている")
+        player.sendSystemMessage((mobs.isEmpty()
+                        ? Component.translatable("message.tpsthings.cat_teaser.none")
+                        : Component.translatable("message.tpsthings.cat_teaser.charmed", mobs.size()))
                 .withStyle(mobs.isEmpty() ? ChatFormatting.GRAY : ChatFormatting.LIGHT_PURPLE));
         return InteractionResultHolder.success(stack);
     }
