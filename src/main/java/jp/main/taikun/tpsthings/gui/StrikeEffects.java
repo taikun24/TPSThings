@@ -37,8 +37,8 @@ import java.util.Locale;
  *
  * <ul>
  *   <li>正規の道 (hurt → 倒れ終わって remove) で済んだ相手: サーバの粒だけ。いつもどおりの死</li>
- *   <li>HP の直書き (L6) や死亡処理の直呼び (L8) が要った相手: 体力の数字が剥がれ落ちる</li>
- *   <li>索引から直接外した相手 (L10): 輪郭が色収差の走査線に割れて上から抜け、周りの音が一瞬止む</li>
+ *   <li>HP の直書き (生値層) や死亡処理の直呼び (終焉層) が要った相手: 体力の数字が剥がれ落ちる</li>
+ *   <li>索引から直接外した相手 (索引層): 輪郭が色収差の走査線に割れて上から抜け、周りの音が一瞬止む</li>
  *   <li>どこかの層で最後まで拒まれた相手: 層の色ではなく灰白。HP が削れなければ「×」が宙に残り、
  *       索引から外せなければ輪郭は割れかけて元に戻る</li>
  * </ul>
@@ -117,7 +117,7 @@ public final class StrikeEffects {
                 || packet.removal() == PiercingStrike.FAILED;
         int color = refused ? REFUSED : layerColor(deepest(packet.health(), packet.death(), packet.removal()));
 
-        // 正規の hurt で HP が 0 にならなかった相手 (L6 以降 / 通らなかった) だけ、数字を剥がす
+        // 正規の hurt で HP が 0 にならなかった相手 (生値層以降 / 通らなかった) だけ、数字を剥がす
         if (packet.health() > 5 || packet.death() > 5) {
             double top = packet.y() + packet.height();
             if (packet.health() == PiercingStrike.FAILED) {

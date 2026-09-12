@@ -24,13 +24,13 @@ import java.util.Set;
  * getHealth の嘘そのものは {@link StateProbe} が捕まえる。こちらはその一段上、
  * 「誰がその嘘をつく道具を持ち込んだか」を見る。
  *
- * <p>調べる痕跡は、想定敵 (NoSugar / Omni-Mobs / Forbidden Things) に共通する 3 つ:
+ * <p>調べる痕跡は、この手の Mod に共通する 3 つ:
  * <ol>
  *   <li>自己アタッチ許可フラグ ({@code HotSpotVirtualMachine.ALLOW_ATTACH_SELF}) が、
  *       こちらの操作でも JVM 引数でもなく立っている</li>
  *   <li>素性の知れない LaunchPlugin が ModLauncher に差し込まれている</li>
  *   <li>{@code jdk.internal.reflect.Reflection} のフィルタで、こちらのクラスが
- *       reflection 不可にされている (Forbidden Things の denyReflection 型)</li>
+ *       reflection 不可にされている (reflection 封じ型)</li>
  * </ol>
  *
  * <p>自分自身の agent を敵と取り違えないことが最優先。自己アタッチ許可は
@@ -393,7 +393,7 @@ public final class AttachGuard {
     /**
      * ModLauncher に差し込まれた LaunchPlugin を調べる。
      *
-     * Forbidden Things は {@code Launcher.launchPlugins} の Map に自作 LaunchPlugin を
+     * この手の Mod は {@code Launcher.launchPlugins} の Map に自作 LaunchPlugin を
      * 直接 put して、全クラスの変換フェーズに割り込む。正規の LaunchPlugin は
      * Forge / ModLauncher / Mixin の基盤パッケージから来るので、それ以外の素性の
      * クラスがここに居れば、coremod ないし agent 系の Mod を疑ってよい。
@@ -441,7 +441,7 @@ public final class AttachGuard {
     /**
      * {@code jdk.internal.reflect.Reflection} のフィルタ汚染を見る (best-effort)。
      *
-     * Forbidden Things の denyReflection は、このフィルタに自 Mod のクラスを載せて
+     * reflection 封じ型の Mod は、このフィルタに自 Mod のクラスを載せて
      * 他 Mod からの reflection を弾く。裏を返せば、<b>こちらのクラスがフィルタに
      * 載っていたら</b>、こちらの検査・修復を封じにきている Mod が居る。
      *
@@ -461,7 +461,7 @@ public final class AttachGuard {
                         && GuardContext.isOwnClass(clazz.getName())) {
                     findings.add("自分のクラス " + clazz.getName() + " に reflection フィルタが"
                             + "掛けられています。こちらの検査・修復を封じようとする Mod "
-                            + "(Forbidden Things 型) の痕跡です");
+                            + "の痕跡です");
                 }
             }
         } catch (Throwable t) {

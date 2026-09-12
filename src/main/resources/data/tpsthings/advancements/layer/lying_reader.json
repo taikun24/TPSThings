@@ -2,7 +2,7 @@
   "parent": "tpsthings:layer/raw_health",
   "display": {
     "icon": { "item": "tpsthings:lying_reader" },
-    "title": { "translate": "advancements.tpsthings.layer.title", "with": [ "7", { "translate": "item.tpsthings.lying_reader" } ] },
+    "title": { "translate": "advancements.tpsthings.layer.title", "with": [ { "translate": "tpsthings.layer.7" }, { "translate": "item.tpsthings.lying_reader" } ] },
     "description": { "translate": "item.tpsthings.lying_reader.poem" },
     "frame": "task",
     "show_toast": true,

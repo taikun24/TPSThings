@@ -2,7 +2,7 @@
   "parent": "tpsthings:layer/root",
   "display": {
     "icon": { "item": "tpsthings:anti_hope_sheet" },
-    "title": { "translate": "advancements.tpsthings.layer.title", "with": [ "1", { "translate": "item.tpsthings.anti_hope_sheet" } ] },
+    "title": { "translate": "advancements.tpsthings.layer.title", "with": [ { "translate": "tpsthings.layer.1" }, { "translate": "item.tpsthings.anti_hope_sheet" } ] },
     "description": { "translate": "item.tpsthings.anti_hope_sheet.poem" },
     "frame": "task",
     "show_toast": true,

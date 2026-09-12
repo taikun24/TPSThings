@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * {@code Entity.remove(reason)} は中身が {@code this.setRemoved(reason)} を呼ぶだけで、
  * 状態フリップ ({@code removalReason} 設定) も索引削除 ({@code levelCallback.onRemove})
  * も全部 {@code setRemoved} がやる。つまり {@code setRemoved} を直接呼ばれると
- * {@code remove} の @Inject は素通りする (Omni-Mobs 等がこれをやる)。真の関所である
+ * {@code remove} の @Inject は素通りする (実際にそう呼んでくる Mod が居る)。真の関所である
  * {@code setRemoved} の入口で押さえれば、{@code remove}・{@code discard}・直呼びを 1 点で捕まえ、
  * かつ removalReason が立つ<b>前</b>なので検知 ({@code onRemoveAttempt}) も正しく走る。
  */

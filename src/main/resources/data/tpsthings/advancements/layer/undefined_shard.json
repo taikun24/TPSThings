@@ -2,7 +2,7 @@
   "parent": "tpsthings:layer/anti_hope_sheet",
   "display": {
     "icon": { "item": "tpsthings:undefined_shard" },
-    "title": { "translate": "advancements.tpsthings.layer.title", "with": [ "2", { "translate": "item.tpsthings.undefined_shard" } ] },
+    "title": { "translate": "advancements.tpsthings.layer.title", "with": [ { "translate": "tpsthings.layer.2" }, { "translate": "item.tpsthings.undefined_shard" } ] },
     "description": { "translate": "item.tpsthings.undefined_shard.poem" },
     "frame": "task",
     "show_toast": true,

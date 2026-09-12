@@ -36,7 +36,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * 貫通攻撃。L4 から L10 までを浅い順に通し、<b>結果を状態で確かめてから</b>一段下へ降りる。
+ * 貫通攻撃。挙動層から索引層までを浅い順に通し、<b>結果を状態で確かめてから</b>一段下へ降りる。
  *
  * <p>{@link PresenceGuard} の裏返し。守る側が「経路ではなく状態を守る」なら、
  * 殺す側も「経路ではなく状態を確かめる」。{@code hurt} が通ったかどうかは
@@ -48,7 +48,7 @@ import java.util.UUID;
  * {@code remove} の正規の道だけで終わり、ドロップも経験値も普段どおり出る。
  * 深い層 (HP の箱への直書き・索引の直接操作) は、正規の道を拒否した相手にだけ使う。
  *
- * <p>判定に {@code getHealth()} / {@code isAlive()} は使わない (L7)。読み出しを
+ * <p>判定に {@code getHealth()} / {@code isAlive()} は使わない (虚偽層)。読み出しを
  * 偽装する相手には、偽装された答えを<b>読まない</b>ことで貫通する。
  *
  * <p>特定の Mod を名指しする分岐は持たない。
@@ -81,7 +81,7 @@ public final class PiercingStrike {
     private static final Map<UUID, Pursuit> PURSUITS = new HashMap<>();
 
     /**
-     * プレイヤーにも L9/L10 (除去・索引) まで打つか。既定は死 (L8) まで。
+     * プレイヤーにも抹消層・索引層 (除去・索引) まで打つか。既定は終焉層 (死) まで。
      *
      * <p>世界から剥がされたプレイヤーは通信路だけが残る。死亡処理が通っていれば
      * リスポーンで正規に作り直されるが、死まで拒否した相手は再接続するまで動けなくなる。
@@ -164,7 +164,7 @@ public final class PiercingStrike {
         // 剥がれ落ちる数字として見せる、打つ前の体力
         float before = raw(target, healthKey);
 
-        // ---- L0〜L3: 無敵の類を外す。ここは拒否されても次の層で結果が出るので確かめない
+        // ---- 表層〜不可侵層: 無敵の類を外す。ここは拒否されても次の層で結果が出るので確かめない
         attempt(() -> {
             target.setInvulnerable(false);
             target.invulnerableTime = 0;
@@ -174,12 +174,12 @@ public final class PiercingStrike {
             }
         });
 
-        // ---- L4/L5: 正規の道。無敵貫通のダメージ種で最大値
+        // ---- 挙動層・合議層: 正規の道。無敵貫通のダメージ種で最大値
         attempt(() -> target.hurt(level.damageSources().genericKill(), Float.MAX_VALUE));
         int health = raw(target, healthKey) <= 0.0F ? 5 : 0;
         int death = dead(target) ? 5 : 0;
 
-        // ---- L6: HP の入れ物へ。入口 (set) → 箱 (DataItem) の順
+        // ---- 生値層: HP の入れ物へ。入口 (set) → 箱 (DataItem) の順
         if (health == 0) {
             attempt(() -> target.getEntityData().set(healthKey, 0.0F, true));
             if (raw(target, healthKey) > 0.0F) {
@@ -188,7 +188,7 @@ public final class PiercingStrike {
             health = raw(target, healthKey) <= 0.0F ? 6 : FAILED;
         }
 
-        // ---- L8: 死亡処理を直接。HP を見て死を判断しない相手にも死を通す
+        // ---- 終焉層: 死亡処理を直接。HP を見て死を判断しない相手にも死を通す
         if (death == 0) {
             DamageSource source = attacker != null
                     ? level.damageSources().playerAttack(attacker)
@@ -199,7 +199,7 @@ public final class PiercingStrike {
 
         // ---- 正規の道で死んだ相手は、倒れ終わるまで待つ。
         // ここで除去すると倒れる姿も煙も出ずに消え、深い層で消した相手と見分けがつかなくなる。
-        // 報告の「消」は、倒れ終わりの remove (L9) として出す。消えなければ追撃が L9 から続きを打つ
+        // 報告の「消」は、倒れ終わりの remove (抹消層) として出す。消えなければ追撃が抹消層から続きを打つ
         if (grace != null && health == 5 && death == 5 && !(target instanceof Player)) {
             grace.graceTicks = DEATH_GRACE_TICKS;
             return announce(level, target, before, new Result(health, death, 9));
@@ -210,7 +210,7 @@ public final class PiercingStrike {
             return announce(level, target, before, new Result(health, death, 0));
         }
 
-        // ---- L9: 除去。remove の上書きを飛ばすために setRemoved も直接叩く
+        // ---- 抹消層: 除去。remove の上書きを飛ばすために setRemoved も直接叩く
         int removal = 0;
         attempt(() -> target.remove(Entity.RemovalReason.KILLED));
         if (!target.isRemoved()) {
@@ -224,7 +224,7 @@ public final class PiercingStrike {
             removal = 9;
         }
 
-        // ---- L10: 索引。除去の印が立っても、索引に残っていれば世界はまだ数えている
+        // ---- 索引層: 除去の印が立っても、索引に残っていれば世界はまだ数えている
         if (removal == 0) {
             attempt(() -> erase(level, target));
             removal = present(level, target) ? FAILED : 10;

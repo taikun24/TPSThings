@@ -17,7 +17,7 @@ import java.util.function.Supplier;
  * @param quiet    音を消す割合 (0〜1)。ノイズの色 (層の深さ) にも使う
  * @param dim      画面を暗くする強さ (0〜1)
  * @param noise    世界を崩す後処理の強さ (0〜1)
- * @param flash    L10 の貫通層シェーダーを全画面に被せる長さ (tick)
+ * @param flash    貫通層シェーダーを索引層の深さで被せる長さ (tick)
  * @param impact   インパクトフレームを打つ長さ (tick)。1 tick ごとに白黒が入れ替わる
  * @param whiteout 画面を白く飛ばしてから戻す長さ (tick)
  * @param x        深層の源 (儀式の炉) の位置。ここから鳴る音は静けさに消されない

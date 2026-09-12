@@ -39,7 +39,7 @@ import java.io.IOException;
  *   <li>インパクトフレーム: 数 tick だけ白黒 2 階調と集中線に叩き落とし、画面を揺らす</li>
  *   <li>白く飛ぶ: HUD ごと</li>
  *   <li>音が減る: これから鳴る音を割合で消す。UI の音 (MASTER) と、深層の源 (儀式の炉) のそばで鳴る音は残す</li>
- *   <li>フラッシュ: L10 の貫通層シェーダー (tooltip_layer) を全画面に被せる</li>
+ *   <li>フラッシュ: 貫通層シェーダー (tooltip_layer) を索引層の深さで全画面に被せる</li>
  * </ul>
  *
  * <p>描くのは {@code MixinGameRendererAbyss} から。Forge の HUD のイベントは F1 で HUD を隠すと来ないので使わない。

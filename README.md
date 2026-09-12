@@ -20,16 +20,19 @@ TPS (Ticks Per Second) を題材にした時間系の機械・道具と、**即�
 
 | 層 | 中身 | 関所 |
 |---|---|---|
-| L0 | 交戦の不成立 | |
-| L1 | ダメージ減算 | |
-| L2 | 無敵時間 | |
-| L3 | 無敵判定 | |
-| L4/L5 | `hurt()` / Forge イベント | `LivingEntity#hurt` HEAD |
-| L6 | HP の直接上書き | `SynchedEntityData#set(DATA_HEALTH_ID)` HEAD |
-| L7 | `getHealth()` の偽装 | 同 `get` HEAD (封印中のみ) |
-| L8 | 死亡処理 | `LivingEntity#die` / `ServerPlayer#die` HEAD |
-| L9 | 除去処理 | `tickDeath` / `Entity#remove` HEAD |
-| L10 | ワールド登録層 | `EntityLookup#remove` HEAD + 状態側の巡回 |
+| 表層 | 交戦の不成立 | |
+| 減算層 | ダメージ減算 | |
+| 刹那層 | 無敵時間 | |
+| 不可侵層 | 無敵判定 | |
+| 挙動層・合議層 | `hurt()` / Forge イベント | `LivingEntity#hurt` HEAD |
+| 生値層 | HP の直接上書き | `SynchedEntityData#set(DATA_HEALTH_ID)` HEAD |
+| 虚偽層 | `getHealth()` の偽装 | 同 `get` HEAD (封印中のみ) |
+| 終焉層 | 死亡処理 | `LivingEntity#die` / `ServerPlayer#die` HEAD |
+| 抹消層 | 除去処理 | `tickDeath` / `Entity#remove` HEAD |
+| 索引層 | ワールド登録層 | `EntityLookup#remove` HEAD + 状態側の巡回 |
+
+上から下へ 1 段ずつ降りる。中間素材もこの順に並んでいて、最後は対消滅炉の儀式で
+減算層から索引層までを 1 つずつ投げ込むと「おお」になる。
 
 「不死」も「即死」も結果でしかなく、本質は**貫通した層の深さ**という立場を取っている。
 特定の Mod を名指しした対策は入れていない — どれも一般の経路に対する関所として書いてある。

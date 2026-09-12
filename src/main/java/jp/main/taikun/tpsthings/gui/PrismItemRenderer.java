@@ -24,7 +24,7 @@ import org.joml.Vector3f;
 /**
  * カスタムアイテム描画。
  * - プリズム: 回転する八面体のみ
- * - おお: 元のアイテムテクスチャ (oo_base モデル) の上に、L0〜L10 の 11 枚の殻を入れ子に重ねる。
+ * - おお: 元のアイテムテクスチャ (oo_base モデル) の上に、表層〜索引層の 11 枚の殻を入れ子に重ねる。
  *   インベントリでは殻を大きくしてスロットからはみ出させ、テクスチャより手前に半透明で描く
  * RenderType.lightning() は POSITION_COLOR + 半透明加算なので、テクスチャ無しの
  * 発光ポリゴンにちょうどよい。
@@ -36,7 +36,7 @@ public class PrismItemRenderer extends BlockEntityWithoutLevelRenderer {
     private static final float RADIUS = 0.28F;
     private static final float HEIGHT = 0.42F;
 
-    /** おおの殻: L0 (外側) から L10 (内側) までの 11 枚。スロットの端が 0.5 */
+    /** おおの殻: 表層 (外側) から索引層 (内側) までの 11 枚。スロットの端が 0.5 */
     private static final int SHELL_COUNT = 11;
     private static final float SHELL_OUTER = 0.46F;
     private static final float SHELL_INNER = 0.06F;
@@ -153,7 +153,7 @@ public class PrismItemRenderer extends BlockEntityWithoutLevelRenderer {
     }
 
     /**
-     * おおの殻。外側 (L0) のシアンから内側 (L10) の赤紫へ、深い殻ほど速く回り、1 枚ごとに向きが入れ替わる。
+     * おおの殻。外側 (表層) のシアンから内側 (索引層) の赤紫へ、深い殻ほど速く回り、1 枚ごとに向きが入れ替わる。
      * 最奥には静かな白の核を置く。
      *
      * <p>インベントリでは半透明を奥から順に重ねる: 全ての殻の奥の面を外から内へ → 核 → 手前の面を内から外へ。

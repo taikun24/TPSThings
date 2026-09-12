@@ -51,7 +51,7 @@ public final class GuardSettings {
                 "HP を減らした呼び出し元を記録する (/tpsthings damage log list で見る)"));
         entries.add(toggle("motion", "位置・速度の絞り所", DamageGuard.isMotionGuard(), ON,
                 "強制移動を watch / block できるようにする"));
-        entries.add(toggle("strikeplayers", "貫通攻撃: プレイヤーも L10", PiercingStrike.isPlayersFullDepth(), WARN,
+        entries.add(toggle("strikeplayers", "貫通攻撃: プレイヤーも索引層", PiercingStrike.isPlayersFullDepth(), WARN,
                 "OO の即死攻撃をプレイヤーにも除去・索引の層まで打つ (死を拒否した相手は再接続まで動けなくなる)"));
         entries.add(new Entry("reset", "自動措置を全部取り消す", "実行", WARN,
                 "自動で適用した block / disable を取り消す (手動で入れたものは残る)"));
@@ -140,7 +140,7 @@ public final class GuardSettings {
             case "strikeplayers" -> {
                 boolean next = !PiercingStrike.isPlayersFullDepth();
                 PiercingStrike.setPlayersFullDepth(next);
-                result = "貫通攻撃をプレイヤーにも L10 まで: " + onOff(next);
+                result = "貫通攻撃をプレイヤーにも索引層まで: " + onOff(next);
             }
             case "reset" -> {
                 // コマンドの reset と同じく保存はしない

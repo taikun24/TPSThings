@@ -45,7 +45,9 @@ public class TpsthingsJeiPlugin implements IModPlugin {
         ritual.add(Component.translatable("jei.tpsthings.ritual.info"));
         List<Supplier<Item>> steps = BEAnnihilationChamber.ritual();
         for (int i = 0; i < steps.size(); i++) {
-            ritual.add(Component.translatable("jei.tpsthings.ritual.step", i + 1, steps.get(i).get().getDescription()));
+            ritual.add(Component.translatable("jei.tpsthings.ritual.step",
+                    jp.main.taikun.tpsthings.items.ItemLayer.layerName(i + 1),
+                    steps.get(i).get().getDescription()));
         }
         registration.addItemStackInfo(new ItemStack(ModItems.OO.get()), ritual.toArray(Component[]::new));
     }

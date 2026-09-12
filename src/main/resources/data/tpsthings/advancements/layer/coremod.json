@@ -2,7 +2,7 @@
   "parent": "tpsthings:layer/removal_veto",
   "display": {
     "icon": { "item": "tpsthings:coremod" },
-    "title": { "translate": "advancements.tpsthings.layer.title", "with": [ "9", { "translate": "item.tpsthings.coremod" } ] },
+    "title": { "translate": "advancements.tpsthings.layer.title", "with": [ { "translate": "tpsthings.layer.9" }, { "translate": "item.tpsthings.coremod" } ] },
     "description": { "translate": "item.tpsthings.coremod.poem" },
     "frame": "task",
     "show_toast": true,

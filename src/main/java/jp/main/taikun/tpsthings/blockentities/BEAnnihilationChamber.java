@@ -33,7 +33,7 @@ import java.util.function.Supplier;
  * 出力は<b>重み付きの抽選</b>で、外れると何も出ない — 未定義動作を素材として扱う都合上、
  * 結果が定まらないこと自体が仕様。
  *
- * <p>おおの最終工程 (儀式) もここで行う。L1 から L10 の素材を層の順に 1 つずつ投げ込むと、
+ * <p>おおの最終工程 (儀式) もここで行う。減算層から索引層までの素材を層の順に 1 つずつ投げ込むと、
  * 1 段ごとに周りの世界が暗く静かになり、Java Agent で全てが途切れたあと、おおが浮かび上がる。
  */
 public class BEAnnihilationChamber extends BlockEntity {
@@ -92,18 +92,18 @@ public class BEAnnihilationChamber extends BlockEntity {
 
     // ---- 儀式 ------------------------------------------------------------------
 
-    /** 儀式で投げ込む順番。L1 から L10 まで、層を 1 枚ずつ降りる。JEI の説明もここを読む。 */
+    /** 儀式で投げ込む順番。減算層から索引層まで、層を 1 枚ずつ降りる。JEI の説明もここを読む。 */
     private static final List<Supplier<Item>> RITUAL = List.of(
-            ModItems.ANTI_HOPE_SHEET::get,    // L1
-            ModItems.UNDEFINED_SHARD::get,    // L2
-            ModItems.INVULNERABLE_FLAG::get,  // L3
-            ModItems.UNDEFINED_BEHAVIOR::get, // L4
-            ModItems.CANCELLED_EVENT::get,    // L5
-            ModItems.RAW_HEALTH::get,         // L6
-            ModItems.MIXIN::get,              // L7
-            ModItems.DEATH_HOOK::get,         // L8
-            ModItems.REMOVAL_VETO::get,       // L9
-            ModItems.JAVA_AGENT::get          // L10
+            ModItems.ANTI_HOPE_SHEET::get,    // 減算層
+            ModItems.UNDEFINED_SHARD::get,    // 刹那層
+            ModItems.INVULNERABLE_FLAG::get,  // 不可侵層
+            ModItems.UNDEFINED_BEHAVIOR::get, // 挙動層
+            ModItems.CANCELLED_EVENT::get,    // 合議層
+            ModItems.RAW_HEALTH::get,         // 生値層
+            ModItems.MIXIN::get,              // 虚偽層
+            ModItems.DEATH_HOOK::get,         // 終焉層
+            ModItems.REMOVAL_VETO::get,       // 抹消層
+            ModItems.JAVA_AGENT::get          // 索引層
     );
 
     public static List<Supplier<Item>> ritual() {
@@ -112,7 +112,7 @@ public class BEAnnihilationChamber extends BlockEntity {
 
     /** これだけ何も投げ込まれなければ、儀式は途切れる (1 分) */
     private static final int RITUAL_TIMEOUT = 1200;
-    /** Java Agent が入ってから、おおが浮かび上がるまで。L10 のフラッシュと、その後の完全な無音 */
+    /** Java Agent が入ってから、おおが浮かび上がるまで。索引層のフラッシュと、その後の完全な無音 */
     private static final int FINALE_TICKS = 60;
     private static final int FLASH_TICKS = 20;
     /** 暗さと静けさを届ける範囲 (ブロック) */
@@ -242,7 +242,7 @@ public class BEAnnihilationChamber extends BlockEntity {
     }
 
     /**
-     * Java Agent が入った瞬間、周りの画面を L10 で塗り、炉から鳴る音の他は全部止める。
+     * Java Agent が入った瞬間、周りの画面を索引層で塗り、炉から鳴る音の他は全部止める。
      * 無音が明けたら、光と音を一度に戻して、おおを静かに浮かび上がらせる。
      */
     private void tickFinale(ServerLevel server) {
@@ -251,7 +251,7 @@ public class BEAnnihilationChamber extends BlockEntity {
         double z = this.worldPosition.getZ() + 0.5;
 
         if (this.finale == 0) {
-            // 世界ごと崩しながら L10 で塗り、インパクトフレームを長く叩き込む
+            // 世界ごと崩しながら索引層で塗り、インパクトフレームを長く叩き込む
             sendAbyss(server, new PacketAbyss(FLASH_TICKS, 1.0F, 0.75F, 1.0F, FLASH_TICKS, 10, 0));
             server.sendParticles(ParticleTypes.REVERSE_PORTAL, x, y, z, 200, 0.6, 0.6, 0.6, 0.4);
             server.playSound(null, this.worldPosition, SoundEvents.BEACON_DEACTIVATE, SoundSource.BLOCKS, 1.5F, 0.5F);

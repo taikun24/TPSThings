@@ -71,7 +71,17 @@ public abstract class ModLangs extends LanguageProvider {
             add(ModItems.DEATH_HOOK.get(), "握り潰された死");
             add(ModItems.REMOVAL_VETO.get(), "除去の拒否権");
             add(ModItems.ERASED_INDEX.get(), "消された索引");
-            add("tooltip.tpsthings.layer", "貫通層 L%s");
+            // 層の呼び名。番号はレシピの順序のために内部に残るだけで、表には出さない
+            add("tpsthings.layer.1", "減算層");
+            add("tpsthings.layer.2", "刹那層");
+            add("tpsthings.layer.3", "不可侵層");
+            add("tpsthings.layer.4", "挙動層");
+            add("tpsthings.layer.5", "合議層");
+            add("tpsthings.layer.6", "生値層");
+            add("tpsthings.layer.7", "虚偽層");
+            add("tpsthings.layer.8", "終焉層");
+            add("tpsthings.layer.9", "抹消層");
+            add("tpsthings.layer.10", "索引層");
             add("jei.tpsthings.annihilation", "対消滅炉");
             add("jei.tpsthings.annihilation.nothing", "何も出ない");
             add("jei.tpsthings.annihilation.info",
@@ -80,10 +90,10 @@ public abstract class ModLangs extends LanguageProvider {
                     "おおは作業台では作れません。対消滅炉の上に、次の素材を上から順に 1 つずつ投げ込みます。"
                             + "始まりの反HOPEシートは、他に何も無い上面に 1 枚だけ置いてください。"
                             + "先の層の素材を混ぜると失敗して「おおじゃないが」が残り、1 分間なにも投げ込まないと儀式は途切れます。");
-            add("jei.tpsthings.ritual.step", "L%s %s");
+            add("jei.tpsthings.ritual.step", "%s %s");
 
-            // 進捗ツリー「貫通層」。各段の題は層番号 + アイテム名、説明はそのアイテムのポエムを直接引く
-            add("advancements.tpsthings.layer.title", "L%s %s");
+            // 進捗ツリー「貫通層」。各段の題は層の名前 + アイテム名、説明はそのアイテムのポエムを直接引く
+            add("advancements.tpsthings.layer.title", "%s %s");
             add("advancements.tpsthings.layer.root.title", "貫通層");
             add("advancements.tpsthings.layer.root.description", "希望の表面から\n世界の索引の底まで");
             add("advancements.tpsthings.layer.oo.description", "全ての層を降りきって\n出てきた言葉は それだけ");

@@ -19,7 +19,7 @@ import java.util.Optional;
 /**
  * おお への系譜に並ぶ中間素材。
  *
- * <p>それぞれが貫通層 (L0〜L10) を 1 つ受け持ち、ツールチップにはその層の深さに応じた
+ * <p>それぞれが貫通層 (表層〜索引層) を 1 つ受け持ち、ツールチップにはその層の深さに応じた
  * シェーダー (tpsthings:tooltip_layer) を被せる。深い層ほど表層の秩序が崩れて見える。
  */
 public class ItemLayer extends Item {
@@ -37,13 +37,23 @@ public class ItemLayer extends Item {
         return layer;
     }
 
+    /**
+     * 層の呼び名。
+     *
+     * <p>番号はレシピの順序と崩れ具合の計算に要るので内部には残すが、<b>表には名前しか出さない</b>。
+     * 番号で呼ぶと層が単なる目盛りに見えて、降りていく感じが出ない。
+     */
+    public static Component layerName(int layer) {
+        return Component.translatable("tpsthings.layer." + layer);
+    }
+
     @Override
     public boolean isFoil(@NotNull ItemStack stack) {
         return foil || super.isFoil(stack);
     }
 
     /**
-     * 名前が崩れ始める層の手前。L6 (HP の直書き) から先は、人間の言葉を保てなくなっていく。
+     * 名前が崩れ始める層の手前。生値層 (HP の直書き) から先は、人間の言葉を保てなくなっていく。
      */
     private static final int CORRUPTION_START = 5;
 
@@ -61,7 +71,7 @@ public class ItemLayer extends Item {
             return super.getName(stack);
         }
         String text = language.getOrDefault(key);
-        // L6 で 1 割弱、L10 で 4 割。深いほど速く入れ替わる
+        // 生値層で 1 割弱、索引層で 4 割。深いほど速く入れ替わる
         float ratio = (layer - CORRUPTION_START) * 0.08F;
         long frame = Util.getMillis() / (400L - layer * 30L);
         MutableComponent name = Component.empty();
@@ -86,8 +96,7 @@ public class ItemLayer extends Item {
     public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level,
                                 @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
         super.appendHoverText(stack, level, tooltip, flag);
-        tooltip.add(Component.translatable("tooltip.tpsthings.layer", layer)
-                .withStyle(ChatFormatting.DARK_GRAY));
+        tooltip.add(layerName(layer).copy().withStyle(ChatFormatting.DARK_GRAY));
     }
 
     @Override

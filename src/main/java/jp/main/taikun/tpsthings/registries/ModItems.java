@@ -33,24 +33,24 @@ public class ModItems {
      public static final RegistryObject<Item> ACCELERATION_WAND = ITEMS.register("acceleration_wand", ()->new Item(new  Item.Properties()));
      public static final RegistryObject<Item> PRISM = ITEMS.register("prism", ItemPrism::new);
      /*
-      * おお への系譜。貫通層 (penetration-layer-model) を L0 から L10 まで 1 段ずつ降りる。
+      * おお への系譜。貫通層 (penetration-layer-model) を表層から索引層まで 1 段ずつ降りる。
       * 下から順に人間の言葉を失っていき、完成品だけが感嘆に戻る。
       *
-      *  L1  反HOPEシート       加圧反応室   HOPEシート + NOPE
-      *  L2  未定義の欠片       対消滅炉     HOPE + 反HOPE (1/5)。lang もモデルも意図的に登録しない
-      *  L2  凍結した1tick      化学注入室   欠片 + タイムフラックス       … 無敵時間
-      *  L3  無敵フラグ         浄化室       凍結した1tick + HOPE酸素     … 無敵判定
-      *  L4  未定義動作         対消滅炉     欠片×2 + 無敵フラグ×2 + 結晶
-      *  L5  キャンセル済みイベント 作業台   未定義動作 + 反HOPE×4 + おおじゃないが×4
-      *  L6  剥き出しの体力値   加圧反応室   キャンセル済みイベント + NOPE + HOPE水素
-      *  L7  嘘つきの読み出し   圧縮機       剥き出しの体力値 + 気化NOPE
-      *  L7  Mixin              作業台       体力値 + 読み出し + 未定義動作 + プリズム
-      *  L8  握り潰された死     結合機       Mixin + キャンセル済みイベント×2
-      *  L9  除去の拒否権       対消滅炉     握り潰された死 + 凍結した1tick×4
-      *  L9  CoreMod            作業台
-      *  L10 消された索引       精密製材機   除去の拒否権 → 索引 (+欠片 25%)
-      *  L10 Java Agent         作業台
-      *  --  おお               対消滅炉 (儀式)  L1〜L10 を 1 つずつ層の順に投げ込む (BEAnnihilationChamber.RITUAL)
+      *  減算層    反HOPEシート           加圧反応室   HOPEシート + NOPE
+      *  刹那層    未定義の欠片           対消滅炉     HOPE + 反HOPE (1/5)。lang もモデルも意図的に登録しない
+      *  刹那層    凍結した1tick          化学注入室   欠片 + タイムフラックス          … 無敵時間
+      *  不可侵層  無敵フラグ             浄化室       凍結した1tick + HOPE酸素        … 無敵判定
+      *  挙動層    未定義動作             対消滅炉     欠片×2 + 無敵フラグ×2 + 結晶
+      *  合議層    キャンセル済みイベント 作業台       未定義動作 + 反HOPE×4 + おおじゃないが×4
+      *  生値層    剥き出しの体力値       加圧反応室   キャンセル済みイベント + NOPE + HOPE水素
+      *  虚偽層    嘘つきの読み出し       圧縮機       剥き出しの体力値 + 気化NOPE
+      *  虚偽層    Mixin                  作業台       体力値 + 読み出し + 未定義動作 + プリズム
+      *  終焉層    握り潰された死         結合機       Mixin + キャンセル済みイベント×2
+      *  抹消層    除去の拒否権           対消滅炉     握り潰された死 + 凍結した1tick×4
+      *  抹消層    CoreMod                作業台
+      *  索引層    消された索引           精密製材機   除去の拒否権 → 索引 (+欠片 25%)
+      *  索引層    Java Agent             作業台
+      *  --        おお                   対消滅炉 (儀式)  減算層から索引層までを層の順に 1 つずつ投げ込む (BEAnnihilationChamber.RITUAL)
       */
      public static final RegistryObject<Item> MIXIN = ITEMS.register("mixin", ()->new ItemLayer(7, false, new Item.Properties().rarity(Rarity.EPIC)));
      public static final RegistryObject<Item> UNDEFINED_SHARD = ITEMS.register("undefined_shard", ()->new ItemLayer(2, false, new Item.Properties().rarity(Rarity.EPIC)));

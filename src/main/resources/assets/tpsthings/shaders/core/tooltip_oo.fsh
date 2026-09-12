@@ -1,5 +1,5 @@
 // おお専用のツールチップシェーダー (ShaderToy互換 / Image shader)
-// 上から L0 → L10 の地層を 1 枚ずつ降り、深いほど表層の秩序が崩れる (崩れ方は tooltip_layer と同じ文法)。
+// 上から表層 → 索引層の地層を 1 枚ずつ降り、深いほど表層の秩序が崩れる (崩れ方は tooltip_layer と同じ文法)。
 // 最下段 (最後の 1 行「おお」) だけはノイズが消え、静かな白に戻る。
 // 降りてくる走査の光が底に着くたびに、白が一瞬だけ強く灯る。
 
@@ -30,7 +30,7 @@ vec3 layerTint(float depth) {
     return mix(vec3(0.10, 0.80, 0.90), vec3(0.90, 0.08, 0.40), depth);
 }
 
-// 地層 1 枚ぶんの崩れ方。depth は 0 (L0) 〜 1 (L10)
+// 地層 1 枚ぶんの崩れ方。depth は 0 (表層) 〜 1 (索引層)
 vec3 stratum(vec2 fragCoord, float depth) {
     float tick = floor(iTime * mix(1.5, 16.0, depth));
     vec3 tint = layerTint(depth);
@@ -59,7 +59,7 @@ vec3 stratum(vec2 fragCoord, float depth) {
     vec2 block = floor(p / vec2(14.0, 4.0));
     col += tint * step(1.0 - depth * depth * 0.18, hash21(block + tick * 1.37)) * 0.7;
 
-    // L10 だけ、ときどき反転する
+    // 索引層だけ、ときどき反転する
     float flash = step(0.95, hash21(vec2(tick, 3.0))) * step(0.999, depth);
     return mix(col, vec3(1.0) - col, flash);
 }

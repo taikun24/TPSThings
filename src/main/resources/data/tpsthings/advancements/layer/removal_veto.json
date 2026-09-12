@@ -2,7 +2,7 @@
   "parent": "tpsthings:layer/death_hook",
   "display": {
     "icon": { "item": "tpsthings:removal_veto" },
-    "title": { "translate": "advancements.tpsthings.layer.title", "with": [ "9", { "translate": "item.tpsthings.removal_veto" } ] },
+    "title": { "translate": "advancements.tpsthings.layer.title", "with": [ { "translate": "tpsthings.layer.9" }, { "translate": "item.tpsthings.removal_veto" } ] },
     "description": { "translate": "item.tpsthings.removal_veto.poem" },
     "frame": "task",
     "show_toast": true,

@@ -73,7 +73,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     float edgeDist = min(min(fragCoord.x, fragCoord.y), min(res.x - fragCoord.x, res.y - fragCoord.y));
     col += tint * (1.0 - smoothstep(0.0, 1.5, edgeDist)) * 0.9;
 
-    // ---- L10: ときどき世界ごと反転する ----
+    // ---- 索引層: ときどき世界ごと反転する ----
     float flash = step(0.95, hash21(vec2(tick, 3.0))) * step(0.999, depth);
     col = mix(col, vec3(1.0) - col, flash);
 

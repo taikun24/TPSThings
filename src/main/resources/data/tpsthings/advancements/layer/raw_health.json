@@ -2,7 +2,7 @@
   "parent": "tpsthings:layer/cancelled_event",
   "display": {
     "icon": { "item": "tpsthings:raw_health" },
-    "title": { "translate": "advancements.tpsthings.layer.title", "with": [ "6", { "translate": "item.tpsthings.raw_health" } ] },
+    "title": { "translate": "advancements.tpsthings.layer.title", "with": [ { "translate": "tpsthings.layer.6" }, { "translate": "item.tpsthings.raw_health" } ] },
     "description": { "translate": "item.tpsthings.raw_health.poem" },
     "frame": "goal",
     "show_toast": true,

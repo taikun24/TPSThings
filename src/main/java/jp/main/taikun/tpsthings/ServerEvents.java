@@ -301,7 +301,7 @@ public class ServerEvents {
         });
     }
     /**
-     * イベント層 (L5) の死の関所。判断は {@link HealthGuard} に寄せる。
+     * 合議層 (Forge イベント) の死の関所。判断は {@link HealthGuard} に寄せる。
      *
      * 以前はここで「おぉを着ているか」を直接見ていたが、保護対象の判定は
      * Guard 側に 1 つだけにする (装備由来の保護は syncEquipProtection が同期済み)。

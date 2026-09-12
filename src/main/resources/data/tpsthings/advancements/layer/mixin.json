@@ -2,7 +2,7 @@
   "parent": "tpsthings:layer/lying_reader",
   "display": {
     "icon": { "item": "tpsthings:mixin" },
-    "title": { "translate": "advancements.tpsthings.layer.title", "with": [ "7", { "translate": "item.tpsthings.mixin" } ] },
+    "title": { "translate": "advancements.tpsthings.layer.title", "with": [ { "translate": "tpsthings.layer.7" }, { "translate": "item.tpsthings.mixin" } ] },
     "description": { "translate": "item.tpsthings.mixin.poem" },
     "frame": "task",
     "show_toast": true,

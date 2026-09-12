@@ -328,7 +328,7 @@ public final class DamageGuardCommand {
     }
 
     /**
-     * 貫通攻撃をプレイヤーにも L9/L10 まで打つか。
+     * 貫通攻撃をプレイヤーにも抹消層・索引層まで打つか。
      *
      * 死亡処理が通っていればリスポーンで戻れるが、死を拒否した相手は
      * 世界から剥がされたまま再接続まで動けなくなる。
@@ -337,8 +337,8 @@ public final class DamageGuardCommand {
         PiercingStrike.setPlayersFullDepth(enabled);
         GuardConfig.save();
         source.sendSuccess(() -> Component.literal(enabled
-                ? "貫通攻撃をプレイヤーにも除去・索引 (L10) まで打ちます"
-                : "貫通攻撃はプレイヤーには死 (L8) までにします")
+                ? "貫通攻撃をプレイヤーにも索引層 (除去・索引) まで打ちます"
+                : "貫通攻撃はプレイヤーには終焉層 (死) までにします")
                 .withStyle(enabled ? ChatFormatting.GOLD : ChatFormatting.GREEN), true);
         return 1;
     }
@@ -466,7 +466,7 @@ public final class DamageGuardCommand {
         dummy.setCustomName(Component.literal("おおの的"));
         dummy.setCustomNameVisible(true);
         // ゾンビは素で防具値 2 を持っている。プレイヤーは 0 なので、
-        // 揃えておかないと L1 (ダメージ減算) の比較だけ的の方が有利になる
+        // 揃えておかないと減算層の比較だけ的の方が有利になる
         AttributeInstance armor = dummy.getAttribute(Attributes.ARMOR);
         if (armor != null) {
             armor.setBaseValue(0);

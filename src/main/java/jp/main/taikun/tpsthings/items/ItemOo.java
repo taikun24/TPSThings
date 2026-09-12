@@ -98,7 +98,7 @@ public class ItemOo extends ArmorItem implements WavyNameItem {
 
     /**
      * おお専用のツールチップシェーダー (tpsthings:tooltip_oo) のマーカー。
-     * L0〜L10 の地層を降りきった最下段だけが静かな白に戻る。描画は ClientShaderTooltip が担当する。
+     * 表層〜索引層の地層を降りきった最下段だけが静かな白に戻る。描画は ClientShaderTooltip が担当する。
      */
     public record OoTooltip() implements net.minecraft.world.inventory.tooltip.TooltipComponent {
     }

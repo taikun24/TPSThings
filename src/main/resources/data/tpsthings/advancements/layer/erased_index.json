@@ -2,7 +2,7 @@
   "parent": "tpsthings:layer/coremod",
   "display": {
     "icon": { "item": "tpsthings:erased_index" },
-    "title": { "translate": "advancements.tpsthings.layer.title", "with": [ "10", { "translate": "item.tpsthings.erased_index" } ] },
+    "title": { "translate": "advancements.tpsthings.layer.title", "with": [ { "translate": "tpsthings.layer.10" }, { "translate": "item.tpsthings.erased_index" } ] },
     "description": { "translate": "item.tpsthings.erased_index.poem" },
     "frame": "goal",
     "show_toast": true,
