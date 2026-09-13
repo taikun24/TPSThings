@@ -1,0 +1,37 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "tpsthings:mixin"
+    },
+    {
+      "item": "tpsthings:asm"
+    },
+    {
+      "item": "tpsthings:coremod"
+    },
+    {
+      "item": "minecraft:shield"
+    },
+    {
+      "item": "minecraft:shield"
+    },
+    {
+      "item": "minecraft:shield"
+    },
+    {
+      "item": "minecraft:shield"
+    },
+    {
+      "item": "minecraft:shield"
+    },
+    {
+      "item": "minecraft:shield"
+    }
+  ],
+  "result": {
+    "item": "tpsthings:defense_module",
+    "count": 1
+  }
+}

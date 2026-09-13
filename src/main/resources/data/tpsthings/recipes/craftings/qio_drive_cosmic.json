@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "IPI",
+    "PCP",
+    "IPI"
+  ],
+  "key": {
+    "I": {
+      "tag": "forge:ingots/lead"
+    },
+    "P": {
+      "item": "tpsthings:qio_drive_quantum"
+    },
+    "C": {
+      "item": "tpsthings:alloy_yabasugi"
+    }
+  },
+  "result": {
+    "item": "tpsthings:qio_drive_cosmic",
+    "count": 1
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "tpsthings:block/compressed_antimatter_block"
+  }
+}

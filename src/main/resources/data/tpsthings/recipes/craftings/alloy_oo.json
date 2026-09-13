@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "EEE",
+    "EUE",
+    "EEE"
+  ],
+  "key": {
+    "E": {
+      "item": "tpsthings:alloy_egusugi"
+    },
+    "U": {
+      "item": "extendedcrafting:ultimate_singularity"
+    }
+  },
+  "result": {
+    "item": "tpsthings:alloy_oo",
+    "count": 1
+  }
+}

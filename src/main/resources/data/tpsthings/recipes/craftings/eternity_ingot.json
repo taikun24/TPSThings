@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "III",
+    "IAI",
+    "III"
+  ],
+  "key": {
+    "I": {
+      "item": "tpsthings:infinity_ingot"
+    },
+    "A": {
+      "item": "tpsthings:alloy_yabasugi"
+    }
+  },
+  "result": {
+    "item": "tpsthings:eternity_ingot",
+    "count": 1
+  }
+}

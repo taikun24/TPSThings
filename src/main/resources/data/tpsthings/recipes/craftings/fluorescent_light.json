@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "tpsthings:hope_sheet" },
+    { "item": "tpsthings:hope_sheet" },
+    { "item": "tpsthings:hope_sheet" },
+    { "item": "tpsthings:antimatter_singularity" }
+  ],
+  "result": {
+    "item": "tpsthings:fluorescent_light"
+  }
+}

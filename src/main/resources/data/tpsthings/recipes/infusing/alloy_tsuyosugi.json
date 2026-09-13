@@ -1,0 +1,15 @@
+{
+  "type": "mekanism:metallurgic_infusing",
+  "chemicalInput": {
+    "amount": 80,
+    "infuse_type": "tpsthings:netherite"
+  },
+  "itemInput": {
+    "ingredient": {
+      "item": "mekanism:alloy_atomic"
+    }
+  },
+  "output": {
+    "item": "tpsthings:alloy_tsuyosugi"
+  }
+}

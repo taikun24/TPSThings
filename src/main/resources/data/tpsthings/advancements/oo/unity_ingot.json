@@ -1,0 +1,42 @@
+{
+  "parent": "tpsthings:oo/eternity_ingot",
+  "display": {
+    "icon": {
+      "item": "tpsthings:unity_ingot"
+    },
+    "title": {
+      "translate": "advancements.tpsthings.oo.unity_ingot.title"
+    },
+    "description": {
+      "translate": "advancements.tpsthings.oo.obtained",
+      "with": [
+        {
+          "translate": "item.tpsthings.unity_ingot"
+        }
+      ]
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "obtained": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "tpsthings:unity_ingot"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "obtained"
+    ]
+  ]
+}

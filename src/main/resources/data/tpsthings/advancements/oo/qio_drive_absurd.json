@@ -1,0 +1,42 @@
+{
+  "parent": "tpsthings:oo/alloy_oo",
+  "display": {
+    "icon": {
+      "item": "tpsthings:qio_drive_absurd"
+    },
+    "title": {
+      "translate": "advancements.tpsthings.oo.qio_drive_absurd.title"
+    },
+    "description": {
+      "translate": "advancements.tpsthings.oo.obtained",
+      "with": [
+        {
+          "translate": "item.tpsthings.qio_drive_absurd"
+        }
+      ]
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "obtained": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "tpsthings:qio_drive_absurd"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "obtained"
+    ]
+  ]
+}

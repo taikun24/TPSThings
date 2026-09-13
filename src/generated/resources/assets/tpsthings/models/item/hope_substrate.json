@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "mekanism:item/substrate"
+    "layer0": "tpsthings:item/hope_substrate"
   }
 }

@@ -1,0 +1,12 @@
+{
+  "type": "mekanism:enriching",
+  "input": {
+    "amount": 64,
+    "ingredient": {
+      "item": "tpsthings:compressed_oredictionificator"
+    }
+  },
+  "output": {
+    "item": "tpsthings:super_compressed_oredictionificator"
+  }
+}

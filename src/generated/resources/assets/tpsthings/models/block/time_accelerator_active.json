@@ -2,7 +2,7 @@
   "parent": "minecraft:block/orientable",
   "textures": {
     "front": "tpsthings:block/time_accelerator_front_active",
-    "side": "minecraft:block/iron_block",
-    "top": "minecraft:block/iron_block"
+    "side": "tpsthings:block/time_accelerator_side",
+    "top": "tpsthings:block/time_accelerator_side"
   }
 }

@@ -2,14 +2,20 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "pattern": [
-    "GAG",
-    "ACA",
-    "GAG"
+    "SUS",
+    "UNU",
+    "SUS"
   ],
   "key": {
-    "G": { "item": "minecraft:glass" },
-    "A": { "item": "minecraft:amethyst_shard" },
-    "C": { "item": "tpsthings:time_flux_crystal" }
+    "S": {
+      "item": "tpsthings:shader"
+    },
+    "U": {
+      "item": "tpsthings:unity_ingot"
+    },
+    "N": {
+      "item": "minecraft:nether_star"
+    }
   },
   "result": {
     "item": "tpsthings:prism",

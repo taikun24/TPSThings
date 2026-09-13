@@ -1,0 +1,37 @@
+{
+  "parent": "tpsthings:oo/defense_module",
+  "display": {
+    "icon": {
+      "item": "tpsthings:oo"
+    },
+    "title": {
+      "translate": "advancements.tpsthings.oo.oo.title"
+    },
+    "description": {
+      "translate": "advancements.tpsthings.oo.oo.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtained": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "tpsthings:oo"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "obtained"
+    ]
+  ]
+}

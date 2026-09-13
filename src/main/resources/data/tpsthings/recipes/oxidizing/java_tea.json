@@ -1,0 +1,12 @@
+{
+  "type": "mekanism:oxidizing",
+  "input": {
+    "ingredient": {
+      "item": "tpsthings:java"
+    }
+  },
+  "output": {
+    "amount": 100,
+    "gas": "tpsthings:java_tea"
+  }
+}

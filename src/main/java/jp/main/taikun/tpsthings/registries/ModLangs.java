@@ -15,7 +15,6 @@ public abstract class ModLangs extends LanguageProvider {
 
         @Override
         protected void addTranslations() {
-            add(ModBlocks.EXAMPLE_MACHINE.getBlock(), "例の機械");
             add(ModBlocks.TIME_FLUX_COLLECTOR.getBlock(), "タイムフラックス収集機");
             add(ModBlocks.TIME_ACCELERATOR.getBlock(), "時流加速機");
             add("gui.tpsthings.minus", "-");
@@ -40,14 +39,57 @@ public abstract class ModLangs extends LanguageProvider {
             add(ModItems.TUNA.get(), "まぐろ");
             add(ModItems.TEACUP.get(), "ティーカップ");
             add(ModItems.FLUORESCENT_LIGHT.get(), "ライトセーバー");
-            add(ModItems.CAT_TEASER.get(), "猫じゃらし");
             add(ModItems.MIXIN.get(), "Mixin");
-            add(ModItems.ANTI_HOPE_SHEET.get(), "反HOPEシート");
             add(ModItems.UNDEFINED_BEHAVIOR.get(), "未定義動作");
             add(ModItems.COREMOD.get(), "CoreMod");
-            add(ModItems.JAVA_AGENT.get(), "Java Agent");
-            // UNDEFINED_SHARD は意図的に翻訳を入れない (生の翻訳キーが出るのが正しい姿)
-            add(ModBlocks.ANNIHILATION_CHAMBER.get(), "対消滅炉");
+            // --- おお への系譜。コードの段 ---
+            add(ModItems.BYTECODE.get(), "バイトコード");
+            add(ModItems.JAVA.get(), "Java");
+            add(ModItems.C.get(), "C");
+            add(ModItems.JVM.get(), "JVM");
+            add(ModItems.ASM.get(), "ASM");
+            add(ModItems.SHADER.get(), "シェーダー");
+            add(ModItems.BERWL.get(), "BERWL");
+            add(ModItems.SUGOI_MENU.get(), "すごいメニュー");
+            add(ModItems.ATTACK_MODULE.get(), "攻撃モジュール");
+            add(ModItems.DEFENSE_MODULE.get(), "防衛モジュール");
+            // --- 欠陥の段 ---
+            add(ModItems.NULL_POINTER.get(), "NullPointer");
+            add(ModItems.GLITCH.get(), "グリッチ");
+            add(ModItems.GLITCH_SHARD.get(), "グリッチの欠片");
+            // --- 資源の段 ---
+            add(ModItems.COMPRESSED_CARDBOARD_BOX.get(), "濃縮ダンボール箱");
+            add(ModItems.SUPER_COMPRESSED_CARDBOARD_BOX.get(), "超濃縮ダンボール箱");
+            add(ModItems.COMPRESSED_OREDICTIONIFICATOR.get(), "濃縮鉱石統合機");
+            add(ModItems.SUPER_COMPRESSED_OREDICTIONIFICATOR.get(), "超濃縮鉱石統合機");
+            // --- 合金の段 ---
+            add(ModItems.ENRICHED_NETHERITE.get(), "濃縮ネザライト");
+            add(ModItems.ALLOY_TSUYOSUGI.get(), "つよすぎ合金");
+            add(ModItems.ALLOY_YABASUGI.get(), "やばすぎ合金");
+            add(ModItems.ALLOY_EGUSUGI.get(), "えぐすぎ合金");
+            add(ModItems.ALLOY_OO.get(), "おお合金");
+            // --- 無限の段 ---
+            add(ModItems.INFINITY_INGOT.get(), "インフィニティインゴット");
+            add(ModItems.ETERNITY_INGOT.get(), "エタニティインゴット");
+            add(ModItems.UNITY_INGOT.get(), "ユニティインゴット");
+            // --- 反物質の段 ---
+            add(ModItems.ANTIMATTER_CHUNK.get(), "反物質の塊");
+            add(ModItems.ANTIMATTER_INGOT.get(), "反物質インゴット");
+            add(ModBlocks.ANTIMATTER_BLOCK.get(), "反物質ブロック");
+            add(ModBlocks.COMPRESSED_ANTIMATTER_BLOCK.get(), "濃縮反物質ブロック");
+            add(ModItems.ANTIMATTER_SINGULARITY.get(), "反物質シンギュラリティ");
+            // --- QIO ドライブ ---
+            add(ModItems.QIO_DRIVE_QUANTUM.get(), "量子QIOドライブ");
+            add(ModItems.QIO_DRIVE_COSMIC.get(), "宇宙QIOドライブ");
+            add(ModItems.QIO_DRIVE_ABSURD.get(), "桁違いQIOドライブ");
+            add("tooltip.tpsthings.qio_drive.capacity", "%s 種類 / %s 個");
+            add(ModGases.JAVA_TEA.getTranslationKey(), "Javaティーガス");
+            add("fluid_type.tpsthings.java_tea", "液化Javaティーガス");
+            add(ModInfuseTypes.NETHERITE.getTranslationKey(), "ネザライト");
+            add(ModInfuseTypes.POLONIUM.getTranslationKey(), "ポロニウム");
+            add(ModInfuseTypes.ANTIMATTER.getTranslationKey(), "反物質");
+            add("key.categories.tpsthings", "TPS Things");
+            add("key.tpsthings.sugoi_menu", "すごいメニュー");
             add(ModGases.HOPE_ETHYLENE.getTranslationKey(), "HOPEエチレン");
             add(ModGases.HOPE_HYDROGEN.getTranslationKey(), "HOPE水素");
             add(ModGases.HOPE_OXYGEN.getTranslationKey(), "HOPE酸素");
@@ -62,14 +104,6 @@ public abstract class ModLangs extends LanguageProvider {
             add(ModContainerTypes.TPS_GENERATOR.getInternalRegistryName(), "TPS発電機");
             add(ModContainerTypes.LAG_GENERATOR.getInternalRegistryName(), "ラグ発電機");
 
-            add(ModItems.FROZEN_TICK.get(), "凍結した1tick");
-            add(ModItems.INVULNERABLE_FLAG.get(), "無敵フラグ");
-            add(ModItems.CANCELLED_EVENT.get(), "キャンセル済みイベント");
-            add(ModItems.RAW_HEALTH.get(), "剥き出しの体力値");
-            add(ModItems.LYING_READER.get(), "嘘つきの読み出し");
-            add(ModItems.DEATH_HOOK.get(), "握り潰された死");
-            add(ModItems.REMOVAL_VETO.get(), "除去の拒否権");
-            add(ModItems.ERASED_INDEX.get(), "消された索引");
             // 層の呼び名。番号はレシピの順序のために内部に残るだけで、表には出さない
             add("tpsthings.layer.1", "減算層");
             add("tpsthings.layer.2", "刹那層");
@@ -81,34 +115,45 @@ public abstract class ModLangs extends LanguageProvider {
             add("tpsthings.layer.8", "終焉層");
             add("tpsthings.layer.9", "抹消層");
             add("tpsthings.layer.10", "索引層");
-            add("jei.tpsthings.annihilation", "対消滅炉");
-            add("jei.tpsthings.annihilation.nothing", "何も出ない");
-            add("jei.tpsthings.annihilation.info",
-                    "対消滅炉の上面に材料をまとめて投げ込むと反応します。結果は抽選で、外れると何も残りません。");
-            add("jei.tpsthings.ritual.info",
-                    "おおは作業台では作れません。対消滅炉の上に、次の素材を上から順に 1 つずつ投げ込みます。"
-                            + "始まりの反HOPEシートは、他に何も無い上面に 1 枚だけ置いてください。"
-                            + "先の層の素材を混ぜると失敗して「おおじゃないが」が残り、1 分間なにも投げ込まないと儀式は途切れます。");
-            add("jei.tpsthings.ritual.step", "%s %s");
 
-            // 進捗ツリー「貫通層」。各段の題は層の名前 + アイテム名、説明はそのアイテムのポエムを直接引く
-            add("advancements.tpsthings.layer.title", "%s %s");
-            add("advancements.tpsthings.layer.root.title", "貫通層");
-            add("advancements.tpsthings.layer.root.description", "希望の表面から\n世界の索引の底まで");
-            add("advancements.tpsthings.layer.oo.description", "全ての層を降りきって\n出てきた言葉は それだけ");
+            // 進捗ツリー「おおへ」。題は素材に付いた二つ名、説明はどれも「手に入れた」だけ
+            add("advancements.tpsthings.oo.root.title", "おおへ");
+            add("advancements.tpsthings.oo.root.description", "土と木の板から\n始まってしまった");
+            add("advancements.tpsthings.oo.obtained", "%s を手に入れた");
+            add("advancements.tpsthings.oo.super_compressed_cardboard_box.title", "おのれBlockEntity");
+            add("advancements.tpsthings.oo.super_compressed_oredictionificator.title", "クリエ合金？");
+            add("advancements.tpsthings.oo.glitch.title", "脆弱性");
+            add("advancements.tpsthings.oo.null_pointer.title", "ぬるぽ");
+            add("advancements.tpsthings.oo.undefined_behavior.title", "ｶﾞｯ");
+            add("advancements.tpsthings.oo.bytecode.title", "0x304A304A");
+            add("advancements.tpsthings.oo.java.title", "Javaaaaa");
+            add("advancements.tpsthings.oo.c.title", "優しい?");
+            add("advancements.tpsthings.oo.jvm.title", "Javaaaaaaaaaaaaaaa");
+            add("advancements.tpsthings.oo.mixin.title", "Mix死n");
+            add("advancements.tpsthings.oo.asm.title", "低レベル");
+            add("advancements.tpsthings.oo.coremod.title", "本番でやるな");
+            add("advancements.tpsthings.oo.attack_module.title", "耐え");
+            add("advancements.tpsthings.oo.defense_module.title", "絶え");
+            add("advancements.tpsthings.oo.shader.title", "なんか付けとけば格好良くなるやつ");
+            add("advancements.tpsthings.oo.berwl.title", "虚勢を張るための道具");
+            add("advancements.tpsthings.oo.prism.title", "わーいぴかぴか...?");
+            add("advancements.tpsthings.oo.sugoi_menu.title", "GuiGui");
+            add("advancements.tpsthings.oo.infinity_ingot.title", "良くあるやつ");
+            add("advancements.tpsthings.oo.eternity_ingot.title", "この流れ");
+            add("advancements.tpsthings.oo.unity_ingot.title", "どこかで見た");
+            add("advancements.tpsthings.oo.alloy_oo.title", "これはおお...なのか?");
+            add("advancements.tpsthings.oo.qio_drive_absurd.title", "君も桁違いにならないか");
+            add("advancements.tpsthings.oo.oo.title", "おお");
+            add("advancements.tpsthings.oo.oo.description", "これはおおだろ");
 
             // --- コードから出る文言 (Component.literal をやめた分) ---
             add("itemGroup." + Tpsthings.MODID, "TPS Things");
-            add("item.tpsthings.cat_teaser.description", "しゃかしゃか");
-            add("message.tpsthings.cat_teaser.none", "だれも見ていない");
-            add("message.tpsthings.cat_teaser.charmed", "%s 匹が気になっている");
             add("item.tpsthings.oo.description", "It's wow...");
             add("tooltip.tpsthings.oo", "おお");
             add("tooltip.tpsthings.oo.murmur.0", "It's wow...");
             add("tooltip.tpsthings.oo.murmur.1", "おぉ");
             add("tooltip.tpsthings.oo.murmur.2", "これはおおだろ");
             add("tooltip.tpsthings.oo.murmur.3", "おおじゃないが");
-            add("message.tpsthings.ritual.complete", "おお");
             add("message.tpsthings.debug_accelerator.speed", "速さ: %s");
             add("gui.tpsthings.accelerator.range", "範囲 %s (%s 角)");
             add("gui.tpsthings.accelerator.speed", "速さ x%s");
@@ -128,24 +173,13 @@ public abstract class ModLangs extends LanguageProvider {
         }
 
         /**
-         * おお への系譜に並ぶ中間素材 (ItemLayer) のポエム。キーは「説明キー + .poem」、行は \n で区切る。
+         * 貫通層の呼び名を持つ素材 (ItemLayer) のポエム。キーは「説明キー + .poem」、行は \n で区切る。
          * 表示は ItemPoemTooltip が担当する。
          */
         private void addPoems() {
-            // UNDEFINED_SHARD は名前と同じく入れない。生のキーが出るのが正しい姿
-            poem(ModItems.ANTI_HOPE_SHEET.get(), "希望を裏返すと\n絶望ではなく\n何も起きないが残る");
-            poem(ModItems.FROZEN_TICK.get(), "殴られてから十の刻み\n世界が待ってくれる\nわずかな猶予");
-            poem(ModItems.INVULNERABLE_FLAG.get(), "真偽値ひとつで\n刃は届かなくなる\n薄い 薄い旗");
             poem(ModItems.UNDEFINED_BEHAVIOR.get(), "仕様書の余白には\n何を書いてもいい\n鼻から悪魔が出ても");
-            poem(ModItems.CANCELLED_EVENT.get(), "呼ばれた声は\n誰にも届かなかった\nキャンセル済み");
-            poem(ModItems.RAW_HEALTH.get(), "包み紙を剥がした\n体力という数字は\n思ったより脆い");
-            poem(ModItems.LYING_READER.get(), "尋ねるたびに\n満タンだと答える\n優しい嘘");
             poem(ModItems.MIXIN.get(), "他人の体に\nそっと言葉を差し込む\n頭の一行だけで");
-            poem(ModItems.DEATH_HOOK.get(), "終わりの手続きを\n途中で握り潰す\n死はまだ来ない");
-            poem(ModItems.REMOVAL_VETO.get(), "消えろと言われて\n首を横に振った\nそれだけのこと");
             poem(ModItems.COREMOD.get(), "クラスが生まれる前に\n名前を書き換える\n誰にも気づかれずに");
-            poem(ModItems.ERASED_INDEX.get(), "世界の名簿から\n名前が消えても\nまだ息をしている");
-            poem(ModItems.JAVA_AGENT.get(), "読み込まれるより先に\nそこにいた\n最初から ずっと");
         }
 
         private void poem(net.minecraft.world.item.Item item, String text) {
@@ -159,13 +193,11 @@ public abstract class ModLangs extends LanguageProvider {
 
         @Override
         protected void addTranslations() {
-            add(ModBlocks.EXAMPLE_MACHINE.getBlock(), "Example Machine");
             add(ModBlocks.TIME_FLUX_COLLECTOR.getBlock(), "Time Flux Collector");
             add(ModBlocks.TIME_ACCELERATOR.getBlock(), "Time Accelerator");
             add(ModBlocks.DEBUG_ACCELERATOR.get(), "Debug Time Accelerator");
             add(ModBlocks.TPS_GENERATOR.getBlock(), "TPS Generator");
             add(ModBlocks.LAG_GENERATOR.getBlock(), "Lag Generator");
-            add(ModBlocks.ANNIHILATION_CHAMBER.get(), "Annihilation Chamber");
 
             add("gui.tpsthings.minus", "-");
             add("gui.tpsthings.plus", "+");
@@ -186,22 +218,57 @@ public abstract class ModLangs extends LanguageProvider {
             add(ModItems.TUNA.get(), "Tuna");
             add(ModItems.TEACUP.get(), "Teacup");
             add(ModItems.FLUORESCENT_LIGHT.get(), "Fluorescent Light");
-            add(ModItems.CAT_TEASER.get(), "Cat Teaser");
             add(ModItems.MIXIN.get(), "Mixin");
-            add(ModItems.ANTI_HOPE_SHEET.get(), "Anti-HOPE Sheet");
             add(ModItems.UNDEFINED_BEHAVIOR.get(), "Undefined Behavior");
             add(ModItems.COREMOD.get(), "CoreMod");
-            add(ModItems.JAVA_AGENT.get(), "Java Agent");
-            add(ModItems.FROZEN_TICK.get(), "Frozen Tick");
-            add(ModItems.INVULNERABLE_FLAG.get(), "Invulnerability Flag");
-            add(ModItems.CANCELLED_EVENT.get(), "Cancelled Event");
-            add(ModItems.RAW_HEALTH.get(), "Raw Health Value");
-            add(ModItems.LYING_READER.get(), "Lying Getter");
-            add(ModItems.DEATH_HOOK.get(), "Swallowed Death");
-            add(ModItems.REMOVAL_VETO.get(), "Veto on Removal");
-            add(ModItems.ERASED_INDEX.get(), "Erased Index");
-            // UNDEFINED_SHARD は ja_jp と同じく入れない (生の翻訳キーが出るのが正しい姿)
-
+            // --- The line toward Oo. The code rungs ---
+            add(ModItems.BYTECODE.get(), "Bytecode");
+            add(ModItems.JAVA.get(), "Java");
+            add(ModItems.C.get(), "C");
+            add(ModItems.JVM.get(), "JVM");
+            add(ModItems.ASM.get(), "ASM");
+            add(ModItems.SHADER.get(), "Shader");
+            add(ModItems.BERWL.get(), "BERWL");
+            add(ModItems.SUGOI_MENU.get(), "Amazing Menu");
+            add(ModItems.ATTACK_MODULE.get(), "Attack Module");
+            add(ModItems.DEFENSE_MODULE.get(), "Defence Module");
+            // --- The defect rungs ---
+            add(ModItems.NULL_POINTER.get(), "NullPointer");
+            add(ModItems.GLITCH.get(), "Glitch");
+            add(ModItems.GLITCH_SHARD.get(), "Glitch Shard");
+            // --- The resource rungs ---
+            add(ModItems.COMPRESSED_CARDBOARD_BOX.get(), "Compressed Cardboard Box");
+            add(ModItems.SUPER_COMPRESSED_CARDBOARD_BOX.get(), "Super Compressed Cardboard Box");
+            add(ModItems.COMPRESSED_OREDICTIONIFICATOR.get(), "Compressed Oredictionificator");
+            add(ModItems.SUPER_COMPRESSED_OREDICTIONIFICATOR.get(), "Super Compressed Oredictionificator");
+            // --- The alloy rungs ---
+            add(ModItems.ENRICHED_NETHERITE.get(), "Enriched Netherite");
+            add(ModItems.ALLOY_TSUYOSUGI.get(), "Way Too Strong Alloy");
+            add(ModItems.ALLOY_YABASUGI.get(), "Way Too Nasty Alloy");
+            add(ModItems.ALLOY_EGUSUGI.get(), "Way Too Brutal Alloy");
+            add(ModItems.ALLOY_OO.get(), "Oo Alloy");
+            // --- The endless rungs ---
+            add(ModItems.INFINITY_INGOT.get(), "Infinity Ingot");
+            add(ModItems.ETERNITY_INGOT.get(), "Eternity Ingot");
+            add(ModItems.UNITY_INGOT.get(), "Unity Ingot");
+            // --- The antimatter rungs ---
+            add(ModItems.ANTIMATTER_CHUNK.get(), "Antimatter Chunk");
+            add(ModItems.ANTIMATTER_INGOT.get(), "Antimatter Ingot");
+            add(ModBlocks.ANTIMATTER_BLOCK.get(), "Block of Antimatter");
+            add(ModBlocks.COMPRESSED_ANTIMATTER_BLOCK.get(), "Compressed Block of Antimatter");
+            add(ModItems.ANTIMATTER_SINGULARITY.get(), "Antimatter Singularity");
+            // --- QIO drives ---
+            add(ModItems.QIO_DRIVE_QUANTUM.get(), "Quantum QIO Drive");
+            add(ModItems.QIO_DRIVE_COSMIC.get(), "Cosmic QIO Drive");
+            add(ModItems.QIO_DRIVE_ABSURD.get(), "Absurd QIO Drive");
+            add("tooltip.tpsthings.qio_drive.capacity", "%s types / %s items");
+            add(ModGases.JAVA_TEA.getTranslationKey(), "Java Tea Gas");
+            add("fluid_type.tpsthings.java_tea", "Liquid Java Tea Gas");
+            add(ModInfuseTypes.NETHERITE.getTranslationKey(), "Netherite");
+            add(ModInfuseTypes.POLONIUM.getTranslationKey(), "Polonium");
+            add(ModInfuseTypes.ANTIMATTER.getTranslationKey(), "Antimatter");
+            add("key.categories.tpsthings", "TPS Things");
+            add("key.tpsthings.sugoi_menu", "Amazing Menu");
             add(ModGases.TIME_FLUX.getTranslationKey(), "Time Flux");
             add(ModGases.HOPE_ETHYLENE.getTranslationKey(), "HOPE Ethylene");
             add(ModGases.HOPE_HYDROGEN.getTranslationKey(), "HOPE Hydrogen");
@@ -228,36 +295,44 @@ public abstract class ModLangs extends LanguageProvider {
             add("tpsthings.layer.9", "Erasure Layer");
             add("tpsthings.layer.10", "Index Layer");
 
-            add("jei.tpsthings.annihilation", "Annihilation Chamber");
-            add("jei.tpsthings.annihilation.nothing", "Nothing comes out");
-            add("jei.tpsthings.annihilation.info",
-                    "Throw the ingredients together onto the top face of the annihilation chamber to make it react. "
-                            + "The result is drawn at random, and a bad draw leaves nothing behind.");
-            add("jei.tpsthings.ritual.info",
-                    "Oo cannot be made at a crafting table. Throw the following onto the annihilation chamber "
-                            + "one at a time, from the top of the list down. Start by placing a single anti-HOPE sheet "
-                            + "on an otherwise empty top face. Mixing in an ingredient from a deeper layer fails the "
-                            + "ritual and leaves \"not quite oo\" behind, and throwing nothing for a minute breaks it off.");
-            add("jei.tpsthings.ritual.step", "%s %s");
-
-            // 進捗ツリー「貫通層」
-            add("advancements.tpsthings.layer.title", "%s %s");
-            add("advancements.tpsthings.layer.root.title", "Penetration Layers");
-            add("advancements.tpsthings.layer.root.description", "From the surface of hope\nto the floor of the world's index");
-            add("advancements.tpsthings.layer.oo.description", "Every layer descended\nand the word that came out was only that");
+            // The "Toward Oo" tree. Titles are the nicknames the materials carry
+            add("advancements.tpsthings.oo.root.title", "Toward Oo");
+            add("advancements.tpsthings.oo.root.description", "It began\nwith dirt and planks");
+            add("advancements.tpsthings.oo.obtained", "Obtained %s");
+            add("advancements.tpsthings.oo.super_compressed_cardboard_box.title", "Curse You, BlockEntity");
+            add("advancements.tpsthings.oo.super_compressed_oredictionificator.title", "Creative-Only Alloy?");
+            add("advancements.tpsthings.oo.glitch.title", "Vulnerability");
+            add("advancements.tpsthings.oo.null_pointer.title", "NullPo");
+            add("advancements.tpsthings.oo.undefined_behavior.title", "Gah");
+            add("advancements.tpsthings.oo.bytecode.title", "0x304A304A");
+            add("advancements.tpsthings.oo.java.title", "Javaaaaa");
+            add("advancements.tpsthings.oo.c.title", "Friendly?");
+            add("advancements.tpsthings.oo.jvm.title", "Javaaaaaaaaaaaaaaa");
+            add("advancements.tpsthings.oo.mixin.title", "Mix-Death-n");
+            add("advancements.tpsthings.oo.asm.title", "Low Level");
+            add("advancements.tpsthings.oo.coremod.title", "Not in Production");
+            add("advancements.tpsthings.oo.attack_module.title", "Endure");
+            add("advancements.tpsthings.oo.defense_module.title", "Endure On");
+            add("advancements.tpsthings.oo.shader.title", "Slap It On, It Looks Cool");
+            add("advancements.tpsthings.oo.berwl.title", "A Tool for Bluffing");
+            add("advancements.tpsthings.oo.prism.title", "Yay, Shiny...?");
+            add("advancements.tpsthings.oo.sugoi_menu.title", "GuiGui");
+            add("advancements.tpsthings.oo.infinity_ingot.title", "The Usual One");
+            add("advancements.tpsthings.oo.eternity_ingot.title", "You Know Where This Goes");
+            add("advancements.tpsthings.oo.unity_ingot.title", "Seen It Somewhere");
+            add("advancements.tpsthings.oo.alloy_oo.title", "Is This... an Oo?");
+            add("advancements.tpsthings.oo.qio_drive_absurd.title", "Care to Become Absurd Too?");
+            add("advancements.tpsthings.oo.oo.title", "Oo");
+            add("advancements.tpsthings.oo.oo.description", "Isn't it Oo?");
 
             // --- コードから出る文言 ---
             add("itemGroup." + Tpsthings.MODID, "TPS Things");
-            add("item.tpsthings.cat_teaser.description", "shakashaka");
-            add("message.tpsthings.cat_teaser.none", "Nobody is watching");
-            add("message.tpsthings.cat_teaser.charmed", "%s of them are interested");
             add("item.tpsthings.oo.description", "It's wow...");
             add("tooltip.tpsthings.oo", "Oo");
             add("tooltip.tpsthings.oo.murmur.0", "It's wow...");
             add("tooltip.tpsthings.oo.murmur.1", "Ooh");
             add("tooltip.tpsthings.oo.murmur.2", "That has to be an oo");
             add("tooltip.tpsthings.oo.murmur.3", "Not quite oo");
-            add("message.tpsthings.ritual.complete", "Oo");
             add("message.tpsthings.debug_accelerator.speed", "Speed: %s");
             add("gui.tpsthings.accelerator.range", "Range %s (%s across)");
             add("gui.tpsthings.accelerator.speed", "Speed x%s");
@@ -278,19 +353,9 @@ public abstract class ModLangs extends LanguageProvider {
 
         /** ja_jp と同じ位置に並ぶポエム。訳は意味を取って作り直している。 */
         private void addPoems() {
-            poem(ModItems.ANTI_HOPE_SHEET.get(), "Turn hope inside out\nand what is left is not despair\nbut nothing happening at all");
-            poem(ModItems.FROZEN_TICK.get(), "Ten ticks after the blow\nthe world waits for you\na very small mercy");
-            poem(ModItems.INVULNERABLE_FLAG.get(), "One boolean\nand the blade no longer reaches\na thin, thin flag");
             poem(ModItems.UNDEFINED_BEHAVIOR.get(), "In the margin of the spec\nyou may write anything\neven demons out of your nose");
-            poem(ModItems.CANCELLED_EVENT.get(), "The voice that was called\nreached no one\ncancelled");
-            poem(ModItems.RAW_HEALTH.get(), "Stripped of its wrapping\nthe number called health\nis frailer than you thought");
-            poem(ModItems.LYING_READER.get(), "Every time you ask\nit answers that you are full\na kind lie");
             poem(ModItems.MIXIN.get(), "Into someone else's body\nyou slip a quiet word\nwith one line at the head");
-            poem(ModItems.DEATH_HOOK.get(), "The closing procedure\ncrushed halfway through\ndeath is not here yet");
-            poem(ModItems.REMOVAL_VETO.get(), "Told to disappear\nit shook its head\nand that was all");
             poem(ModItems.COREMOD.get(), "Before the class is born\nrewrite its name\nwith no one noticing");
-            poem(ModItems.ERASED_INDEX.get(), "Struck from the world's register\nthe name is gone\nand it is still breathing");
-            poem(ModItems.JAVA_AGENT.get(), "It was there\nbefore anything was loaded\nfrom the very beginning");
         }
 
         private void poem(net.minecraft.world.item.Item item, String text) {

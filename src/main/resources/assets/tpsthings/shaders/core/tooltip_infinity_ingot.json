@@ -1,0 +1,140 @@
+{
+    "vertex": "tpsthings:tooltip_test",
+    "fragment": "tpsthings:tooltip_infinity_ingot",
+    "attributes": [
+        "Position",
+        "Color"
+    ],
+    "samplers": [],
+    "uniforms": [
+        {
+            "name": "ModelViewMat",
+            "type": "matrix4x4",
+            "count": 16,
+            "values": [
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ]
+        },
+        {
+            "name": "ProjMat",
+            "type": "matrix4x4",
+            "count": 16,
+            "values": [
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ]
+        },
+        {
+            "name": "iResolution",
+            "type": "float",
+            "count": 3,
+            "values": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "name": "iTime",
+            "type": "float",
+            "count": 1,
+            "values": [
+                0.0
+            ]
+        },
+        {
+            "name": "iTimeDelta",
+            "type": "float",
+            "count": 1,
+            "values": [
+                0.0
+            ]
+        },
+        {
+            "name": "iFrameRate",
+            "type": "float",
+            "count": 1,
+            "values": [
+                0.0
+            ]
+        },
+        {
+            "name": "iFrame",
+            "type": "int",
+            "count": 1,
+            "values": [
+                0
+            ]
+        },
+        {
+            "name": "iMouse",
+            "type": "float",
+            "count": 4,
+            "values": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        {
+            "name": "iDate",
+            "type": "float",
+            "count": 4,
+            "values": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        {
+            "name": "iSampleRate",
+            "type": "float",
+            "count": 1,
+            "values": [
+                44100.0
+            ]
+        },
+        {
+            "name": "Rect",
+            "type": "float",
+            "count": 4,
+            "values": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        }
+    ]
+}

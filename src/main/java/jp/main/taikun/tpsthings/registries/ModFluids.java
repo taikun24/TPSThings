@@ -23,6 +23,8 @@ public class ModFluids {
     public static final RegistryObject<FlowingFluid> NOPE_FLOWING = FLUIDS.register("nope_flowing", ()->new ForgeFlowingFluid.Flowing(ModFluids.NOPE_PROPERTIES));
     public static final RegistryObject<Fluid> HOPE_ETHYLENE = FLUIDS.register("hope_ethylene", ()->new ForgeFlowingFluid.Source(ModFluids.HOPE_ETHYLENE_PROPERTIES));
     public static final RegistryObject<Fluid> HOPE_ETHYLENE_FLOWING = FLUIDS.register("hope_ethylene_flowing", ()->new ForgeFlowingFluid.Flowing(ModFluids.HOPE_ETHYLENE_PROPERTIES));
+    public static final RegistryObject<Fluid> JAVA_TEA = FLUIDS.register("java_tea", ()->new ForgeFlowingFluid.Source(ModFluids.JAVA_TEA_PROPERTIES));
+    public static final RegistryObject<Fluid> JAVA_TEA_FLOWING = FLUIDS.register("java_tea_flowing", ()->new ForgeFlowingFluid.Flowing(ModFluids.JAVA_TEA_PROPERTIES));
 
     private static final ForgeFlowingFluid.Properties NOPE_PROPERTIES = new ForgeFlowingFluid.Properties(
             ()->ModFluidTypes.NOPE.getHolder().get().get(),
@@ -33,6 +35,11 @@ public class ModFluids {
             ()->ModFluidTypes.HOPE_ETHYLENE.getHolder().get().get(),
             HOPE_ETHYLENE::get,
             HOPE_ETHYLENE_FLOWING::get
+    );
+    private static final ForgeFlowingFluid.Properties JAVA_TEA_PROPERTIES = new ForgeFlowingFluid.Properties(
+            ()->ModFluidTypes.JAVA_TEA.getHolder().get().get(),
+            JAVA_TEA::get,
+            JAVA_TEA_FLOWING::get
     );
     public static void register(IEventBus bus) {
         FLUIDS.register(bus);

@@ -185,12 +185,7 @@ dependencies {
 
     implementation fg.deobf("curse.maven:extended-crafting-268387:7713530")
     runtimeOnly fg.deobf("curse.maven:cucumber-272335:7180783")
-    // implementation fg.deobf("curse.maven:mekanism-elements-1103224:6537553")
     implementation fg.deobf("curse.maven:jei-238222:8292131")
-    // runtimeOnly fg.deobf("curse.maven:mmmmmmmmmmmm-225738:7963208")
-    runtimeOnly fg.deobf("maven.modrinth:6hI5AK5F:Ok23uW0S")
-    runtimeOnly fg.deobf("curse.maven:curios-309927:6418456")
-    runtimeOnly fg.deobf("curse.maven:no-sugar-1476611:8000478")
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

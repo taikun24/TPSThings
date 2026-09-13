@@ -1,6 +1,5 @@
 package jp.main.taikun.tpsthings;
 
-import jp.main.taikun.tpsthings.blockentities.BEAbsoluteLifeAnchor;
 import jp.main.taikun.tpsthings.damage.AutoGuard;
 import jp.main.taikun.tpsthings.damage.GuardConfig;
 import jp.main.taikun.tpsthings.damage.GuardTick;
@@ -11,7 +10,6 @@ import jp.main.taikun.tpsthings.damage.PiercingStrike;
 import jp.main.taikun.tpsthings.damage.PresenceGuard;
 import jp.main.taikun.tpsthings.damage.RepairGuard;
 import jp.main.taikun.tpsthings.damage.RespawnGuard;
-import jp.main.taikun.tpsthings.items.ItemCatTeaser;
 import jp.main.taikun.tpsthings.items.ItemOo;
 import jp.main.taikun.tpsthings.profile.TickProfiler;
 import jp.main.taikun.tpsthings.registries.ModItems;
@@ -76,8 +74,10 @@ public class ServerEvents {
             target.hurt(event.getEntity().damageSources().playerAttack(event.getEntity()), targetEntityHP);
             target.addEffect(new MobEffectInstance(MobEffects.DARKNESS, FLUORESCENT_EFFECT_TICKS, 1));
             target.addEffect(new MobEffectInstance(MobEffects.CONFUSION, FLUORESCENT_EFFECT_TICKS, 1));
-            ItemStack stack = event.getEntity().getMainHandItem();
-            stack.setDamageValue(stack.getDamageValue() + 1);
+            // setDamageValue を直接足すと、耐久が尽きても壊す処理を通らず 0 のまま使い続けられた
+            Player attacker = event.getEntity();
+            attacker.getMainHandItem().hurtAndBreak(1, attacker,
+                    player -> player.broadcastBreakEvent(net.minecraft.world.InteractionHand.MAIN_HAND));
         }
     }
 
@@ -135,10 +135,6 @@ public class ServerEvents {
                     event.getPos(),
                     5
             );
-        }
-        BlockEntity blockEntity = event.getLevel().getBlockEntity(event.getHitVec().getBlockPos());
-        if (blockEntity instanceof BEAbsoluteLifeAnchor lifeAnchor && event.getSide() ==  LogicalSide.SERVER) {
-            lifeAnchor.setAsPlayersAnchor((ServerPlayer) event.getEntity());
         }
     }
     @SubscribeEvent
@@ -229,7 +225,6 @@ public class ServerEvents {
         PresenceGuard.reset();
         RepairGuard.reset();
         RespawnGuard.reset();
-        ItemCatTeaser.clear();
         PiercingStrike.reset();
         GuardTick.reset();
         TpsMeter.reset();
@@ -296,7 +291,6 @@ public class ServerEvents {
         }
         TpsMeter.onServerTick();
         TickProfiler.onServerTick();
-        ItemCatTeaser.tick(event.getServer());
         // 見回りの中身は GuardTick に寄せた。イベントバスごと差し替えて
         // tick のイベントを捨てる相手が居るので、サーバの tick に刺した関所からも
         // 同じものを回す (同じ tick で二度は走らない)

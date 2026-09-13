@@ -3,7 +3,6 @@ package jp.main.taikun.tpsthings.registries;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import jp.main.taikun.tpsthings.Tpsthings;
 import jp.main.taikun.tpsthings.gui.ClientShaderTooltip;
-import jp.main.taikun.tpsthings.gui.GuiExampleMachine;
 import jp.main.taikun.tpsthings.items.ItemPrism;
 import jp.main.taikun.tpsthings.blockentities.BELagGenerator;
 import jp.main.taikun.tpsthings.blockentities.BETpsGenerator;
@@ -37,6 +36,16 @@ public class ClientRegister {
     public static final ResourceLocation OO_BASE_MODEL =
             ResourceLocation.fromNamespaceAndPath(Tpsthings.MODID, "item/oo_base");
 
+    /** おおを着ているプレイヤーに頭上の輪と背中の輪を描く層を足す (通常/細腕の両方のモデル) */
+    @SubscribeEvent
+    public static void onAddLayers(net.minecraftforge.client.event.EntityRenderersEvent.AddLayers event) {
+        for (String skin : event.getSkins()) {
+            if (event.getSkin(skin) instanceof net.minecraft.client.renderer.entity.player.PlayerRenderer renderer) {
+                renderer.addLayer(new jp.main.taikun.tpsthings.gui.OoHaloLayer<>(renderer));
+            }
+        }
+    }
+
     @SubscribeEvent
     public static void onRegisterAdditionalModels(net.minecraftforge.client.event.ModelEvent.RegisterAdditional event) {
         event.register(OO_BASE_MODEL);
@@ -60,9 +69,25 @@ public class ClientRegister {
         return tooltipOoShader;
     }
 
+    /**
+     * おおの系譜の素材ごとの専用ツールチップシェーダー。名前 → tpsthings:tooltip_&lt;名前&gt;。
+     * 足すときは ItemMaterial に渡す名前と、shaders/core の json + fsh を揃える。
+     */
+    private static final java.util.List<String> MATERIAL_SHADERS = java.util.List.of(
+            "alloy_oo", "asm", "attack_module", "defense_module", "mixin", "sugoi_menu", "berwl",
+            "coremod", "glitch", "infinity_ingot", "eternity_ingot", "unity_ingot");
+
+    private static final java.util.Map<String, ShaderInstance> materialShaders = new java.util.concurrent.ConcurrentHashMap<>();
+
+    public static ShaderInstance getMaterialShader(String name) {
+        return materialShaders.get(name);
+    }
+
     /** Shadertoy 形式 (mainImage だけを書く) で読み込む fsh。前後のラッパーを注入する対象。 */
-    private static final java.util.Set<String> SHADERTOY_FRAGMENTS =
-            java.util.Set.of("tooltip_test.fsh", "tooltip_layer.fsh", "tooltip_oo.fsh");
+    private static final java.util.Set<String> SHADERTOY_FRAGMENTS = java.util.stream.Stream.concat(
+                    java.util.stream.Stream.of("tooltip_test.fsh", "tooltip_layer.fsh", "tooltip_oo.fsh"),
+                    MATERIAL_SHADERS.stream().map(name -> "tooltip_" + name + ".fsh"))
+            .collect(java.util.stream.Collectors.toUnmodifiableSet());
 
     private static ShaderInstance sugoiMenuScreenShader;
 
@@ -142,6 +167,13 @@ public class ClientRegister {
                         ResourceLocation.fromNamespaceAndPath(Tpsthings.MODID, "tooltip_oo"),
                         DefaultVertexFormat.POSITION_COLOR),
                 shader -> tooltipOoShader = shader);
+        for (String name : MATERIAL_SHADERS) {
+            event.registerShader(
+                    new ShaderInstance(wrapping,
+                            ResourceLocation.fromNamespaceAndPath(Tpsthings.MODID, "tooltip_" + name),
+                            DefaultVertexFormat.POSITION_COLOR),
+                    shader -> materialShaders.put(name, shader));
+        }
         event.registerShader(
                 new ShaderInstance(base,
                         ResourceLocation.fromNamespaceAndPath(Tpsthings.MODID, "sugoi_menu_screen"),
@@ -156,31 +188,18 @@ public class ClientRegister {
                 jp.main.taikun.tpsthings.gui.AbyssOverlay.invalidateChain());
     }
 
-    /**
-     * 反 HOPE シートの色。HOPE シートと同じ絵を借りているので、色で裏返す。
-     *
-     * <p>{@code item/generated} は layer0 に tintindex 0 を振るので、色を返すだけで掛かる。
-     */
-    private static final int ANTI_HOPE_TINT = 0x6E1743;
-
-    @SubscribeEvent
-    public static void registerItemColors(net.minecraftforge.client.event.RegisterColorHandlersEvent.Item event) {
-        event.register((stack, tintIndex) -> tintIndex == 0 ? ANTI_HOPE_TINT : 0xFFFFFF,
-                ModItems.ANTI_HOPE_SHEET.get());
-    }
-
     @SubscribeEvent
     public static void registerTooltipComponents(RegisterClientTooltipComponentFactoriesEvent event) {
         event.register(ItemPrism.ShaderTooltip.class, ClientShaderTooltip::new);
         event.register(jp.main.taikun.tpsthings.items.ItemLayer.LayerTooltip.class, ClientShaderTooltip::new);
         event.register(jp.main.taikun.tpsthings.items.ItemOo.OoTooltip.class, ClientShaderTooltip::new);
+        event.register(jp.main.taikun.tpsthings.items.ItemMaterial.MaterialTooltip.class, ClientShaderTooltip::new);
         event.register(ItemPrism.WaveName.class, jp.main.taikun.tpsthings.gui.WaveTitleTooltip::new);
         event.register(ItemPrism.WaveSegments.class, jp.main.taikun.tpsthings.gui.WaveSegmentsTooltip::new);
     }
 
     @SubscribeEvent(priority = EventPriority.LOW)
     public static void registerScreens(RegisterEvent event) {
-        event.register(Registries.MENU, menuTypeRegisterHelper -> ClientRegistrationUtil.registerScreen(ModContainerTypes.EXAMPLE_MACHINE, GuiExampleMachine::new));
         event.register(Registries.MENU, menuTypeRegisterHelper -> ClientRegistrationUtil.registerScreen(ModContainerTypes.TIME_FLUX_COLLECTOR, GuiTimeFluxCollector::new));
 
         event.register(Registries.MENU, menuTypeRegisterHelper -> ClientRegistrationUtil.registerScreen(ModContainerTypes.TIME_ACCELERATOR, GuiTimeAccelerator::new));

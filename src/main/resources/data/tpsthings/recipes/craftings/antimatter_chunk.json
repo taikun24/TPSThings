@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "AAA",
+    "APA",
+    "AAA"
+  ],
+  "key": {
+    "A": {
+      "item": "mekanism:pellet_antimatter"
+    },
+    "P": {
+      "item": "mekanism:pellet_polonium"
+    }
+  },
+  "result": {
+    "item": "tpsthings:antimatter_chunk",
+    "count": 1
+  }
+}

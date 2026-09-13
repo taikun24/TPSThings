@@ -1,0 +1,12 @@
+{
+  "type": "mekanism:enriching",
+  "input": {
+    "amount": 64,
+    "ingredient": {
+      "item": "tpsthings:shader"
+    }
+  },
+  "output": {
+    "item": "tpsthings:berwl"
+  }
+}

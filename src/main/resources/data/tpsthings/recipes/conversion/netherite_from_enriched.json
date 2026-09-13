@@ -1,0 +1,12 @@
+{
+  "type": "mekanism:infusion_conversion",
+  "input": {
+    "ingredient": {
+      "item": "tpsthings:enriched_netherite"
+    }
+  },
+  "output": {
+    "amount": 80,
+    "infuse_type": "tpsthings:netherite"
+  }
+}

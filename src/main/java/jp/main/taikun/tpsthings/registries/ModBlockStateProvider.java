@@ -57,19 +57,11 @@ private void simpleBlockWithItem(Block block) {
  * 舐める。手で書き並べるとプロパティが 1 つ増えただけで読み込みに失敗するので。
  */
 private void machineWithItem(Block block, String id) {
-    machineWithItem(block, id, modLoc("block/" + id + "_front"), modLoc("block/" + id + "_front_active"));
-}
-
-/**
- * 顔のテクスチャを外から渡す版。まだ専用テクスチャが無い機械のための逃げ道。
- */
-private void machineWithItem(Block block, String id,
-                             net.minecraft.resources.ResourceLocation front,
-                             net.minecraft.resources.ResourceLocation frontActive) {
+    // 絵は textures/block/<id>_side / _front / _front_active
     ModelFile idle = models().orientable("block/" + id,
-            mcLoc("block/iron_block"), front, mcLoc("block/iron_block"));
+            modLoc("block/" + id + "_side"), modLoc("block/" + id + "_front"), modLoc("block/" + id + "_side"));
     ModelFile active = models().orientable("block/" + id + "_active",
-            mcLoc("block/iron_block"), frontActive, mcLoc("block/iron_block"));
+            modLoc("block/" + id + "_side"), modLoc("block/" + id + "_front_active"), modLoc("block/" + id + "_side"));
 
     getVariantBuilder(block).forAllStates(state -> {
         boolean running = state.getProperties().stream()
@@ -95,16 +87,12 @@ private void machineWithItem(Block block, String id,
 @Override
 protected void registerStatesAndModels() {
     simpleBlockWithItem(ModBlocks.DEBUG_ACCELERATOR.get());
-    ModelFile chamber = models().cubeBottomTop("annihilation_chamber",
-            mcLoc("block/reinforced_deepslate_side"), mcLoc("block/reinforced_deepslate_bottom"), mcLoc("block/reinforced_deepslate_top"));
-    simpleBlock(ModBlocks.ANNIHILATION_CHAMBER.get(), chamber);
-    simpleBlockItem(ModBlocks.ANNIHILATION_CHAMBER.get(), chamber);
     machineWithItem(ModBlocks.TPS_GENERATOR.getBlock(), "tps_generator");
     machineWithItem(ModBlocks.LAG_GENERATOR.getBlock(), "lag_generator");
     machineWithItem(ModBlocks.TIME_ACCELERATOR.getBlock(), "time_accelerator");
-    // TODO: 専用テクスチャができるまで、顔はかまどを借りる
-    machineWithItem(ModBlocks.TIME_FLUX_COLLECTOR.getBlock(), "time_flux_collector",
-            mcLoc("block/furnace_front"), mcLoc("block/furnace_front_on"));
+    machineWithItem(ModBlocks.TIME_FLUX_COLLECTOR.getBlock(), "time_flux_collector");
+    simpleBlockWithItem(ModBlocks.ANTIMATTER_BLOCK.get());
+    simpleBlockWithItem(ModBlocks.COMPRESSED_ANTIMATTER_BLOCK.get());
 
 }
 }

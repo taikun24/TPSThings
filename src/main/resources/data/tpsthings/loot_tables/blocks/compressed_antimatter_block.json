@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:block",
+  "random_sequence": "tpsthings:blocks/compressed_antimatter_block",
+  "pools": [
+    {
+      "name": "main",
+      "rolls": 1,
+      "bonus_rolls": 0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "tpsthings:compressed_antimatter_block"
+        }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ]
+    }
+  ]
+}

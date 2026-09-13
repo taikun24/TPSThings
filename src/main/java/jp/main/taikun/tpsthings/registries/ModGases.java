@@ -15,6 +15,7 @@ public class ModGases {
     public static final GasRegistryObject<Gas> HOPE_OXYGEN = GAS_TYPES.register(ChemicalConstants.HOPE_OXYGEN);
     public static final GasRegistryObject<Gas> NOPE_GAS = GAS_TYPES.register(ChemicalConstants.NOPE_GAS);
     public static final GasRegistryObject<Gas> CARBON_DIOXIDE = GAS_TYPES.register(ChemicalConstants.CARBON_DIOXIDE);
+    public static final GasRegistryObject<Gas> JAVA_TEA = GAS_TYPES.register(ChemicalConstants.JAVA_TEA);
     public static void register(IEventBus eventBus) {
         GAS_TYPES.register(eventBus);
     }
@@ -24,7 +25,8 @@ public class ModGases {
         HOPE_HYDROGEN("hope_hydrogen", 0xfffffef2, 15, 300F, 1_254F),
         HOPE_OXYGEN("hope_oxygen", 0xffff5ccb, 15, 300F, 1_254F),
         CARBON_DIOXIDE("carbon_dioxide", 0xffadadad, 15, 300F, 1_254F),
-        NOPE_GAS("nope_gas", 0xff420027, 15, 300F, 1_254F);
+        NOPE_GAS("nope_gas", 0xff420027, 15, 300F, 1_254F),
+        JAVA_TEA("java_tea", 0xff6b4423, 15, 360F, 1_254F);
 
         private final String name;
         private final int color;

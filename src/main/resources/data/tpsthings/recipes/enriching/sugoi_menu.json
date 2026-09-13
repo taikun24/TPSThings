@@ -1,0 +1,12 @@
+{
+  "type": "mekanism:enriching",
+  "input": {
+    "amount": 64,
+    "ingredient": {
+      "item": "tpsthings:prism"
+    }
+  },
+  "output": {
+    "item": "tpsthings:sugoi_menu"
+  }
+}

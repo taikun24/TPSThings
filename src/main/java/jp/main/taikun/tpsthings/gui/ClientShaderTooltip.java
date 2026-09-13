@@ -189,6 +189,12 @@ public class ClientShaderTooltip implements ClientTooltipComponent {
         this.layer = -1.0F;
     }
 
+    public ClientShaderTooltip(jp.main.taikun.tpsthings.items.ItemMaterial.MaterialTooltip tooltip) {
+        String name = tooltip.shader();
+        this.shaderSource = () -> ClientRegister.getMaterialShader(name);
+        this.layer = -1.0F;
+    }
+
     public ClientShaderTooltip(jp.main.taikun.tpsthings.items.ItemLayer.LayerTooltip tooltip) {
         this.shaderSource = ClientRegister::getTooltipLayerShader;
         this.layer = tooltip.layer();

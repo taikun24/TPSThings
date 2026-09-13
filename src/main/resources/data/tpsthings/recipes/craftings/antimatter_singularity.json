@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "CCC",
+    "C C",
+    "CCC"
+  ],
+  "key": {
+    "C": {
+      "item": "tpsthings:compressed_antimatter_block"
+    }
+  },
+  "result": {
+    "item": "tpsthings:antimatter_singularity",
+    "count": 1
+  }
+}

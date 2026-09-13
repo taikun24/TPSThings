@@ -1,0 +1,42 @@
+{
+  "parent": "tpsthings:oo/infinity_ingot",
+  "display": {
+    "icon": {
+      "item": "tpsthings:alloy_oo"
+    },
+    "title": {
+      "translate": "advancements.tpsthings.oo.alloy_oo.title"
+    },
+    "description": {
+      "translate": "advancements.tpsthings.oo.obtained",
+      "with": [
+        {
+          "translate": "item.tpsthings.alloy_oo"
+        }
+      ]
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "obtained": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "tpsthings:alloy_oo"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "obtained"
+    ]
+  ]
+}

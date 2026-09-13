@@ -1,0 +1,42 @@
+{
+  "parent": "tpsthings:oo/c",
+  "display": {
+    "icon": {
+      "item": "tpsthings:shader"
+    },
+    "title": {
+      "translate": "advancements.tpsthings.oo.shader.title"
+    },
+    "description": {
+      "translate": "advancements.tpsthings.oo.obtained",
+      "with": [
+        {
+          "translate": "item.tpsthings.shader"
+        }
+      ]
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "obtained": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "tpsthings:shader"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "obtained"
+    ]
+  ]
+}

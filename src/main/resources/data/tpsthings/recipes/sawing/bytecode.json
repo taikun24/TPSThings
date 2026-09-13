@@ -1,0 +1,11 @@
+{
+  "type": "mekanism:sawing",
+  "input": {
+    "ingredient": {
+      "item": "tpsthings:undefined_behavior"
+    }
+  },
+  "mainOutput": {
+    "item": "tpsthings:bytecode"
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "type": "extendedcrafting:shaped_table",
+  "pattern": [
+    "PPPPPPPPP",
+    "PAAAAAAAP",
+    "PASSSSSAP",
+    "PASMKXSAP",
+    "PASGNBSAP",
+    "PASCDJSAP",
+    "PASSSSSAP",
+    "PAAAAAAAP",
+    "PPPPPPPPP"
+  ],
+  "key": {
+    "P": {
+      "item": "tpsthings:prism"
+    },
+    "A": {
+      "item": "tpsthings:alloy_oo"
+    },
+    "S": {
+      "item": "tpsthings:antimatter_singularity"
+    },
+    "M": {
+      "item": "tpsthings:asm"
+    },
+    "K": {
+      "item": "tpsthings:attack_module"
+    },
+    "X": {
+      "item": "tpsthings:mixin"
+    },
+    "G": {
+      "item": "tpsthings:sugoi_menu"
+    },
+    "N": {
+      "item": "tpsthings:not_oo"
+    },
+    "B": {
+      "item": "tpsthings:berwl"
+    },
+    "C": {
+      "item": "tpsthings:coremod"
+    },
+    "D": {
+      "item": "tpsthings:defense_module"
+    },
+    "J": {
+      "item": "tpsthings:jvm"
+    }
+  },
+  "result": {
+    "item": "tpsthings:oo",
+    "count": 1
+  }
+}

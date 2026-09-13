@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SSS",
+    "S S",
+    "SSS"
+  ],
+  "key": {
+    "S": {
+      "item": "tpsthings:glitch_shard"
+    }
+  },
+  "result": {
+    "item": "tpsthings:glitch",
+    "count": 1
+  }
+}

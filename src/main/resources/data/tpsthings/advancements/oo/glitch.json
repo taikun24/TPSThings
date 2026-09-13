@@ -1,0 +1,42 @@
+{
+  "parent": "tpsthings:oo/super_compressed_cardboard_box",
+  "display": {
+    "icon": {
+      "item": "tpsthings:glitch"
+    },
+    "title": {
+      "translate": "advancements.tpsthings.oo.glitch.title"
+    },
+    "description": {
+      "translate": "advancements.tpsthings.oo.obtained",
+      "with": [
+        {
+          "translate": "item.tpsthings.glitch"
+        }
+      ]
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "obtained": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "tpsthings:glitch"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "obtained"
+    ]
+  ]
+}

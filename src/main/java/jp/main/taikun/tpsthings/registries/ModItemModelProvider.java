@@ -22,12 +22,17 @@ public class ModItemModelProvider extends ItemModelProvider {
                 .texture("layer0", texture);
     }
 
+    /** textures/item/<id>.png をそのまま使う素のアイテムモデル */
+    private void ownTexture(String id) {
+        singleUnchecked(id, modLoc("item/" + id));
+    }
+
     @Override
     protected void registerModels() {
-        singleUnchecked("hope_bio_fuel",   rl("mekanism", "item/bio_fuel"));
-        singleUnchecked("hope_pellet",     rl("mekanism", "item/hdpe_pellet"));
-        singleUnchecked("hope_substrate",  rl("mekanism", "item/substrate"));
-        singleUnchecked("hope_sheet",      rl("mekanism", "item/hdpe_sheet"));
+        ownTexture("hope_bio_fuel");
+        ownTexture("hope_pellet");
+        ownTexture("hope_substrate");
+        ownTexture("hope_sheet");
         this.basicItem(ModItems.SPICY_SPICE.get());
         this.basicItem(ModItems.FLUORESCENT_LIGHT.get());
         // builtin/entity 親にすると BEWLR (PrismItemRenderer) が呼ばれる
@@ -52,24 +57,50 @@ public class ModItemModelProvider extends ItemModelProvider {
         this.basicItem(ModItems.TEACUP.get());
         this.basicItem(ModItems.TUNA.get());
         this.basicItem(ModItems.TIME_FLUX_CRYSTAL.get());
-        this.basicItem(ModItems.CAT_TEASER.get());
         this.basicItem(ModItems.ACCELERATION_WAND.get());
         this.basicItem(ModItems.NOT_OO.get());
         this.basicItem(ModItems.MIXIN.get());
-        // 専用テクスチャができるまでの仮。undefined_shard はモデルも持たせない
-        // 反 HOPE シートは HOPE シートと同じ絵。見分けは ClientRegister の色で付ける
-        singleUnchecked("anti_hope_sheet",    rl("mekanism", "item/hdpe_sheet"));
-        singleUnchecked("undefined_behavior", rl("minecraft", "item/dragon_breath"));
-        singleUnchecked("coremod",            rl("minecraft", "item/knowledge_book"));
-        singleUnchecked("java_agent",         rl("minecraft", "item/enchanted_book"));
-        singleUnchecked("frozen_tick",        rl("minecraft", "item/clock_00"));
-        singleUnchecked("invulnerable_flag",  rl("minecraft", "item/phantom_membrane"));
-        singleUnchecked("cancelled_event",    rl("minecraft", "item/barrier"));
-        singleUnchecked("raw_health",         rl("minecraft", "item/redstone"));
-        singleUnchecked("lying_reader",       rl("minecraft", "item/spyglass"));
-        singleUnchecked("death_hook",         rl("minecraft", "item/totem_of_undying"));
-        singleUnchecked("removal_veto",       rl("minecraft", "item/structure_void"));
-        singleUnchecked("erased_index",       rl("minecraft", "item/echo_shard"));
+        // textures/item/<id>.png を読む。今入っているのはバニラ / Mekanism から写した仮の絵
+        ownTexture("undefined_behavior");
+        ownTexture("coremod");
+        // コードの段
+        ownTexture("bytecode");
+        ownTexture("java");
+        ownTexture("c");
+        ownTexture("jvm");
+        ownTexture("asm");
+        ownTexture("shader");
+        ownTexture("berwl");
+        ownTexture("sugoi_menu");
+        ownTexture("attack_module");
+        ownTexture("defense_module");
+        // 欠陥の段
+        ownTexture("null_pointer");
+        ownTexture("glitch");
+        ownTexture("glitch_shard");
+        // 資源の段
+        ownTexture("compressed_cardboard_box");
+        ownTexture("super_compressed_cardboard_box");
+        ownTexture("compressed_oredictionificator");
+        ownTexture("super_compressed_oredictionificator");
+        // 合金の段
+        ownTexture("enriched_netherite");
+        ownTexture("alloy_tsuyosugi");
+        ownTexture("alloy_yabasugi");
+        ownTexture("alloy_egusugi");
+        ownTexture("alloy_oo");
+        // 無限の段
+        ownTexture("infinity_ingot");
+        ownTexture("eternity_ingot");
+        ownTexture("unity_ingot");
+        // 反物質の段
+        ownTexture("antimatter_chunk");
+        ownTexture("antimatter_ingot");
+        ownTexture("antimatter_singularity");
+        // QIO ドライブ
+        ownTexture("qio_drive_quantum");
+        ownTexture("qio_drive_cosmic");
+        ownTexture("qio_drive_absurd");
         // builtin/entity 親にすると BEWLR (PrismItemRenderer) が呼ばれる
         getBuilder("prism").parent(new ModelFile.UncheckedModelFile("builtin/entity"));
 

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "EIE",
+    "IAI",
+    "EIE"
+  ],
+  "key": {
+    "E": {
+      "item": "tpsthings:eternity_ingot"
+    },
+    "I": {
+      "item": "tpsthings:infinity_ingot"
+    },
+    "A": {
+      "item": "tpsthings:alloy_egusugi"
+    }
+  },
+  "result": {
+    "item": "tpsthings:unity_ingot",
+    "count": 1
+  }
+}

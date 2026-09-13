@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "tpsthings:super_compressed_cardboard_box"
+    },
+    {
+      "item": "tpsthings:super_compressed_cardboard_box"
+    },
+    {
+      "item": "tpsthings:super_compressed_cardboard_box"
+    },
+    {
+      "item": "tpsthings:super_compressed_cardboard_box"
+    },
+    {
+      "item": "tpsthings:super_compressed_oredictionificator"
+    },
+    {
+      "item": "tpsthings:antimatter_singularity"
+    }
+  ],
+  "result": {
+    "item": "tpsthings:glitch_shard",
+    "count": 1
+  }
+}

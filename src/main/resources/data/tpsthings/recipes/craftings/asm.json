@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "MMM",
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "M": {
+      "item": "tpsthings:mixin"
+    }
+  },
+  "result": {
+    "item": "tpsthings:asm",
+    "count": 1
+  }
+}

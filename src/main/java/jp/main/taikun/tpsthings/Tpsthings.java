@@ -31,10 +31,9 @@ public class Tpsthings {
     public static final DeferredRegister<CreativeModeTab> MOD_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
     public static final RegistryObject<CreativeModeTab> TAB = MOD_TABS.register("tpsthings",
             () -> CreativeModeTab.builder()
-                    .icon(Items.DIAMOND::getDefaultInstance)
+                    .icon(ModItems.NOT_OO.get()::getDefaultInstance)
                     .title(Component.translatable(TAB_KEY))
                     .displayItems((param, output) -> {
-                        // output.accept(ModBlocks.EXAMPLE_MACHINE.getBlock());
                         // output.accept(ModBlocks.TIME_FLUX_COLLECTOR.getBlock());
                         // output.accept(ModBlocks.TIME_ACCELERATOR.getBlock());
                         output.accept(ModBlocks.DEBUG_ACCELERATOR.get());
@@ -50,29 +49,50 @@ public class Tpsthings {
                         output.accept(ModItems.HOPE_SHEET.get());
                         output.accept(ModItems.HOPE_SUBSTRATE.get());
                         output.accept(ModItems.SPICY_SPICE.get());
-                        output.accept(ModBlocks.ANNIHILATION_CHAMBER.get());
-                        output.accept(ModItems.ANTI_HOPE_SHEET.get());
-                        output.accept(ModItems.UNDEFINED_SHARD.get());
-                        output.accept(ModItems.FROZEN_TICK.get());
-                        output.accept(ModItems.INVULNERABLE_FLAG.get());
-                        output.accept(ModItems.UNDEFINED_BEHAVIOR.get());
-                        output.accept(ModItems.CANCELLED_EVENT.get());
-                        output.accept(ModItems.RAW_HEALTH.get());
-                        output.accept(ModItems.LYING_READER.get());
-                        output.accept(ModItems.MIXIN.get());
-                        output.accept(ModItems.DEATH_HOOK.get());
-                        output.accept(ModItems.REMOVAL_VETO.get());
-                        output.accept(ModItems.COREMOD.get());
-                        output.accept(ModItems.ERASED_INDEX.get());
-                        output.accept(ModItems.JAVA_AGENT.get());
-                        output.accept(ModItems.OO.get());
+                        // おお への系譜。並びはレシピの順 (底の おおじゃないが から 9x9 の卓まで)
                         output.accept(ModItems.NOT_OO.get());
+                        output.accept(ModItems.NULL_POINTER.get());
+                        output.accept(ModItems.GLITCH.get());
+                        output.accept(ModItems.GLITCH_SHARD.get());
+                        output.accept(ModItems.COMPRESSED_CARDBOARD_BOX.get());
+                        output.accept(ModItems.SUPER_COMPRESSED_CARDBOARD_BOX.get());
+                        output.accept(ModItems.COMPRESSED_OREDICTIONIFICATOR.get());
+                        output.accept(ModItems.SUPER_COMPRESSED_OREDICTIONIFICATOR.get());
+                        output.accept(ModItems.UNDEFINED_BEHAVIOR.get());
+                        output.accept(ModItems.BYTECODE.get());
+                        output.accept(ModItems.JAVA.get());
+                        output.accept(ModItems.C.get());
+                        output.accept(ModItems.JVM.get());
+                        output.accept(ModItems.MIXIN.get());
+                        output.accept(ModItems.ASM.get());
+                        output.accept(ModItems.COREMOD.get());
+                        output.accept(ModItems.ATTACK_MODULE.get());
+                        output.accept(ModItems.DEFENSE_MODULE.get());
+                        output.accept(ModItems.SHADER.get());
+                        output.accept(ModItems.BERWL.get());
+                        output.accept(ModItems.PRISM.get());
+                        output.accept(ModItems.SUGOI_MENU.get());
+                        output.accept(ModItems.ENRICHED_NETHERITE.get());
+                        output.accept(ModItems.ALLOY_TSUYOSUGI.get());
+                        output.accept(ModItems.ALLOY_YABASUGI.get());
+                        output.accept(ModItems.ALLOY_EGUSUGI.get());
+                        output.accept(ModItems.ALLOY_OO.get());
+                        output.accept(ModItems.INFINITY_INGOT.get());
+                        output.accept(ModItems.ETERNITY_INGOT.get());
+                        output.accept(ModItems.UNITY_INGOT.get());
+                        output.accept(ModItems.ANTIMATTER_CHUNK.get());
+                        output.accept(ModItems.ANTIMATTER_INGOT.get());
+                        output.accept(ModBlocks.ANTIMATTER_BLOCK.get());
+                        output.accept(ModBlocks.COMPRESSED_ANTIMATTER_BLOCK.get());
+                        output.accept(ModItems.ANTIMATTER_SINGULARITY.get());
+                        output.accept(ModItems.QIO_DRIVE_QUANTUM.get());
+                        output.accept(ModItems.QIO_DRIVE_COSMIC.get());
+                        output.accept(ModItems.QIO_DRIVE_ABSURD.get());
+                        output.accept(ModItems.OO.get());
                         output.accept(ModItems.TUNA.get());
                         output.accept(ModItems.TEACUP.get());
                         output.accept(ModItems.FLUORESCENT_LIGHT.get());
-                        output.accept(ModItems.CAT_TEASER.get());
                         output.accept(ModItems.ACCELERATION_WAND.get());
-                        output.accept(ModItems.PRISM.get());
                     })
                     .build());
 
@@ -82,11 +102,11 @@ public class Tpsthings {
         ModBlocks.register(modEventBus);
         ModBlockEntityTypes.register(modEventBus);
         ModGases.register(modEventBus);
+        ModInfuseTypes.register(modEventBus);
         ModContainerTypes.register(modEventBus);
         ModItems.register(modEventBus);
         ModFluids.register(modEventBus);
         ModFluidTypes.register(modEventBus);
-        ModMenuTypes.register(modEventBus);
         MOD_TABS.register(modEventBus);
         ModNetwork.register();
 
@@ -104,10 +124,6 @@ public class Tpsthings {
     private void registerProviders(GatherDataEvent event) {
         PackOutput output = event.getGenerator().getPackOutput();
         ExistingFileHelper helper = event.getExistingFileHelper();
-        trackGenerated(helper, rl("mekanism", "item/bio_fuel"));
-        trackGenerated(helper, rl("mekanism", "item/substrate"));
-        trackGenerated(helper, rl("mekanism", "item/hdpe_pellet"));
-        trackGenerated(helper, rl("mekanism", "item/hdpe_sheet"));
 
 
         event.getGenerator().addProvider(event.includeClient(), new ModLangs.JA(output));

@@ -2,7 +2,7 @@
   "parent": "minecraft:block/orientable",
   "textures": {
     "front": "tpsthings:block/tps_generator_front_active",
-    "side": "minecraft:block/iron_block",
-    "top": "minecraft:block/iron_block"
+    "side": "tpsthings:block/tps_generator_side",
+    "top": "tpsthings:block/tps_generator_side"
   }
 }

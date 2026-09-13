@@ -4,18 +4,12 @@ import jp.main.taikun.tpsthings.blockentities.BETimeAccelerator;
 import jp.main.taikun.tpsthings.blockentities.BETimeFluxCollector;
 import jp.main.taikun.tpsthings.blockentities.BELagGenerator;
 import jp.main.taikun.tpsthings.blockentities.BETpsGenerator;
-import jp.main.taikun.tpsthings.blockentities.BEExampleMachine;
 import mekanism.api.math.FloatingLong;
 import mekanism.common.MekanismLang;
 import mekanism.common.block.attribute.Attributes;
 import mekanism.common.content.blocktype.Machine;
 
 public class ModBlockTypes {
-    public static final Machine<BEExampleMachine> EXAMPLE_MACHINE = Machine.MachineBuilder
-            .createMachine(() -> ModBlockEntityTypes.EXAMPLE_MACHINE, MekanismLang.DESCRIPTION_CRUSHER)
-            .withGui(() -> ModContainerTypes.EXAMPLE_MACHINE)
-            .replace(Attributes.ACTIVE)
-            .build();
     public static final Machine<BETimeFluxCollector> TIME_FLUX_COLLECTOR = Machine.MachineBuilder
             .createMachine(() -> ModBlockEntityTypes.TIME_FLUX_COLLECTOR, MekanismLang.DESCRIPTION_CRUSHER)
             .withGui(() -> ModContainerTypes.TIME_FLUX_COLLECTOR)

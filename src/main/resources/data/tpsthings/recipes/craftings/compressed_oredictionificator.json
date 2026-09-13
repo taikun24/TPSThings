@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "CCC",
+    "CUC",
+    "CCC"
+  ],
+  "key": {
+    "C": {
+      "item": "mekanism:oredictionificator"
+    },
+    "U": {
+      "item": "mekanism:ultimate_control_circuit"
+    }
+  },
+  "result": {
+    "item": "tpsthings:compressed_oredictionificator",
+    "count": 1
+  }
+}

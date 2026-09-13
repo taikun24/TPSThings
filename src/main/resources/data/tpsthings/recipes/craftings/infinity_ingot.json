@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "extendedcrafting:ultimate_singularity"
+    },
+    {
+      "item": "tpsthings:alloy_tsuyosugi"
+    }
+  ],
+  "result": {
+    "item": "tpsthings:infinity_ingot",
+    "count": 1
+  }
+}

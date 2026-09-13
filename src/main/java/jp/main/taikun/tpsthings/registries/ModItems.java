@@ -1,11 +1,12 @@
 package jp.main.taikun.tpsthings.registries;
 
 import jp.main.taikun.tpsthings.Tpsthings;
-import jp.main.taikun.tpsthings.items.ItemCatTeaser;
 import jp.main.taikun.tpsthings.items.ItemFluorescentLight;
 import jp.main.taikun.tpsthings.items.ItemLayer;
+import jp.main.taikun.tpsthings.items.ItemMaterial;
 import jp.main.taikun.tpsthings.items.ItemOo;
 import jp.main.taikun.tpsthings.items.ItemPrism;
+import jp.main.taikun.tpsthings.items.ItemQioDrive;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.*;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -30,47 +31,82 @@ public class ModItems {
      public static final RegistryObject<Item> TEACUP = ITEMS.register("teacup", ()->new Item(new Item.Properties().stacksTo(16).food(new FoodProperties.Builder().nutrition(6).saturationMod(0.6F).alwaysEat().build())));
      public static final RegistryObject<Item> FLUORESCENT_LIGHT = ITEMS.register("fluorescent_light", ItemFluorescentLight::new);
      public static final RegistryObject<Item> TIME_FLUX_CRYSTAL = ITEMS.register("time_flux_crystal", ()->new FoilItem(new Item.Properties()));
-     public static final RegistryObject<Item> CAT_TEASER = ITEMS.register("cat_teaser", ItemCatTeaser::new);
      public static final RegistryObject<Item> ACCELERATION_WAND = ITEMS.register("acceleration_wand", ()->new Item(new  Item.Properties()));
      public static final RegistryObject<Item> PRISM = ITEMS.register("prism", ItemPrism::new);
+
      /*
-      * おお への系譜。貫通層 (penetration-layer-model) を表層から索引層まで 1 段ずつ降りる。
-      * 下から順に人間の言葉を失っていき、完成品だけが感嘆に戻る。
+      * おお への系譜。
       *
-      *  減算層    反HOPEシート           加圧反応室   HOPEシート + NOPE
-      *  刹那層    未定義の欠片           対消滅炉     HOPE + 反HOPE (1/5)。lang もモデルも意図的に登録しない
-      *  刹那層    凍結した1tick          化学注入室   欠片 + タイムフラックス          … 無敵時間
-      *  不可侵層  無敵フラグ             浄化室       凍結した1tick + HOPE酸素        … 無敵判定
-      *  挙動層    未定義動作             対消滅炉     欠片×2 + 無敵フラグ×2 + 結晶
-      *  合議層    キャンセル済みイベント 作業台       未定義動作 + 反HOPE×4 + おおじゃないが×4
-      *  生値層    剥き出しの体力値       加圧反応室   キャンセル済みイベント + NOPE + HOPE水素
-      *  虚偽層    嘘つきの読み出し       圧縮機       剥き出しの体力値 + 気化NOPE
-      *  虚偽層    Mixin                  作業台       体力値 + 読み出し + 未定義動作 + プリズム
-      *  終焉層    握り潰された死         結合機       Mixin + キャンセル済みイベント×2
-      *  抹消層    除去の拒否権           対消滅炉     握り潰された死 + 凍結した1tick×4
-      *  抹消層    CoreMod                作業台
-      *  索引層    消された索引           精密製材機   除去の拒否権 → 索引 (+欠片 25%)
-      *  索引層    Java Agent             作業台
-      *  --        おお                   対消滅炉 (儀式)  減算層から索引層までを層の順に 1 つずつ投げ込む (BEAnnihilationChamber.RITUAL)
+      * 底は「おおじゃないが」(土 + 木の板)。そこから製材と濃縮だけで低レベルへ降りていき、
+      * 反物質側から来る資源と合流して、最後に 9x9 の卓で おお に組み上がる。
+      *
+      *   コードの段    バイトコード → Java → C → シェーダー → BERWL
+      *                 バイトコード + Javaティーガス → JVM → Mixin → ASM → CoreMod
+      *                 Mixin + ASM + CoreMod + 武器/盾 → 攻撃モジュール / 防衛モジュール
+      *   欠陥の段      ぬるぽ → (製材) グリッチの欠片 + 5% 未定義動作 → (製材) バイトコード
+      *   資源の段      ダンボール箱 / 鉱石統合機 を濃縮室で潰して グリッチの欠片 へ
+      *   合金の段      原子合金 → つよすぎ → やばすぎ → えぐすぎ → おお合金
+      *   無限の段      インフィニティ → エタニティ → ユニティ → プリズム → すごいメニュー
+      *   反物質の段    反物質ペレット → 塊 → インゴット → ブロック → 濃縮ブロック → シンギュラリティ
+      *
+      * 貫通層 (penetration-layer-model) の呼び名を持つのは、関所の話に直接対応する 3 つだけ。
+      * 残りは層を持たないただの素材。
       */
-     public static final RegistryObject<Item> MIXIN = ITEMS.register("mixin", ()->new ItemLayer(7, false, new Item.Properties().rarity(Rarity.EPIC)));
-     public static final RegistryObject<Item> UNDEFINED_SHARD = ITEMS.register("undefined_shard", ()->new ItemLayer(2, false, new Item.Properties().rarity(Rarity.EPIC)));
-     public static final RegistryObject<Item> ANTI_HOPE_SHEET = ITEMS.register("anti_hope_sheet", ()->new ItemLayer(1, true, new Item.Properties()));
+     // ツールチップのシェーダーは、Mixin と CoreMod だけ層のシェーダーではなく専用のもの (実績名の絵柄) を被せる
+     public static final RegistryObject<Item> MIXIN = ITEMS.register("mixin", ()->new ItemLayer(7, false, "mixin", new Item.Properties().rarity(Rarity.EPIC)));
      public static final RegistryObject<Item> UNDEFINED_BEHAVIOR = ITEMS.register("undefined_behavior", ()->new ItemLayer(4, true, new Item.Properties().rarity(Rarity.EPIC)));
-     public static final RegistryObject<Item> COREMOD = ITEMS.register("coremod", ()->new ItemLayer(9, true, new Item.Properties().rarity(Rarity.EPIC)));
-     public static final RegistryObject<Item> JAVA_AGENT = ITEMS.register("java_agent", ()->new ItemLayer(10, true, new Item.Properties().rarity(Rarity.EPIC)));
-     public static final RegistryObject<Item> FROZEN_TICK = ITEMS.register("frozen_tick", ()->new ItemLayer(2, false, new Item.Properties().rarity(Rarity.UNCOMMON)));
-     public static final RegistryObject<Item> INVULNERABLE_FLAG = ITEMS.register("invulnerable_flag", ()->new ItemLayer(3, false, new Item.Properties().rarity(Rarity.UNCOMMON)));
-     public static final RegistryObject<Item> CANCELLED_EVENT = ITEMS.register("cancelled_event", ()->new ItemLayer(5, false, new Item.Properties().rarity(Rarity.RARE)));
-     public static final RegistryObject<Item> RAW_HEALTH = ITEMS.register("raw_health", ()->new ItemLayer(6, false, new Item.Properties().rarity(Rarity.RARE)));
-     public static final RegistryObject<Item> LYING_READER = ITEMS.register("lying_reader", ()->new ItemLayer(7, true, new Item.Properties().rarity(Rarity.RARE)));
-     public static final RegistryObject<Item> DEATH_HOOK = ITEMS.register("death_hook", ()->new ItemLayer(8, true, new Item.Properties().rarity(Rarity.EPIC)));
-     public static final RegistryObject<Item> REMOVAL_VETO = ITEMS.register("removal_veto", ()->new ItemLayer(9, true, new Item.Properties().rarity(Rarity.EPIC)));
-     public static final RegistryObject<Item> ERASED_INDEX = ITEMS.register("erased_index", ()->new ItemLayer(10, true, new Item.Properties().rarity(Rarity.EPIC)));
-     /*
-     * Mixin
-     *
-     * */
+     public static final RegistryObject<Item> COREMOD = ITEMS.register("coremod", ()->new ItemLayer(9, true, "coremod", new Item.Properties().rarity(Rarity.EPIC)));
+
+     // --- コードの段 ---
+     public static final RegistryObject<Item> BYTECODE = ITEMS.register("bytecode", ()->new Item(new Item.Properties()));
+     public static final RegistryObject<Item> JAVA = ITEMS.register("java", ()->new Item(new Item.Properties()));
+     public static final RegistryObject<Item> C = ITEMS.register("c", ()->new Item(new Item.Properties().rarity(Rarity.UNCOMMON)));
+     public static final RegistryObject<Item> JVM = ITEMS.register("jvm", ()->new FoilItem(new Item.Properties().rarity(Rarity.RARE)));
+     public static final RegistryObject<Item> ASM = ITEMS.register("asm", ()->new ItemMaterial("asm", false, new Item.Properties().rarity(Rarity.EPIC)));
+     public static final RegistryObject<Item> SHADER = ITEMS.register("shader", ()->new FoilItem(new Item.Properties().rarity(Rarity.UNCOMMON)));
+     public static final RegistryObject<Item> BERWL = ITEMS.register("berwl", ()->new ItemMaterial("berwl", false, new Item.Properties().rarity(Rarity.RARE)));
+     public static final RegistryObject<Item> SUGOI_MENU = ITEMS.register("sugoi_menu", ()->new ItemMaterial("sugoi_menu", false, new Item.Properties().rarity(Rarity.RARE)));
+     public static final RegistryObject<Item> ATTACK_MODULE = ITEMS.register("attack_module", ()->new ItemMaterial("attack_module", true, new Item.Properties().rarity(Rarity.EPIC)));
+     public static final RegistryObject<Item> DEFENSE_MODULE = ITEMS.register("defense_module", ()->new ItemMaterial("defense_module", true, new Item.Properties().rarity(Rarity.EPIC)));
+
+     // --- 欠陥の段 ---
+     public static final RegistryObject<Item> NULL_POINTER = ITEMS.register("null_pointer", ()->new Item(new Item.Properties().rarity(Rarity.EPIC)));
+     public static final RegistryObject<Item> GLITCH = ITEMS.register("glitch", ()->new ItemMaterial("glitch", true, new Item.Properties().rarity(Rarity.RARE)));
+     public static final RegistryObject<Item> GLITCH_SHARD = ITEMS.register("glitch_shard", ()->new Item(new Item.Properties().rarity(Rarity.UNCOMMON)));
+
+     // --- 資源の段。濃縮室で押し潰していく ---
+     public static final RegistryObject<Item> COMPRESSED_CARDBOARD_BOX = ITEMS.register("compressed_cardboard_box", ()->new Item(new Item.Properties()));
+     public static final RegistryObject<Item> SUPER_COMPRESSED_CARDBOARD_BOX = ITEMS.register("super_compressed_cardboard_box", ()->new Item(new Item.Properties().rarity(Rarity.UNCOMMON)));
+     public static final RegistryObject<Item> COMPRESSED_OREDICTIONIFICATOR = ITEMS.register("compressed_oredictionificator", ()->new Item(new Item.Properties()));
+     public static final RegistryObject<Item> SUPER_COMPRESSED_OREDICTIONIFICATOR = ITEMS.register("super_compressed_oredictionificator", ()->new Item(new Item.Properties().rarity(Rarity.UNCOMMON)));
+
+     // --- 合金の段 ---
+     /** 吹込で 80 mB ずつ喰わせるための濃縮ネザライト。Mekanism の濃縮○○と同じ役割 */
+     public static final RegistryObject<Item> ENRICHED_NETHERITE = ITEMS.register("enriched_netherite", ()->new Item(new Item.Properties()));
+     public static final RegistryObject<Item> ALLOY_TSUYOSUGI = ITEMS.register("alloy_tsuyosugi", ()->new Item(new Item.Properties().rarity(Rarity.UNCOMMON)));
+     public static final RegistryObject<Item> ALLOY_YABASUGI = ITEMS.register("alloy_yabasugi", ()->new Item(new Item.Properties().rarity(Rarity.RARE)));
+     public static final RegistryObject<Item> ALLOY_EGUSUGI = ITEMS.register("alloy_egusugi", ()->new Item(new Item.Properties().rarity(Rarity.EPIC)));
+     public static final RegistryObject<Item> ALLOY_OO = ITEMS.register("alloy_oo", ()->new ItemMaterial("alloy_oo", true, new Item.Properties().rarity(Rarity.EPIC)));
+
+     // --- 無限の段 ---
+     public static final RegistryObject<Item> INFINITY_INGOT = ITEMS.register("infinity_ingot", ()->new ItemMaterial("infinity_ingot", true, new Item.Properties().rarity(Rarity.RARE)));
+     public static final RegistryObject<Item> ETERNITY_INGOT = ITEMS.register("eternity_ingot", ()->new ItemMaterial("eternity_ingot", true, new Item.Properties().rarity(Rarity.EPIC)));
+     public static final RegistryObject<Item> UNITY_INGOT = ITEMS.register("unity_ingot", ()->new ItemMaterial("unity_ingot", true, new Item.Properties().rarity(Rarity.EPIC)));
+
+     // --- 反物質の段 ---
+     public static final RegistryObject<Item> ANTIMATTER_CHUNK = ITEMS.register("antimatter_chunk", ()->new Item(new Item.Properties().rarity(Rarity.UNCOMMON)));
+     public static final RegistryObject<Item> ANTIMATTER_INGOT = ITEMS.register("antimatter_ingot", ()->new Item(new Item.Properties().rarity(Rarity.RARE)));
+     public static final RegistryObject<Item> ANTIMATTER_SINGULARITY = ITEMS.register("antimatter_singularity", ()->new FoilItem(new Item.Properties().rarity(Rarity.EPIC)));
+
+     // --- QIO ドライブ。Mekanism の最上位 (超大質量) の先を 3 段だけ伸ばす ---
+     public static final RegistryObject<Item> QIO_DRIVE_QUANTUM = ITEMS.register("qio_drive_quantum",
+             ()->new ItemQioDrive(128L * 1000 * 1000 * 1000 * 1000, 512 * 1024));
+     public static final RegistryObject<Item> QIO_DRIVE_COSMIC = ITEMS.register("qio_drive_cosmic",
+             ()->new ItemQioDrive(512L * 1000 * 1000 * 1000 * 1000 * 1000, 64 * 1024 * 1024));
+     // 種類数の 2G は int に入りきらないので、入る限界で止める。桁違いを名乗る側の都合で丸める
+     public static final RegistryObject<Item> QIO_DRIVE_ABSURD = ITEMS.register("qio_drive_absurd",
+             ()->new ItemQioDrive(8L * 1000 * 1000 * 1000 * 1000 * 1000 * 1000, Integer.MAX_VALUE));
+
      private static class FoilItem extends Item {
          public FoilItem(Properties properties) {
              super(properties);

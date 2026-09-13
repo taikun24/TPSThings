@@ -2,16 +2,17 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "pattern": [
-    "SMS",
-    "DQR",
-    "SMS"
+    "AAA",
+    "AJA",
+    "AAA"
   ],
   "key": {
-    "S": { "item": "tpsthings:undefined_shard" },
-    "M": { "item": "tpsthings:mixin" },
-    "D": { "item": "tpsthings:death_hook" },
-    "R": { "item": "tpsthings:removal_veto" },
-    "Q": { "item": "tpsthings:qolest" }
+    "A": {
+      "item": "tpsthings:asm"
+    },
+    "J": {
+      "item": "tpsthings:jvm"
+    }
   },
   "result": {
     "item": "tpsthings:coremod",

@@ -1,0 +1,12 @@
+{
+  "type": "mekanism:enriching",
+  "input": {
+    "amount": 16,
+    "ingredient": {
+      "item": "mekanism:cardboard_box"
+    }
+  },
+  "output": {
+    "item": "tpsthings:compressed_cardboard_box"
+  }
+}

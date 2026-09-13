@@ -1,0 +1,15 @@
+{
+  "type": "mekanism:sawing",
+  "input": {
+    "ingredient": {
+      "item": "tpsthings:null_pointer"
+    }
+  },
+  "mainOutput": {
+    "item": "tpsthings:glitch_shard"
+  },
+  "secondaryChance": 0.05,
+  "secondaryOutput": {
+    "item": "tpsthings:undefined_behavior"
+  }
+}

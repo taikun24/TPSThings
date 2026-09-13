@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "CCC",
+    "CJC",
+    "CCC"
+  ],
+  "key": {
+    "C": {
+      "item": "tpsthings:c"
+    },
+    "J": {
+      "item": "tpsthings:java"
+    }
+  },
+  "result": {
+    "item": "tpsthings:shader",
+    "count": 1
+  }
+}

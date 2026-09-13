@@ -1,0 +1,42 @@
+{
+  "parent": "tpsthings:oo/undefined_behavior",
+  "display": {
+    "icon": {
+      "item": "tpsthings:bytecode"
+    },
+    "title": {
+      "translate": "advancements.tpsthings.oo.bytecode.title"
+    },
+    "description": {
+      "translate": "advancements.tpsthings.oo.obtained",
+      "with": [
+        {
+          "translate": "item.tpsthings.bytecode"
+        }
+      ]
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "obtained": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "tpsthings:bytecode"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "obtained"
+    ]
+  ]
+}

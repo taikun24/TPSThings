@@ -1,0 +1,25 @@
+{
+  "type": "mekanism:reaction",
+  "itemInput": {
+    "ingredient": {
+      "item": "tpsthings:infinity_ingot"
+    }
+  },
+  "fluidInput": {
+    "tag": "forge:heavy_water",
+    "amount": 3000
+  },
+  "gasInput": {
+    "gas": "mekanism:polonium",
+    "amount": 1000
+  },
+  "energyRequired": 100000,
+  "duration": 1200,
+  "itemOutput": {
+    "item": "tpsthings:infinity_ingot"
+  },
+  "gasOutput": {
+    "gas": "mekanism:antimatter",
+    "amount": 1000
+  }
+}

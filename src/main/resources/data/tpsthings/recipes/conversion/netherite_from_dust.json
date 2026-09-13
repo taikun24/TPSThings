@@ -1,0 +1,12 @@
+{
+  "type": "mekanism:infusion_conversion",
+  "input": {
+    "ingredient": {
+      "tag": "forge:dusts/netherite"
+    }
+  },
+  "output": {
+    "amount": 10,
+    "infuse_type": "tpsthings:netherite"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "CC",
+    "CC"
+  ],
+  "key": {
+    "C": {
+      "item": "tpsthings:antimatter_chunk"
+    }
+  },
+  "result": {
+    "item": "tpsthings:antimatter_ingot",
+    "count": 1
+  }
+}

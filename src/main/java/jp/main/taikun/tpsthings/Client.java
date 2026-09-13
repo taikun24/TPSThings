@@ -43,7 +43,8 @@ public class Client {
     }
     @SubscribeEvent
     public static void onKeyInput(InputEvent.Key event){
-        if (event.getKey() == KeyBindings.SUGOI_MENU.getKey().getValue()){
+        // 生のキー番号と比べると、キーコンフィグで割り当てを変えても付いてこない。割り当て側に判定させる
+        if (KeyBindings.SUGOI_MENU.matches(event.getKey(), event.getScanCode())){
             if (event.getAction() == GLFW.GLFW_RELEASE) SugoiMenuOverlay.hide();
             else if (isHoldingOo() && event.getAction() == GLFW.GLFW_PRESS) SugoiMenuOverlay.show();
 
@@ -68,9 +69,10 @@ public class Client {
         public static final KeyMapping SUGOI_MENU = new KeyMapping(
                 "key.tpsthings.sugoi_menu",
                 KeyConflictContext.IN_GAME,
-                InputConstants.Type.SCANCODE,
+                // GLFW_KEY_V はキーコード (KEYSYM)。SCANCODE 扱いにすると別の物理キーを指してしまう
+                InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_V,
-                "key.tpsthings.sugoi_menu"
+                "key.categories.tpsthings"
         );
     }
 }

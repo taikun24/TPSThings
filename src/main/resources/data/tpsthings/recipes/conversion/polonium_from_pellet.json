@@ -1,0 +1,12 @@
+{
+  "type": "mekanism:infusion_conversion",
+  "input": {
+    "ingredient": {
+      "item": "mekanism:pellet_polonium"
+    }
+  },
+  "output": {
+    "amount": 80,
+    "infuse_type": "tpsthings:polonium"
+  }
+}

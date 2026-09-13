@@ -1,0 +1,21 @@
+{
+  "type": "mekanism:reaction",
+  "itemInput": {
+    "ingredient": {
+      "item": "tpsthings:bytecode"
+    }
+  },
+  "fluidInput": {
+    "fluid": "tpsthings:java_tea",
+    "amount": 1000
+  },
+  "gasInput": {
+    "gas": "tpsthings:java_tea",
+    "amount": 1000
+  },
+  "energyRequired": 20000,
+  "duration": 600,
+  "itemOutput": {
+    "item": "tpsthings:jvm"
+  }
+}

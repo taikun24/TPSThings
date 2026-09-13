@@ -1,0 +1,37 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "tpsthings:mixin"
+    },
+    {
+      "item": "tpsthings:asm"
+    },
+    {
+      "item": "tpsthings:coremod"
+    },
+    {
+      "item": "minecraft:netherite_sword"
+    },
+    {
+      "item": "minecraft:netherite_sword"
+    },
+    {
+      "item": "minecraft:netherite_sword"
+    },
+    {
+      "item": "minecraft:netherite_sword"
+    },
+    {
+      "item": "minecraft:netherite_sword"
+    },
+    {
+      "item": "minecraft:netherite_sword"
+    }
+  ],
+  "result": {
+    "item": "tpsthings:attack_module",
+    "count": 1
+  }
+}

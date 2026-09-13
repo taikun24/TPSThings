@@ -1,0 +1,15 @@
+{
+  "type": "mekanism:metallurgic_infusing",
+  "chemicalInput": {
+    "amount": 80,
+    "infuse_type": "tpsthings:antimatter"
+  },
+  "itemInput": {
+    "ingredient": {
+      "item": "tpsthings:alloy_yabasugi"
+    }
+  },
+  "output": {
+    "item": "tpsthings:alloy_egusugi"
+  }
+}

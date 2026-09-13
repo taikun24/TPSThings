@@ -1,0 +1,19 @@
+{
+  "type": "mekanism:rotary",
+  "gasInput": {
+    "amount": 1,
+    "gas": "tpsthings:java_tea"
+  },
+  "gasOutput": {
+    "amount": 1,
+    "gas": "tpsthings:java_tea"
+  },
+  "fluidInput": {
+    "amount": 1,
+    "fluid": "tpsthings:java_tea"
+  },
+  "fluidOutput": {
+    "amount": 1,
+    "fluid": "tpsthings:java_tea"
+  }
+}

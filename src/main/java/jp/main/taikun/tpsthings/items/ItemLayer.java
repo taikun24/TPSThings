@@ -26,11 +26,19 @@ public class ItemLayer extends Item {
 
     private final int layer;
     private final boolean foil;
+    /** 層のシェーダーの代わりに被せる専用シェーダー (ItemMaterial と同じ名前の付け方)。null なら層のシェーダー */
+    @Nullable
+    private final String shader;
 
     public ItemLayer(int layer, boolean foil, Properties properties) {
+        this(layer, foil, null, properties);
+    }
+
+    public ItemLayer(int layer, boolean foil, @Nullable String shader, Properties properties) {
         super(properties);
         this.layer = layer;
         this.foil = foil;
+        this.shader = shader;
     }
 
     public int layer() {
@@ -101,6 +109,9 @@ public class ItemLayer extends Item {
 
     @Override
     public @NotNull Optional<TooltipComponent> getTooltipImage(@NotNull ItemStack stack) {
+        if (shader != null) {
+            return Optional.of(new ItemMaterial.MaterialTooltip(shader));
+        }
         return Optional.of(new LayerTooltip(layer));
     }
 

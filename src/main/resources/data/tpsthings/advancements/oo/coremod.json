@@ -1,0 +1,42 @@
+{
+  "parent": "tpsthings:oo/asm",
+  "display": {
+    "icon": {
+      "item": "tpsthings:coremod"
+    },
+    "title": {
+      "translate": "advancements.tpsthings.oo.coremod.title"
+    },
+    "description": {
+      "translate": "advancements.tpsthings.oo.obtained",
+      "with": [
+        {
+          "translate": "item.tpsthings.coremod"
+        }
+      ]
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "obtained": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "tpsthings:coremod"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "obtained"
+    ]
+  ]
+}

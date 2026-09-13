@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SSS",
+    "SGS",
+    "SSS"
+  ],
+  "key": {
+    "S": {
+      "item": "tpsthings:antimatter_singularity"
+    },
+    "G": {
+      "item": "tpsthings:glitch"
+    }
+  },
+  "result": {
+    "item": "tpsthings:null_pointer",
+    "count": 1
+  }
+}
