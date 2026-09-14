@@ -24,6 +24,7 @@ public abstract class MixinMinecraftDeathGuard {
 
     @Inject(method = "setScreen", at = @At("HEAD"), cancellable = true)
     private void tpsthings$refuseDeathScreen(Screen screen, CallbackInfo ci) {
+        ClientDeathGuard.traceSetScreen(screen);
         if (screen instanceof DeathScreen && ClientDeathGuard.suppress()) {
             ci.cancel();
         }

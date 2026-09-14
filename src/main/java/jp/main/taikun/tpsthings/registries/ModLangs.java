@@ -53,6 +53,9 @@ public abstract class ModLangs extends LanguageProvider {
             add(ModItems.SUGOI_MENU.get(), "すごいメニュー");
             add(ModItems.ATTACK_MODULE.get(), "攻撃モジュール");
             add(ModItems.DEFENSE_MODULE.get(), "防衛モジュール");
+            // Mekanism のモジュール。アイテム名は ItemModule がモジュールの翻訳キーから引く
+            add("module.tpsthings.oo_unit", "おおモジュール");
+            add("description.tpsthings.oo_unit", "MekaSuit の胴か Meka-Tool に入れると、おおを着ている / 持っているのと同じ力が宿る");
             // --- 欠陥の段 ---
             add(ModItems.NULL_POINTER.get(), "NullPointer");
             add(ModItems.GLITCH.get(), "グリッチ");
@@ -232,6 +235,9 @@ public abstract class ModLangs extends LanguageProvider {
             add(ModItems.SUGOI_MENU.get(), "Amazing Menu");
             add(ModItems.ATTACK_MODULE.get(), "Attack Module");
             add(ModItems.DEFENSE_MODULE.get(), "Defence Module");
+            // The Mekanism module. ItemModule names itself from the module's translation key
+            add("module.tpsthings.oo_unit", "Oo Unit");
+            add("description.tpsthings.oo_unit", "Installed in a MekaSuit bodyarmor or a Meka-Tool, it acts as if you were wearing / holding Oo");
             // --- The defect rungs ---
             add(ModItems.NULL_POINTER.get(), "NullPointer");
             add(ModItems.GLITCH.get(), "Glitch");

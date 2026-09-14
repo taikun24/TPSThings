@@ -200,10 +200,13 @@ public class ItemOo extends ArmorItem implements WavyNameItem {
     public boolean isFoil(@NotNull ItemStack p_41453_) {
         return true;
     }
-    /** OO を胴に着ているか。装備由来の挙動の判定を 1 箇所にまとめる。 */
+    /**
+     * OO を胴に着ているか。装備由来の挙動の判定を 1 箇所にまとめる。
+     * おおモジュールを入れて有効にした胴 (MekaSuit) も同じに数える ({@link OoEquivalent})。
+     */
     public static boolean isWorn(LivingEntity entity) {
         return entity != null
-                && entity.getItemBySlot(EquipmentSlot.CHEST).is(ModItems.OO.get());
+                && OoEquivalent.isOo(entity.getItemBySlot(EquipmentSlot.CHEST));
     }
 
     /** 円錐の長さ。 */
@@ -219,13 +222,31 @@ public class ItemOo extends ArmorItem implements WavyNameItem {
         if (entity.level().isClientSide() || !(entity instanceof Player player)) {
             return false;
         }
-        // isAlive() は偽装されうる。「死んで見える生者」を取り逃がさないよう、除去の印だけで数える
+        sweep(player);
+        return false; // 通常のスイング挙動はそのまま残す
+    }
+
+    /**
+     * 振った人の視野円錐に入っている相手を、全部貫通攻撃に通す。サーバ側からだけ呼ぶ。
+     *
+     * <p>おお本体は {@link #onEntitySwing} から、おおモジュールを入れた他所の道具は
+     * {@code MixinLivingEntityOoSwing} から来る (他所のアイテムにはアイテム側の口が無いので)。
+     */
+    public static void sweep(Player player) {
+        // isAlive() は偽装されうる。「死んで見える生者」を取り逃がさないよう、除去の印だけで数える。
+        // プレイヤーも索引層まで通す設定のときは、円錐にプレイヤーも入れる (装備で不死になった相手向け)。
+        // 既定では Mob だけ — スイングで周りのプレイヤーまで巻き込まないため
         List<PiercingStrike.Result> results = new ArrayList<>();
-        for (Mob mob : ViewCone.mobsInView(player, VIEW_RANGE, mob -> !mob.isRemoved())) {
-            results.add(PiercingStrike.strike(player, mob));
+        if (PiercingStrike.isPlayersFullDepth()) {
+            for (LivingEntity living : ViewCone.livingInView(player, VIEW_RANGE, e -> !e.isRemoved())) {
+                results.add(PiercingStrike.strike(player, living));
+            }
+        } else {
+            for (Mob mob : ViewCone.mobsInView(player, VIEW_RANGE, mob -> !mob.isRemoved())) {
+                results.add(PiercingStrike.strike(player, mob));
+            }
         }
         report(player, results);
-        return false; // 通常のスイング挙動はそのまま残す
     }
 
     /** 直接殴った相手を貫通攻撃に通す。サーバ側からだけ呼ぶ。 */

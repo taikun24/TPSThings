@@ -89,6 +89,7 @@ public class Tpsthings {
                         output.accept(ModItems.QIO_DRIVE_COSMIC.get());
                         output.accept(ModItems.QIO_DRIVE_ABSURD.get());
                         output.accept(ModItems.OO.get());
+                        output.accept(ModItems.MODULE_OO_UNIT.get());
                         output.accept(ModItems.TUNA.get());
                         output.accept(ModItems.TEACUP.get());
                         output.accept(ModItems.FLUORESCENT_LIGHT.get());
@@ -105,6 +106,7 @@ public class Tpsthings {
         ModInfuseTypes.register(modEventBus);
         ModContainerTypes.register(modEventBus);
         ModItems.register(modEventBus);
+        ModModules.register(modEventBus);
         ModFluids.register(modEventBus);
         ModFluidTypes.register(modEventBus);
         MOD_TABS.register(modEventBus);

@@ -96,7 +96,7 @@ public final class DamageGuard {
      * 「消されかけた」と誤認して自動対処が走り、しかもその remove を打ち消してしまう。
      * 打ち消された結果が「Force-added player with duplicate UUID」になる。
      */
-    private static volatile Thread selfActor = null;
+    private static final ThreadLocal<int[]> SELF_DEPTH = ThreadLocal.withInitial(() -> new int[1]);
 
     private static volatile boolean watching = false;
     private static volatile boolean motionGuard = false;
@@ -144,7 +144,7 @@ public final class DamageGuard {
         FIRED_AT.put(kind, System.currentTimeMillis());
 
         // 自分で起こしたものは自分の仕業として数えない。数えると、対処が対処を呼ぶ
-        if (Thread.currentThread() == selfActor) {
+        if (isSelfAction()) {
             return false;
         }
 
@@ -404,18 +404,21 @@ public final class DamageGuard {
      * この中で起きた削除や HP 変更は、絞り所も自動対処も素通しになる。
      */
     public static void runAsSelf(Runnable action) {
-        Thread previous = selfActor;
-        selfActor = Thread.currentThread();
+        // 印はスレッドごとに持つ。以前は全スレッド共有の 1 枠を「前の値に戻す」作りで、
+        // 通信スレッドとサーバスレッドが重なると戻す順が交差し、サーバスレッドが
+        // <b>永久に「自分の操作中」</b>のまま残った。そうなると関所が全部素通しになる (実測で死んだ)
+        int[] depth = SELF_DEPTH.get();
+        depth[0]++;
         try {
             action.run();
         } finally {
-            selfActor = previous;
+            depth[0]--;
         }
     }
 
     /** いま走っているのがこの Mod 自身の操作か。関所を素通しさせる判断に使う。 */
     public static boolean isSelfAction() {
-        return Thread.currentThread() == selfActor;
+        return SELF_DEPTH.get()[0] > 0;
     }
 
     public static boolean isWatching() {

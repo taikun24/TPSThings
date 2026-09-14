@@ -88,6 +88,90 @@ public final class MethodDisabler {
         return apply(signature, true);
     }
 
+    /**
+     * 自動対処が潰してはいけない相手か。潰してはいけないなら理由を返す。
+     *
+     * <p>本体を捨てる手が安全なのは、そのメソッドが<b>足し算</b>のとき — 呼ばれなくなっても、
+     * 元の処理はそのまま走る。<b>元の処理の代わりに立っているもの</b>を空にすると、
+     * 元の処理ごと世界から消える:
+     * <ul>
+     *   <li>Mixin の注入のうち {@code @Inject} ({@code handler$}) 以外。{@code redirect$} /
+     *       {@code wrapOperation$} は元の呼び出しそのものを置き換え、{@code wrapWithCondition$} は
+     *       元の呼び出しを走らせるかを決める。空にすると false が返り、<b>元の呼び出しが二度と走らない</b>
+     *       (サーバの tick を丸ごと止めた実例がある)</li>
+     *   <li>バニラのメソッドを上書きしているもの。そのオブジェクトではバニラの処理が
+     *       その上書きを通るので、空にするとバニラの処理ごと止まる
+     *       (同期データの書き込みを上書きしたクラスを潰しかけた実例がある)</li>
+     * </ul>
+     *
+     * <p>手動の {@link #disable} は妨げない。本人が選んだものは本人の判断。
+     * 自動では、潰す代わりに block で代用することもしない — block は連鎖にそのフレームが居る間の
+     * 書き込みを全部止めるので、元の処理の道に居るフレームを block すると被害が世界に広がる。
+     */
+    public static String autoRefusal(String signature) {
+        int separator = signature.indexOf('#');
+        if (separator <= 0) {
+            return null;
+        }
+        String className = signature.substring(0, separator);
+        String methodName = signature.substring(separator + 1);
+        if (DamageGuard.mixinOwner(signature) != null) {
+            int dollar = methodName.indexOf('$');
+            if (dollar > 0) {
+                String kind = methodName.substring(0, dollar);
+                return kind.equals("handler") ? null
+                        : "元の処理の代わりに立つ注入 (" + kind + ") は自動では潰しません";
+            }
+            // $ の無い名前は、混ぜ込み先に<b>足された</b>メソッド。呼ぶのは足した本人だけなので、
+            // 潰しても元の処理は残る (ここを拒むと、殺す処理そのものを見逃す)。
+            // ただしバニラの名前を着ているなら上書き (@Overwrite) で、それは元の処理そのもの
+            if (methodName.matches("m_\\d+_") || methodName.startsWith("<")) {
+                return "バニラのメソッド (" + methodName + ") の上書きは自動では潰しません";
+            }
+            return null;
+        }
+        if (instrumentation == null && ensureReady() != null) {
+            return null;
+        }
+        Class<?> owner = findLoaded(className);
+        if (owner == null) {
+            return null;
+        }
+        String overridden = infrastructureDeclaring(owner, methodName);
+        return overridden == null ? null
+                : "バニラのメソッド (" + overridden + ") の上書きは自動では潰しません";
+    }
+
+    /** 系譜 (親クラス・インターフェース) のうち、基盤側で同名のメソッドを宣言しているもの。 */
+    private static String infrastructureDeclaring(Class<?> owner, String methodName) {
+        java.util.ArrayDeque<Class<?>> pending = new java.util.ArrayDeque<>();
+        pending.add(owner);
+        Set<Class<?>> seen = new java.util.HashSet<>();
+        while (!pending.isEmpty()) {
+            Class<?> type = pending.poll();
+            if (type == null || type == Object.class || !seen.add(type)) {
+                continue;
+            }
+            if (type != owner && GuardContext.isInfrastructure(type.getName())) {
+                try {
+                    for (java.lang.reflect.Method method : type.getDeclaredMethods()) {
+                        if (method.getName().equals(methodName)) {
+                            return type.getSimpleName() + "#" + methodName;
+                        }
+                    }
+                } catch (Throwable unreadable) {
+                    // 読めない親は判断材料にならないだけ
+                }
+            }
+            // インターフェースの親は null。ArrayDeque は null を受け付けない (実測で世界の tick ごと落ちた)
+            if (type.getSuperclass() != null) {
+                pending.add(type.getSuperclass());
+            }
+            pending.addAll(java.util.Arrays.asList(type.getInterfaces()));
+        }
+        return null;
+    }
+
     /** 無効化を解除して元のバイトコードに戻す。 */
     public static synchronized String restore(String signature) {
         return apply(signature, false);

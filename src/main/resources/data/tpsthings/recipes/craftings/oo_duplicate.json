@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "PPP",
+    "POP",
+    "PPP"
+  ],
+  "key": {
+    "P": {
+      "item": "tpsthings:prism"
+    },
+    "O": {
+      "item": "tpsthings:oo"
+    }
+  },
+  "result": {
+    "item": "tpsthings:oo",
+    "count": 2
+  }
+}

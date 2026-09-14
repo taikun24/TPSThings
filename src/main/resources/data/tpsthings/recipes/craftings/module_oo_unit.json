@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "AOA",
+    "KPD",
+    "HHH"
+  ],
+  "key": {
+    "A": {
+      "item": "tpsthings:alloy_oo"
+    },
+    "O": {
+      "item": "tpsthings:oo"
+    },
+    "K": {
+      "item": "tpsthings:attack_module"
+    },
+    "D": {
+      "item": "tpsthings:defense_module"
+    },
+    "P": {
+      "item": "mekanism:module_base"
+    },
+    "H": {
+      "item": "mekanism:hdpe_sheet"
+    }
+  },
+  "result": {
+    "item": "tpsthings:module_oo_unit",
+    "count": 1
+  }
+}

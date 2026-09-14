@@ -12,11 +12,16 @@
     "AccessorChunkMap",
     "AccessorEntity",
     "AccessorLivingEntity",
+    "AccessorEntityTickList",
+    "AccessorEntityLookup",
     "MixinBlockEntityTickProfile",
     "MixinLevelEntityTickProfile",
     "MixinEntityMotionGuard",
     "MixinEntityPushImmunity",
     "MixinLivingEntityKnockbackImmunity",
+    "MixinLivingEntityDirectControl",
+    "MixinServerMoveDirectControl",
+    "MixinServerMoveClientPulse",
     "MixinEntityRemoveGuard",
     "MixinLivingEntityDamageGuard",
     "MixinSynchedEntityDataGuard",
@@ -28,14 +33,18 @@
     "MixinPlayerListRespawnGuard",
     "MixinRespawnRequestGuard",
     "MixinServerTickGuard",
-    "MixinPlayerKeepInventory"
+    "MixinPlayerKeepInventory",
+    "MixinLivingEntityOoSwing"
   ],
   "client": [
     "AccessorGui",
+    "AccessorClientLevel",
     "AccessorPostChain",
     "MixinMinecraftMenuPause",
     "MixinMinecraftDeathGuard",
-    "MixinGameRendererAbyss"
+    "MixinAbstractContainerScreenDeathGuard",
+    "MixinGameRendererAbyss",
+    "MixinGameRendererHurtShake"
   ],
   "injectors": {
     "defaultRequire": 1

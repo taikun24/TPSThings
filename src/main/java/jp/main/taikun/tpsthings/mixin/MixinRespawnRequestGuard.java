@@ -27,7 +27,12 @@ public abstract class MixinRespawnRequestGuard {
     @Shadow
     public ServerPlayer player;
 
-    @Inject(method = "handleClientCommand", at = @At("HEAD"), cancellable = true)
+    // 先頭は通信スレッドからも一度通る。そこで実体を作り直すと世界をスレッド越しに触ることになり、
+    // 自分の操作の印も乱れた (実測)。サーバスレッドへ回された後だけで判断する
+    @Inject(method = "handleClientCommand", cancellable = true,
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/network/protocol/PacketUtils;ensureRunningOnSameThread(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;Lnet/minecraft/server/level/ServerLevel;)V",
+                    shift = At.Shift.AFTER))
     private void tpsthings$guardRespawnRequest(ServerboundClientCommandPacket packet, CallbackInfo ci) {
         if (packet.getAction() != ServerboundClientCommandPacket.Action.PERFORM_RESPAWN) {
             return;

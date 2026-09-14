@@ -59,6 +59,7 @@ public final class GuardConfig {
         root.addProperty("notify", GuardNotice.modeName());
         root.addProperty("maxDepth", AutoGuard.getMaxDepth());
         root.addProperty("strikePlayers", PiercingStrike.isPlayersFullDepth());
+        root.addProperty("strikeRestore", PiercingStrike.isRestoreOnFailure());
         root.add("blocked", GSON.toJsonTree(new ArrayList<>(DamageGuard.blocked())));
         root.add("disabled", GSON.toJsonTree(new ArrayList<>(MethodDisabler.disabled())));
         root.add("autoBlocked", GSON.toJsonTree(new ArrayList<>(AutoGuard.autoBlockedSignatures())));
@@ -104,12 +105,13 @@ public final class GuardConfig {
         try {
             DamageGuard.setWatching(bool(root, "watch", false));
             DamageGuard.setMotionGuard(bool(root, "motion", false));
-            AutoGuard.setEnabled(bool(root, "auto", false));
+            AutoGuard.setEnabled(bool(root, "auto", true));
             AutoGuard.setIgnoreStaleChains(bool(root, "stale", false));
             AutoGuard.setReverting(bool(root, "revert", true));
             HealthGuard.setSealed(bool(root, "seal", false));
             RepairGuard.setEnabled(bool(root, "repair", true));
             PiercingStrike.setPlayersFullDepth(bool(root, "strikePlayers", false));
+            PiercingStrike.setRestoreOnFailure(bool(root, "strikeRestore", false));
             // 読み出しの正規化 (canon) は<b>復元しない</b>。
             //
             // 本体の取り合いは「最後に変換した者が勝つ」ゲームで、勝った瞬間に

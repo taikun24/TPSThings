@@ -28,6 +28,9 @@ public final class OoToolSettings {
 
     public static final String PREFIX = "oo_";
     private static final String TAG = "OoTool";
+    private static final String DIRECT = "direct";
+    // 慣性は既定で ON にしたいので、OFF にしたことの方を記録する
+    private static final String NO_INERTIA = "directNoInertia";
     private static final int[] WIDTHS = {1, 3, 5, 9};
     private static final int[] DEPTHS = {1, 3, 5, 9};
     private static final int FORTUNE_LEVEL = 5;
@@ -137,6 +140,24 @@ public final class OoToolSettings {
         tag.putBoolean("collect", mode.collect());
     }
 
+    /** 直接操縦 ({@link DirectControl})。範囲破壊などとは独立に切り替える。 */
+    public static boolean isDirectControl(ItemStack stack) {
+        CompoundTag tag = stack.getTagElement(TAG);
+        return tag != null && tag.getBoolean(DIRECT);
+    }
+
+    /** 直接操縦に慣性を付けるか。 */
+    public static boolean isDirectInertia(ItemStack stack) {
+        CompoundTag tag = stack.getTagElement(TAG);
+        return tag == null || !tag.getBoolean(NO_INERTIA);
+    }
+
+    /** 直接操縦は着ているおおで効くので、着ていればそちらを変える。 */
+    private static ItemStack directTarget(Player player) {
+        ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
+        return OoEquivalent.isOo(chest) ? chest : find(player);
+    }
+
     /** 選択肢に無い値 (壊れた NBT など) は先頭に倒す。 */
     private static int pick(int[] options, int value) {
         for (int option : options) {
@@ -161,12 +182,12 @@ public final class OoToolSettings {
     public static ItemStack find(Player player) {
         for (ItemStack stack : List.of(player.getMainHandItem(), player.getOffhandItem(),
                 player.getItemBySlot(EquipmentSlot.CHEST))) {
-            if (stack.is(ModItems.OO.get())) {
+            if (OoEquivalent.isOo(stack)) {
                 return stack;
             }
         }
         for (ItemStack stack : player.getInventory().items) {
-            if (stack.is(ModItems.OO.get())) {
+            if (OoEquivalent.isOo(stack)) {
                 return stack;
             }
         }
@@ -198,7 +219,13 @@ public final class OoToolSettings {
                         mode.drop() == Drop.NORMAL ? GuardSettings.OFF : GuardSettings.ON,
                         "通常 / シルクタッチ / 幸運 V を切り替える。Shift+右クリックで逆順"),
                 toggle(PREFIX + "collect", "直接回収", mode.collect(), GuardSettings.ON,
-                        "壊したブロックのドロップと経験値を、その場に落とさずインベントリへ入れる"));
+                        "壊したブロックのドロップと経験値を、その場に落とさずインベントリへ入れる"),
+                toggle(PREFIX + "direct", "直接操縦", isDirectControl(directTarget(player)), GuardSettings.WARN,
+                        "着ている間、位置と速度をキー入力だけから決めて毎 tick 書き込む。重力なし、"
+                                + "ジャンプで上昇・スニークで下降・ダッシュで加速。当たり判定はブロックの形だけ。"
+                                + "テレポートも上書きするので、受け入れたいときは一度 OFF → ON"),
+                toggle(PREFIX + "inertia", "直接操縦: 慣性", isDirectInertia(directTarget(player)), GuardSettings.ON,
+                        "ON なら速度が入力へ徐々に追いつき、離しても少し滑る。OFF なら入力どおりに即座に動いて止まる"));
     }
 
     private static GuardSettings.Entry toggle(String id, String label, boolean value, int onColor, String description) {
@@ -214,6 +241,19 @@ public final class OoToolSettings {
         ItemStack oo = find(player);
         if (oo.isEmpty()) {
             return "おおを持っていません";
+        }
+        if (id.equals(PREFIX + "direct")) {
+            ItemStack target = directTarget(player);
+            boolean next = !isDirectControl(target);
+            target.getOrCreateTagElement(TAG).putBoolean(DIRECT, next);
+            return "直接操縦: " + (next ? "ON" : "OFF")
+                    + (next && !ItemOo.isWorn(player) ? " (おおを着ると効きます)" : "");
+        }
+        if (id.equals(PREFIX + "inertia")) {
+            ItemStack target = directTarget(player);
+            boolean next = !isDirectInertia(target);
+            target.getOrCreateTagElement(TAG).putBoolean(NO_INERTIA, !next);
+            return "直接操縦の慣性: " + (next ? "ON" : "OFF");
         }
         Mode mode = read(oo);
         Mode next;

@@ -1,9 +1,13 @@
 package jp.main.taikun.tpsthings.damage;
 
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * SugoiMenu から触れる即死対策の設定。
@@ -23,7 +27,17 @@ public final class GuardSettings {
     public record Entry(String id, String label, String value, int color, String description) {
     }
 
+    /** 全殺害は 2 回押して打つ。1 回目からこの時間内の 2 回目だけを本物とみなす。 */
+    private static final long KILL_ALL_CONFIRM_MS = 5000L;
+    /** 全殺害の 1 回目を押した時刻 (人ごと)。 */
+    private static final Map<UUID, Long> KILL_ALL_ARMED = new ConcurrentHashMap<>();
+
     private GuardSettings() {
+    }
+
+    private static boolean killAllArmed(ServerPlayer player) {
+        Long at = KILL_ALL_ARMED.get(player.getUUID());
+        return at != null && System.currentTimeMillis() - at <= KILL_ALL_CONFIRM_MS;
     }
 
     public static List<Entry> snapshot(ServerPlayer player) {
@@ -53,8 +67,16 @@ public final class GuardSettings {
                 "強制移動を watch / block できるようにする"));
         entries.add(toggle("strikeplayers", "貫通攻撃: プレイヤーも索引層", PiercingStrike.isPlayersFullDepth(), WARN,
                 "OO の即死攻撃をプレイヤーにも除去・索引の層まで打つ (死を拒否した相手は再接続まで動けなくなる)"));
+        entries.add(toggle("strikerestore", "貫通攻撃: 失敗したら戻す", PiercingStrike.isRestoreOnFailure(), ON,
+                "消しきれなかった相手を世界の索引へ戻す (動けるのにブロックが壊せない状態を残さない)"));
         entries.add(new Entry("reset", "自動措置を全部取り消す", "実行", WARN,
                 "自動で適用した block / disable を取り消す (手動で入れたものは残る)"));
+        entries.add(new Entry("killall", "(自機以外の)全エンティティ殺害",
+                killAllArmed(player) ? "もう一度で実行" : "実行", WARN,
+                "世界の索引に載っている生き物を、自分と保護対象以外すべて貫通攻撃で打つ。"
+                        + "検索に映らない相手も拾う。取り返しがつかないので 5 秒以内に 2 回押して実行"));
+        entries.add(new Entry("killself", "自身を殺害", "実行", WARN,
+                "自分に貫通攻撃を打つ (装備型の不死の確認用)。保護対象のままだと、こちらの防御に拒否される"));
         return entries;
     }
 
@@ -142,10 +164,39 @@ public final class GuardSettings {
                 PiercingStrike.setPlayersFullDepth(next);
                 result = "貫通攻撃をプレイヤーにも索引層まで: " + onOff(next);
             }
+            case "strikerestore" -> {
+                boolean next = !PiercingStrike.isRestoreOnFailure();
+                PiercingStrike.setRestoreOnFailure(next);
+                result = "貫通攻撃: 消しきれなければ戻す: " + onOff(next);
+            }
             case "reset" -> {
                 // コマンドの reset と同じく保存はしない
                 result = "自動で適用した措置を " + AutoGuard.resetAll() + " 件取り消しました";
                 save = false;
+            }
+            case "killall" -> {
+                save = false;
+                List<LivingEntity> targets = StrikeCensus.sweepTargets(player.serverLevel(), null, 0, player);
+                if (targets.isEmpty()) {
+                    KILL_ALL_ARMED.remove(player.getUUID());
+                    result = "世界の索引に、打てる生き物は居ませんでした";
+                } else if (!killAllArmed(player)) {
+                    // 検索に映らない相手も数えるので、見えている数と合わないのが普通。先に数を見せる
+                    KILL_ALL_ARMED.put(player.getUUID(), System.currentTimeMillis());
+                    result = "世界の索引に打てる生き物が " + targets.size() + " 体います。5 秒以内にもう一度押すと打ちます";
+                } else {
+                    KILL_ALL_ARMED.remove(player.getUUID());
+                    int down = PiercingStrike.strikeEach(player, targets);
+                    result = "索引から " + targets.size() + " 体に打ちました (通った " + down + " 体)";
+                }
+            }
+            case "killself" -> {
+                save = false;
+                // 保護対象のまま打つと「耐えた」に見えるが、耐えているのはこちらの関所
+                boolean guarded = AutoGuard.isProtected(player);
+                PiercingStrike.Result struck = PiercingStrike.strike(player, player);
+                result = "自分に打ちました: " + struck
+                        + (guarded ? " (保護対象のままなので、拒否されたならこちらの防御が理由です)" : "");
             }
             default -> {
                 return null;

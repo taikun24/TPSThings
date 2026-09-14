@@ -179,7 +179,8 @@ public final class ReaderGuard {
 
     /** isAlive() の正規の本体。バニラの定義そのまま: 削除されておらず HP が正。 */
     public static boolean canonicalAlive(LivingEntity living) {
-        return !living.isRemoved() && canonicalHealth(living) > 0.0F;
+        // isRemoved() も書き換えられる読み出しの 1 つ。正規の本体が嘘を経由したら意味がない
+        return !HealthGuard.rawRemoved(living) && canonicalHealth(living) > 0.0F;
     }
 
     /** isDeadOrDying() の正規の本体。バニラの定義そのまま: HP が 0 以下。 */

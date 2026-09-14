@@ -121,6 +121,8 @@
   "key.tpsthings.sugoi_menu": "すごいメニュー",
   "lag_generator": "ラグ発電機",
   "message.tpsthings.debug_accelerator.speed": "速さ: %s",
+  "module.tpsthings.oo_unit": "おおモジュール",
+  "description.tpsthings.oo_unit": "MekaSuit の胴か Meka-Tool に入れると、おおを着ている / 持っているのと同じ力が宿る",
   "time_accelerator": "時流加速機",
   "time_flux_collector": "タイムフラックス収集機",
   "tooltip.tpsthings.oo": "おお",

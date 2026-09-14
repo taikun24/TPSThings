@@ -7,6 +7,7 @@ import jp.main.taikun.tpsthings.items.ItemMaterial;
 import jp.main.taikun.tpsthings.items.ItemOo;
 import jp.main.taikun.tpsthings.items.ItemPrism;
 import jp.main.taikun.tpsthings.items.ItemQioDrive;
+import mekanism.api.gear.IModuleHelper;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.*;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -68,6 +69,9 @@ public class ModItems {
      public static final RegistryObject<Item> SUGOI_MENU = ITEMS.register("sugoi_menu", ()->new ItemMaterial("sugoi_menu", false, new Item.Properties().rarity(Rarity.RARE)));
      public static final RegistryObject<Item> ATTACK_MODULE = ITEMS.register("attack_module", ()->new ItemMaterial("attack_module", true, new Item.Properties().rarity(Rarity.EPIC)));
      public static final RegistryObject<Item> DEFENSE_MODULE = ITEMS.register("defense_module", ()->new ItemMaterial("defense_module", true, new Item.Properties().rarity(Rarity.EPIC)));
+     /** おおの力を MekaSuit (胴) / Meka-Tool に移す Mekanism のモジュール。名前は Mekanism の流儀 (module_○○_unit) に揃える */
+     public static final RegistryObject<Item> MODULE_OO_UNIT = ITEMS.register("module_oo_unit",
+             ()->IModuleHelper.INSTANCE.createModuleItem(ModModules.OO_UNIT, new Item.Properties()));
 
      // --- 欠陥の段 ---
      public static final RegistryObject<Item> NULL_POINTER = ITEMS.register("null_pointer", ()->new Item(new Item.Properties().rarity(Rarity.EPIC)));

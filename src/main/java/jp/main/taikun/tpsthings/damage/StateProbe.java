@@ -48,6 +48,8 @@ public final class StateProbe {
      * 相手が毎 tick 掛け直してくるなら、こちらも急ぐ理由がない。
      */
     private static final long INTERVAL_NANOS = 2_000_000_000L;
+    /** 嘘が出た直後の実験間隔。外すたびに倍にして {@link #INTERVAL_NANOS} まで広げる。 */
+    private static final long FAST_INTERVAL_NANOS = 250_000_000L;
 
     /** 一度の実験で試す状態の上限。反射で無限に潜らないための足枷。 */
     private static final int MAX_TRIALS = 256;
@@ -63,6 +65,8 @@ public final class StateProbe {
      */
     private static final class Side {
         private volatile long lastProbe = 0L;
+        /** 嘘が出てから、続けて外した実験の回数。間隔を詰めるか広げるかに使う。 */
+        private volatile int misses = 0;
         /** 実験を最後まで走らせて出所が見つからなかったか。 */
         private volatile boolean exhausted = false;
         /** 突き止めた出所。以後は毎 tick ここを押さえ続ける。 */
@@ -73,7 +77,18 @@ public final class StateProbe {
         private volatile int scanned = 0;
         /** 実体の外を一周し終えたか。一周する前に「材料なし」と結論を出さないため。 */
         private volatile boolean lapComplete = false;
+        /**
+         * 相手を名指ししていたが、単独で外しても嘘が消えなかった入れ物。
+         * 材料が複数ある (どれか 1 つでも立っていれば嘘になる) ときの、まとめ試しの候補。
+         */
+        private final List<ExternalSuspect> suspects = new CopyOnWriteArrayList<>();
     }
+
+    private record ExternalSuspect(Field field, Object mark, String label) {
+    }
+
+    /** まとめ試しの候補として覚えておく名簿の上限。 */
+    private static final int MAX_SUSPECTS = 32;
 
     /** 1 回の実験で見るクラス数。全部を 1 回で舐めると tick が止まる。 */
     private static final int SCAN_BUDGET = 4000;
@@ -115,7 +130,10 @@ public final class StateProbe {
         // 他人の嘘として数え、居もしない相手の材料を永久に探し続けることになる
         return Boolean.TRUE.equals(HealthGuard.withRaw(() -> {
             try {
-                return entity.isAlive() != HealthGuard.rawAlive(entity)
+                // 除去の印も聞く。印が無いのに「削除済み」と答えさせれば、生死の答えは
+                // 辻褄が合ったまま画面だけが閉じる (開いた入れ物の画面は毎 tick これを見る)
+                return entity.isRemoved() != HealthGuard.rawRemoved(entity)
+                        || entity.isAlive() != HealthGuard.rawAlive(entity)
                         || entity.isDeadOrDying() != (raw <= 0.0F);
             } catch (Throwable t) {
                 // 読み出しが落ちるなら、それは直っていない。嘘が消えたと数えてはいけない
@@ -134,11 +152,16 @@ public final class StateProbe {
     static String probe(LivingEntity entity) {
         Side side = side(entity);
         long now = System.nanoTime();
-        if (side.lastProbe != 0L && now - side.lastProbe < INTERVAL_NANOS) {
+        // 嘘が出た直後は間隔を詰める。初撃では名簿の候補がまだ揃っておらず 1 回目は外しがちで、
+        // そこで 2 秒待つと、その間ずっと「死んだ」見た目のままになる (実測で一度死んだように見えた)。
+        // 外し続けるなら元の間隔まで広げる (実験は安くない)
+        long interval = Math.min(INTERVAL_NANOS, FAST_INTERVAL_NANOS << Math.min(side.misses, 8));
+        if (side.lastProbe != 0L && now - side.lastProbe < interval) {
             return null;
         }
         side.lastProbe = now;
         if (!lying(entity)) {
+            side.misses = 0;
             return null;
         }
         Culprit hit = probeSynched(entity);
@@ -150,12 +173,16 @@ public final class StateProbe {
             // 実体には何も書かない型がそれで、実体だけを探している限り永久に当たらない
             hit = probeExternal(entity);
         }
-        if (hit == null) {
+        // 1 つずつ試して当たらないなら、材料が複数あるのかもしれない
+        // (「印が立っている、または名簿に載っている」のように、どれか 1 つで嘘になる形)
+        List<Culprit> hits = hit != null ? List.of(hit) : probeCombined(entity);
+        if (hits.isEmpty()) {
             // 実体の外は数回に分けて舐める。一周する前に「材料は無い」と結論を出さない
             side.exhausted = side.lapComplete;
+            side.misses++;
             return null;
         }
-        if (side.culprits.size() >= MAX_CULPRITS) {
+        if (side.culprits.size() + hits.size() > MAX_CULPRITS) {
             // これだけ押さえてもまだ嘘が出るなら、当てているのは材料ではない。
             // 際限なく他所の状態を握り続ける方が害が大きい
             side.exhausted = true;
@@ -164,9 +191,215 @@ public final class StateProbe {
         side.exhausted = false;
         side.lapComplete = false;
         side.scanned = 0;
-        side.culprits.add(hit);
-        GuardNotice.info("読み出しの嘘の出所を特定: " + hit.label());
-        return hit.label();
+        side.misses = 0;
+        side.culprits.addAll(hits);
+        String label = String.join(" + ", hits.stream().map(Culprit::label).toList());
+        GuardNotice.info("読み出しの嘘の出所を特定: " + label);
+        return label;
+    }
+
+    // ---- まとめ試し -------------------------------------------------------------
+
+    /**
+     * 候補を全部いっぺんに無害な値へ置き、嘘が消えるか見る。
+     *
+     * <p>材料が 2 つ以上あり、<b>どれか 1 つでも残っていれば嘘になる</b>形だと、
+     * 1 つずつ置いて戻す実験では永久に当たらない (置いても残りの材料で嘘のまま)。
+     *
+     * <p>全部置いて嘘が消えたら、1 つずつ戻していく。戻して嘘が復活したものだけが要る材料で、
+     * 戻しても消えたままのものは関係ないのでそのまま戻しておく。最後に残るのは
+     * 嘘を消すのに必要な分だけで、関係ない状態には何も残らない。
+     */
+    private static List<Culprit> probeCombined(LivingEntity entity) {
+        List<Trial> candidates = combinedCandidates(entity);
+        List<Trial> applied = new ArrayList<>();
+        for (Trial trial : candidates) {
+            if (trial.apply()) {
+                applied.add(trial);
+            }
+        }
+        if (applied.isEmpty()) {
+            return List.of();
+        }
+        if (lying(entity)) {
+            undoAll(applied); // 全部置いても消えない。材料はこの候補の外
+            return List.of();
+        }
+        List<Trial> needed = new ArrayList<>();
+        for (Trial trial : applied) {
+            trial.undo();
+            if (lying(entity)) {
+                trial.apply(); // 戻したら復活した。これは要る材料
+                needed.add(trial);
+            }
+        }
+        if (needed.isEmpty() || lying(entity)) {
+            // 戻す順で結果が揺れた (相手が途中で掛け直した等)。確かでないものは握らない
+            undoAll(needed);
+            return List.of();
+        }
+        return needed.stream().map(Trial::culprit).toList();
+    }
+
+    private static void undoAll(List<Trial> trials) {
+        for (int i = trials.size() - 1; i >= 0; i--) {
+            trials.get(i).undo();
+        }
+    }
+
+    /**
+     * まとめ試しの候補。1 つずつの実験で見ているのと同じ範囲に、名指ししていた名簿を足す。
+     * 真偽値はいま立っているものだけ (倒れているものは嘘の材料になっていない)。
+     */
+    private static List<Trial> combinedCandidates(LivingEntity entity) {
+        List<Trial> trials = new ArrayList<>();
+        for (ExternalSuspect suspect : side(entity).suspects) {
+            trials.add(new ExternalTrial(suspect));
+        }
+        for (Class<?> type = entity.getClass(); type != null && type != Object.class;
+             type = type.getSuperclass()) {
+            for (Field field : declaredFields(type)) {
+                int modifiers = field.getModifiers();
+                if (Modifier.isStatic(modifiers) || Modifier.isFinal(modifiers)
+                        || field.getType() != boolean.class) {
+                    continue;
+                }
+                trials.add(new FieldTrial(entity, field, type.getSimpleName() + "#" + field.getName()));
+            }
+        }
+        Map<?, ?> items = itemsOf(entity.getEntityData());
+        if (items != null) {
+            Set<Integer> known = KNOWN_IDS.computeIfAbsent(entity.getClass(), StateProbe::collectKnownIds);
+            for (Object raw : new ArrayList<>(items.values())) {
+                if (raw instanceof SynchedEntityData.DataItem<?> item
+                        && (!known.contains(item.getAccessor().getId()) || item.getValue() instanceof Boolean)) {
+                    trials.add(new SyncTrial(entity, item.getAccessor()));
+                }
+            }
+        }
+        return trials.size() > MAX_TRIALS ? trials.subList(0, MAX_TRIALS) : trials;
+    }
+
+    /** 置いて戻せる 1 件。置けなかった (既に無害 / 触れない) なら apply は false。 */
+    private interface Trial {
+        boolean apply();
+
+        void undo();
+
+        Culprit culprit();
+    }
+
+    private static final class FieldTrial implements Trial {
+        private final LivingEntity entity;
+        private final Field field;
+        private final String label;
+        private Object original;
+
+        FieldTrial(LivingEntity entity, Field field, String label) {
+            this.entity = entity;
+            this.field = field;
+            this.label = label;
+        }
+
+        @Override
+        public boolean apply() {
+            try {
+                field.setAccessible(true);
+                Object now = field.get(entity);
+                if (Boolean.FALSE.equals(now)) {
+                    return false;
+                }
+                original = now;
+                field.set(entity, Boolean.FALSE);
+                return true;
+            } catch (Throwable t) {
+                return false;
+            }
+        }
+
+        @Override
+        public void undo() {
+            try {
+                field.set(entity, original);
+            } catch (Throwable ignored) {
+                // 置けたのなら戻せる。戻せないなら置けてもいない
+            }
+        }
+
+        @Override
+        public Culprit culprit() {
+            return new FieldCulprit(null, field, Boolean.FALSE, label + " (" + original + " → false)");
+        }
+    }
+
+    private static final class SyncTrial implements Trial {
+        private final LivingEntity entity;
+        private final EntityDataAccessor<?> key;
+        private Object original;
+        private Object neutral;
+
+        SyncTrial(LivingEntity entity, EntityDataAccessor<?> key) {
+            this.entity = entity;
+            this.key = key;
+        }
+
+        @Override
+        public boolean apply() {
+            Map<?, ?> items = itemsOf(entity.getEntityData());
+            if (items == null || !(items.get(key.getId()) instanceof SynchedEntityData.DataItem<?> item)) {
+                return false;
+            }
+            Object value = item.getValue();
+            Object zero = neutral(value);
+            if (zero == null || zero.equals(value)) {
+                return false;
+            }
+            original = value;
+            neutral = zero;
+            write(entity, key, zero);
+            return true;
+        }
+
+        @Override
+        public void undo() {
+            write(entity, key, original);
+        }
+
+        @Override
+        public Culprit culprit() {
+            return new SyncCulprit(key.getId(), neutral,
+                    "同期データ #" + key.getId() + " (" + original + " → " + neutral + ")");
+        }
+    }
+
+    private static final class ExternalTrial implements Trial {
+        private final ExternalSuspect suspect;
+        private Object listed;
+        private Object previous = ABSENT;
+
+        ExternalTrial(ExternalSuspect suspect) {
+            this.suspect = suspect;
+        }
+
+        @Override
+        public boolean apply() {
+            listed = read(suspect.field(), null);
+            previous = listed == null ? ABSENT : remove(listed, suspect.mark());
+            return previous != ABSENT;
+        }
+
+        @Override
+        public void undo() {
+            if (previous != ABSENT) {
+                restore(listed, suspect.mark(), previous);
+            }
+        }
+
+        @Override
+        public Culprit culprit() {
+            return new ExternalCulprit(suspect.field(), suspect.mark(),
+                    suspect.label() + " (" + describeMark(suspect.mark()) + " を外した)");
+        }
     }
 
     /** 実験を走らせた上で出所が見つからなかったか。別の層へ移る合図。 */
@@ -318,13 +551,23 @@ public final class StateProbe {
      * 外れなら必ず元通りにするので、関係ない Mod には何も残らない。
      */
     private static Culprit probeExternal(LivingEntity entity) {
+        Object[] marks = {entity.getUUID(), entity, entity.getId()};
+        Side side = side(entity);
+        int[] trials = {0};
+        // 先に実体自身の系譜の静的な入れ物を見る。Mixin で混ぜ込まれた名簿は<b>バニラのクラスの
+        // 静的フィールド</b>として並ぶので、基盤を飛ばす下の走査では永久に候補に上がらない。
+        // 「相手を名指ししているものだけ触る」条件は同じなので、バニラの入れ物に害は無い
+        for (Class<?> type = entity.getClass(); type != null && type != Object.class;
+             type = type.getSuperclass()) {
+            Culprit hit = tryStatics(entity, type, marks, side, trials);
+            if (hit != null) {
+                return hit;
+            }
+        }
         if (!MethodDisabler.isReady()) {
             return null; // agent がまだ無い。実体の外は見られない
         }
         Class<?>[] loaded = MethodDisabler.loadedClasses();
-        Object[] marks = {entity.getUUID(), entity, entity.getId()};
-        Side side = side(entity);
-        int trials = 0;
         // 読み込み済みクラスは数千ある。1 回で舐め切ろうとすると tick を止めるので、
         // 前回の続きから決まった数だけ見る。数回の実験で一周する
         int start = loaded.length == 0 ? 0 : Math.floorMod(side.externalCursor, loaded.length);
@@ -341,29 +584,51 @@ public final class StateProbe {
             if (owner == null || GuardContext.isInfrastructure(owner.getName())) {
                 continue;
             }
-            for (Field field : declaredFields(owner)) {
-                if (!Modifier.isStatic(field.getModifiers())) {
-                    continue;
-                }
-                if (!Collection.class.isAssignableFrom(field.getType())
-                        && !Map.class.isAssignableFrom(field.getType())) {
-                    continue;
-                }
-                Object listed = read(field, null);
-                Object mark = naming(listed, marks);
-                // 名指ししている入れ物だけを実際に触る。見るだけの分は数えない
-                // (数えると、大きな Mod 構成では相手の名簿に辿り着く前に打ち止めになる)
-                if (mark == null || ++trials > MAX_TRIALS) {
-                    continue;
-                }
-                Culprit hit = tryExternal(entity, field, listed, mark,
-                        owner.getSimpleName() + "#" + field.getName());
-                if (hit != null) {
-                    return hit;
-                }
+            Culprit hit = tryStatics(entity, owner, marks, side, trials);
+            if (hit != null) {
+                return hit;
             }
         }
         return null;
+    }
+
+    /** 1 クラスの静的な入れ物のうち、相手を名指ししているものを 1 つずつ試す。 */
+    private static Culprit tryStatics(LivingEntity entity, Class<?> owner, Object[] marks, Side side, int[] trials) {
+        for (Field field : declaredFields(owner)) {
+            if (!Modifier.isStatic(field.getModifiers())) {
+                continue;
+            }
+            if (!Collection.class.isAssignableFrom(field.getType())
+                    && !Map.class.isAssignableFrom(field.getType())) {
+                continue;
+            }
+            Object listed = read(field, null);
+            Object mark = naming(listed, marks);
+            // 名指ししている入れ物だけを実際に触る。見るだけの分は数えない
+            // (数えると、大きな Mod 構成では相手の名簿に辿り着く前に打ち止めになる)
+            if (mark == null || ++trials[0] > MAX_TRIALS) {
+                continue;
+            }
+            String label = owner.getSimpleName() + "#" + field.getName();
+            Culprit hit = tryExternal(entity, field, listed, mark, label);
+            if (hit != null) {
+                return hit;
+            }
+            rememberSuspect(side, field, mark, label);
+        }
+        return null;
+    }
+
+    /** 単独では当たらなかった名簿を、まとめ試しの候補として覚えておく。 */
+    private static void rememberSuspect(Side side, Field field, Object mark, String label) {
+        for (ExternalSuspect known : side.suspects) {
+            if (known.field().equals(field) && known.mark().equals(mark)) {
+                return;
+            }
+        }
+        if (side.suspects.size() < MAX_SUSPECTS) {
+            side.suspects.add(new ExternalSuspect(field, mark, label));
+        }
     }
 
     /** この入れ物が相手を名指ししているか。しているなら、その名指しに使われている印。 */
@@ -550,10 +815,35 @@ public final class StateProbe {
         return SERVER.culprits.size() + CLIENT.culprits.size();
     }
 
+    /**
+     * 生死の答えを、読み出し (世界から見える方) と実データの両方で並べる。
+     *
+     * 嘘が見つからないとき、どの答えが食い違っているのか / そもそも食い違っていないのかが
+     * 分からないと、次にどこを見るべきかが決まらない。
+     */
+    public static String diagnose(LivingEntity entity) {
+        Side side = side(entity);
+        try {
+            float raw = HealthGuard.rawHealth(entity);
+            return HealthGuard.withRaw(() -> String.format(
+                    "isRemoved=%s(実=%s) isAlive=%s(実=%s) isDeadOrDying=%s(実=%s) HP=%.2f(実=%.2f)"
+                            + " 中和中=%d 名簿候補=%d 外側一周=%s",
+                    entity.isRemoved(), HealthGuard.rawRemoved(entity),
+                    entity.isAlive(), HealthGuard.rawAlive(entity),
+                    entity.isDeadOrDying(), raw <= 0.0F,
+                    entity.getHealth(), raw,
+                    side.culprits.size(), side.suspects.size(), side.lapComplete));
+        } catch (Throwable failure) {
+            return "診断中に例外: " + failure;
+        }
+    }
+
     public static void reset() {
         for (Side side : new Side[]{SERVER, CLIENT}) {
             side.culprits.clear();
+            side.suspects.clear();
             side.lastProbe = 0L;
+            side.misses = 0;
             side.exhausted = false;
         }
         KNOWN_IDS.clear();
@@ -704,6 +994,58 @@ public final class StateProbe {
             return 0.0D;
         }
         return null;
+    }
+
+    /**
+     * 相手が同期データの入れ物<b>ごと</b>別物に差し替えているとき、内側の素の入れ物を取り戻す。
+     *
+     * <p>読み出しの嘘は値に載るとは限らない。{@code SynchedEntityData} を継承した殻で包み、
+     * <b>読み出し {@code get} 自体が不死の HP を返す</b>作りがある (差分もフラグも要らない)。
+     * こうなると値をどう調べても嘘のままで、包んでいる殻を通す限り真実は見えない。
+     *
+     * <p>だが殻も、包む前の素の入れ物を必ずどこかに抱えている (でないと同期が壊れる)。
+     * 型が {@code SynchedEntityData} のフィールドを辿り、<b>素の {@code SynchedEntityData}</b>
+     * (これ以上包まれていないもの) に行き着けば、そこは殻を通さず読み書きできる。
+     * 差し替えが無ければ渡されたものをそのまま返す。特定の Mod を名指ししない。
+     */
+    static SynchedEntityData rawData(SynchedEntityData data) {
+        SynchedEntityData current = data;
+        for (int depth = 0; depth < 4 && current != null
+                && current.getClass() != SynchedEntityData.class; depth++) {
+            SynchedEntityData inner = innerData(current);
+            if (inner == null || inner == current) {
+                break;
+            }
+            current = inner;
+        }
+        return current == null ? data : current;
+    }
+
+    private static SynchedEntityData innerData(SynchedEntityData wrapper) {
+        for (Class<?> type = wrapper.getClass();
+             type != null && type != SynchedEntityData.class && type != Object.class;
+             type = type.getSuperclass()) {
+            for (Field field : declaredFields(type)) {
+                if (Modifier.isStatic(field.getModifiers())
+                        || !SynchedEntityData.class.isAssignableFrom(field.getType())) {
+                    continue;
+                }
+                try {
+                    field.setAccessible(true);
+                    if (field.get(wrapper) instanceof SynchedEntityData inner && inner != wrapper) {
+                        return inner;
+                    }
+                } catch (Throwable ignored) {
+                    // 読めないフィールドは辿れないだけ
+                }
+            }
+        }
+        return null;
+    }
+
+    /** 殻を剥がした上で、番号引きの入れ物を引く。 */
+    static Map<?, ?> rawItemsOf(SynchedEntityData data) {
+        return itemsOf(rawData(data));
     }
 
     /**

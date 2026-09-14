@@ -121,6 +121,8 @@
   "key.tpsthings.sugoi_menu": "Amazing Menu",
   "lag_generator": "Lag Generator",
   "message.tpsthings.debug_accelerator.speed": "Speed: %s",
+  "module.tpsthings.oo_unit": "Oo Unit",
+  "description.tpsthings.oo_unit": "Installed in a MekaSuit bodyarmor or a Meka-Tool, it acts as if you were wearing / holding Oo",
   "time_accelerator": "Time Accelerator",
   "time_flux_collector": "Time Flux Collector",
   "tooltip.tpsthings.oo": "Oo",

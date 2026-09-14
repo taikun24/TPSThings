@@ -15,6 +15,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Zombie;
@@ -130,6 +132,10 @@ public final class DamageGuardCommand {
                         .then(Commands.argument("enabled", BoolArgumentType.bool())
                                 .executes(ctx -> strikePlayers(ctx.getSource(),
                                         BoolArgumentType.getBool(ctx, "enabled")))))
+                .then(Commands.literal("strikerestore")
+                        .then(Commands.argument("enabled", BoolArgumentType.bool())
+                                .executes(ctx -> strikeRestore(ctx.getSource(),
+                                        BoolArgumentType.getBool(ctx, "enabled")))))
                 .then(Commands.literal("maxdepth")
                         .executes(ctx -> showMaxDepth(ctx.getSource()))
                         .then(Commands.argument("depth", IntegerArgumentType.integer(1, 32))
@@ -160,6 +166,16 @@ public final class DamageGuardCommand {
                         .executes(ctx -> dummy(ctx.getSource()))
                         .then(Commands.literal("clear")
                                 .executes(ctx -> dummyClear(ctx.getSource()))))
+                .then(Commands.literal("strikeself")
+                        .executes(ctx -> strikeSelf(ctx.getSource())))
+                // 設定ではなく実行なので set の下ではなくここ (strikeself / dummy / reset と同じ)
+                .then(Commands.literal("strikeall")
+                        .then(Commands.argument("radius", IntegerArgumentType.integer(1, 256))
+                                .executes(ctx -> strikeAll(ctx.getSource(),
+                                        IntegerArgumentType.getInteger(ctx, "radius"), false))
+                                .then(Commands.literal("confirm")
+                                        .executes(ctx -> strikeAll(ctx.getSource(),
+                                                IntegerArgumentType.getInteger(ctx, "radius"), true)))))
                 .then(Commands.literal("reset")
                         .executes(ctx -> reset(ctx.getSource())))
                 .then(log)
@@ -170,6 +186,86 @@ public final class DamageGuardCommand {
                 Commands.literal(Tpsthings.MODID)
                         .requires(source -> source.hasPermission(2))
                         .then(damage));
+    }
+
+    /**
+     * 索引に載っている生き物を、範囲ごと打つ。
+     *
+     * <p>相手が<b>検索から消えている</b>ときの最後の手段。読み出しに濾し器を挟まれると、
+     * 当たり判定も照会も素通りするので、殴打も視野の円錐も相手に届かない — 層に降りる以前に
+     * 打つ対象が無い。{@link StrikeCensus} は検索を通さず索引そのものを読むので、
+     * そこに居る限りは掴める。
+     *
+     * <p>打つ相手をこちらで選べないぶん、巻き添えが出る。だから<b>確認を挟む</b>:
+     * 一度目は何に当たるかを数えて見せるだけで、打つのは {@code confirm} を付けたときだけ。
+     * 保護対象と、撃った本人は外す。
+     */
+    private static int strikeAll(CommandSourceStack source, int radius, boolean confirm) {
+        ServerLevel level = source.getLevel();
+        Vec3 center = source.getPosition();
+        Entity self = source.getEntity();
+        List<LivingEntity> targets = StrikeCensus.sweepTargets(level, center, radius, self);
+        if (targets.isEmpty()) {
+            source.sendSuccess(() -> Component.literal(
+                    "半径 " + radius + " の索引に、打てる生き物は居ませんでした")
+                    .withStyle(ChatFormatting.GRAY), true);
+            return 0;
+        }
+        if (!confirm) {
+            // 検索に出てこない相手を含むので、見えている数と合わないのが普通。
+            // 何に当たるのかを先に見せてからでないと、取り返しがつかない
+            String sample = targets.stream()
+                    .limit(8)
+                    .map(body -> body.getName().getString())
+                    .distinct()
+                    .reduce((a, b) -> a + ", " + b)
+                    .orElse("");
+            source.sendSuccess(() -> Component.literal(
+                    "半径 " + radius + " の索引に生き物が " + targets.size() + " 体います (" + sample
+                            + (targets.size() > 8 ? ", …" : "") + ")。"
+                            + "打つなら /" + Tpsthings.MODID + " damage strikeall " + radius + " confirm")
+                    .withStyle(ChatFormatting.YELLOW), true);
+            return targets.size();
+        }
+        Player attacker = self instanceof Player player ? player : null;
+        int struck = targets.size();
+        int down = PiercingStrike.strikeEach(attacker, targets);
+        source.sendSuccess(() -> Component.literal(
+                "索引から " + struck + " 体に打ちました (通った " + down + " 体)")
+                .withStyle(ChatFormatting.GREEN), true);
+        GuardNotice.info("貫通攻撃: 掃討 — 半径 " + radius + " の索引から " + struck
+                + " 体に打ちました (通った " + down + " 体)。検索に出ない相手も索引から拾っています");
+        return struck;
+    }
+
+    /**
+     * 自分に打つ。
+     *
+     * <p>装備型の不死を確かめるとき、相手役を用意せずに済む — 着たまま撃てば、その装備が
+     * 層のどこで止めるかがそのまま出る。殴打の入り口 (当たり判定・視野の円錐) を通らないので、
+     * <b>検索から消える相手でも必ず打てる</b>のも狙い。
+     *
+     * <p>自分の防御が効いていると当然のように拒否されるが、それは相手の装備が強いのではなく
+     * こちらが守っているだけ。見分けがつかないと測定にならないので、保護されているなら先に言う。
+     */
+    private static int strikeSelf(CommandSourceStack source) {
+        if (!(source.getEntity() instanceof LivingEntity self)) {
+            source.sendFailure(Component.literal(
+                    "自分が世界に居ないので打てません (コンソールからは撃てません)"));
+            return 0;
+        }
+        if (AutoGuard.isProtected(self)) {
+            // ここを黙って打つと「耐えた」に見えるが、耐えているのは自分の関所の方
+            source.sendSuccess(() -> Component.literal(
+                    "いまの自分は保護対象です。拒否されても相手の装備ではなく、こちらの防御が理由になります"
+                            + " (外すなら /" + Tpsthings.MODID + " damage protect false)")
+                    .withStyle(ChatFormatting.YELLOW), false);
+        }
+        Player attacker = self instanceof Player player ? player : null;
+        PiercingStrike.Result result = PiercingStrike.strike(attacker, self);
+        source.sendSuccess(() -> Component.literal("自分に打ちました: " + result)
+                .withStyle(ChatFormatting.GREEN), true);
+        return 1;
     }
 
     private static int watch(CommandSourceStack source, boolean enabled) {
@@ -340,6 +436,22 @@ public final class DamageGuardCommand {
                 ? "貫通攻撃をプレイヤーにも索引層 (除去・索引) まで打ちます"
                 : "貫通攻撃はプレイヤーには終焉層 (死) までにします")
                 .withStyle(enabled ? ChatFormatting.GOLD : ChatFormatting.GREEN), true);
+        return 1;
+    }
+
+    /**
+     * 消しきれなかった相手を、世界の索引へ戻すか。
+     *
+     * 戻さないと、tick 一覧と索引からだけ外れた相手が「動けるのにブロックが壊せない」
+     * 中途半端な状態で残る。無力化と見るか壊したと見るかは使う側が決める。
+     */
+    private static int strikeRestore(CommandSourceStack source, boolean enabled) {
+        PiercingStrike.setRestoreOnFailure(enabled);
+        GuardConfig.save();
+        source.sendSuccess(() -> Component.literal(enabled
+                ? "貫通攻撃で消しきれなかった相手は、世界の索引へ戻します"
+                : "貫通攻撃で消しきれなくても、外した索引は戻しません (今までどおり)")
+                .withStyle(enabled ? ChatFormatting.GREEN : ChatFormatting.GOLD), true);
         return 1;
     }
 

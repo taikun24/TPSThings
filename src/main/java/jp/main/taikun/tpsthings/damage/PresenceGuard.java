@@ -77,7 +77,8 @@ public final class PresenceGuard {
      * <p>次元移動・チャンクの畳み・ログアウトの印は殺意が無いので、ここでは偽と言わない。
      */
     public static boolean forgedRemoval(Entity entity) {
-        if (!entity.isRemoved() || !HealthGuard.isHostileRemoval(entity.getRemovalReason())) {
+        Entity.RemovalReason reason = ((AccessorEntity) entity).tpsthings$getRemovalReason();
+        if (reason == null || !HealthGuard.isHostileRemoval(reason)) {
             return false;
         }
         if (!(entity instanceof LivingEntity living) || !AutoGuard.isProtected(living) || stale(living)) {
@@ -93,6 +94,11 @@ public final class PresenceGuard {
 
     /** サーバ tick の終わりに全員分を見回る。被害者の tick は止まっている前提で回す。 */
     public static void sweep() {
+        // 控えを手放した相手の tick 記録も手放す (実体への強参照を残さない)
+        HEARTBEAT.keySet().retainAll(ANCHOR.keySet());
+        SKIPPED.keySet().retainAll(ANCHOR.keySet());
+        CLIENT_AWAIT.keySet().retainAll(ANCHOR.keySet());
+        CLIENT_PULSE.keySet().retainAll(ANCHOR.keySet());
         if (ANCHOR.isEmpty()) {
             return;
         }
@@ -102,7 +108,7 @@ public final class PresenceGuard {
             boolean forged = forgedRemoval(entity);
             // 削除済みは正規の後始末 (死亡・次元移動・チャンク畳み)。リスポーンで
             // 実体が作り直されたら、新しい方の tick が改めて控えを入れ直す
-            if ((entity.isRemoved() && !forged) || !AutoGuard.isProtected(entity) || stale(entity)) {
+            if ((HealthGuard.rawRemoved(entity) && !forged) || !AutoGuard.isProtected(entity) || stale(entity)) {
                 UUID id = entity.getUUID();
                 anchors.remove();
                 STREAK.remove(id);
@@ -116,17 +122,24 @@ public final class PresenceGuard {
                 DamageGuard.runAsSelf(() -> ((AccessorEntity) entity).tpsthings$setRemovalReason(null));
                 GuardNotice.send(entity, "除去の関所を通らずに除去の印だけを立てられていました。"
                         + "印を下ろして世界へ戻します", true);
-                // 本人のクライアントからも自機を消す相手が居る。サーバで載せ直しても
-                // 画面は戻らないので、作り直しの通知で組み立て直させる (連打は抑制付き)。
-                //
-                // 作り直しが通ったら、こちらが握っている実体は<b>古い方</b>になる。
-                // そのまま載せ直すと同じ UUID が世界に 2 つ並び、後始末で世界の側が壊れる。
-                // 新しい方は自分の tick で改めて控えられるので、ここは手を引く
-                if (entity instanceof ServerPlayer player && RespawnGuard.rebuildClient(player)) {
-                    anchors.remove();
-                    STREAK.remove(entity.getUUID());
-                    continue;
+                // 本人のクライアントからも自機を消す相手が居る。手元の自機はクライアント側の
+                // 見張りが戻すので、ここではすぐ作り直さず、戻ったかどうかを待つ
+                if (entity instanceof ServerPlayer player) {
+                    CLIENT_AWAIT.putIfAbsent(player.getUUID(), player.server.getTickCount());
                 }
+            }
+            // 待っても手元から移動の報せが来ないなら、クライアントは自力で戻れていない。
+            // そのときだけ作り直しの通知で組み立て直させる (世界の読み込み直しになるので重い。連打は抑制付き)。
+            //
+            // 作り直しが通ったら、こちらが握っている実体は<b>古い方</b>になる。
+            // そのまま載せ直すと同じ UUID が世界に 2 つ並び、後始末で世界の側が壊れる。
+            // 新しい方は自分の tick で改めて控えられるので、ここは手を引く
+            if (entity instanceof ServerPlayer player && clientLost(player)
+                    && RespawnGuard.rebuildClient(player)) {
+                anchors.remove();
+                STREAK.remove(entity.getUUID());
+                CLIENT_AWAIT.remove(entity.getUUID());
+                continue;
             }
             // 上の作り直し以外にも、他所のリスポーンで置き換わることはある。
             // 載せ直す直前にもう一度確かめる (古い実体を送り返さないため)
@@ -149,6 +162,7 @@ public final class PresenceGuard {
             }
             if (entity.level() instanceof ServerLevel level) {
                 check(level, entity);
+                checkHeartbeat(level, entity);
                 checkExile(level, entity);
             }
         }
@@ -222,6 +236,85 @@ public final class PresenceGuard {
         }
         return null;
     }
+
+    /**
+     * 一覧に載っているのに、世界が本当に tick を回したか。
+     *
+     * <p>一覧に載っているかどうかは中継の途中しか見ていない。一覧を回す側 ({@code forEach}) で
+     * 特定の実体だけ飛ばされると、載ったまま永久に tick が来ない。プレイヤーでは被害が
+     * 見えにくい — 移動や視点は通信路側の tick で動き続けるが、世界の tick が担う部分
+     * (採掘の進み具合の時計・開いている入れ物の同期など) だけが止まり、
+     * <b>時間のかかるブロックを掘ると必ず戻される</b>。
+     *
+     * <p>印は {@code tickCount}。バニラでは世界がその実体を tick した回数そのもので、
+     * 世界の tick 以外では進まない。見回りはサーバ tick の終わりに 1 回ずつなので、
+     * 前回から進んでいなければ、この 1 tick の間に世界はこの実体を回していない。
+     * 回されるべき状況 (tick 圏内・乗り物に乗っていない・次元にプレイヤーが居る) でそうなら、
+     * バニラと同じ入口で 1 回回す。誰が飛ばしたかは知らなくてよい。
+     */
+    private static void checkHeartbeat(ServerLevel level, LivingEntity entity) {
+        UUID id = entity.getUUID();
+        Heartbeat last = HEARTBEAT.put(id, new Heartbeat(entity, entity.tickCount));
+        if (last == null || last.entity() != entity || last.tickCount() != entity.tickCount) {
+            SKIPPED.remove(id);
+            return;
+        }
+        // 乗っている間は乗り物の側から回る。人の居ない次元はバニラでも entity の tick を止める
+        if (entity.isPassenger() || level.players().isEmpty()
+                || !level.isPositionEntityTicking(entity.blockPosition())) {
+            return;
+        }
+        // 自分の操作扱いにはしない。tick の中では他 Mod の処理も走り、それが殺しに来たら関所が素通しになる
+        level.guardEntityTick(level::tickNonPassenger, entity);
+        HEARTBEAT.put(id, new Heartbeat(entity, entity.tickCount));
+        if (SKIPPED.merge(id, 1, Integer::sum) == 1) {
+            GuardNotice.send(entity, "tick の一覧に載ったまま、世界の tick だけ飛ばされていました"
+                    + " (掘ったブロックが戻される・入れ物が同期されない原因)。こちらから回します", true);
+        }
+    }
+
+    private record Heartbeat(LivingEntity entity, int tickCount) {
+    }
+
+    /**
+     * 手元から移動の報せが届いた。クライアントの自機が tick している証拠。
+     *
+     * <p>クライアントは自機の tick の中で位置を送り、動いていなくても 1 秒に 1 回は送る。
+     * 自機を手元の世界から消されると tick ごと止まるので、報せも止まる。
+     */
+    public static void clientMoved(ServerPlayer player) {
+        UUID id = player.getUUID();
+        if (CLIENT_AWAIT.containsKey(id)) {
+            CLIENT_PULSE.put(id, player.server.getTickCount());
+        }
+    }
+
+    /** 印を下ろしてから猶予を過ぎても、手元から一度も報せが来ていないか。 */
+    private static boolean clientLost(ServerPlayer player) {
+        UUID id = player.getUUID();
+        Integer since = CLIENT_AWAIT.get(id);
+        if (since == null) {
+            return false;
+        }
+        if (CLIENT_PULSE.getOrDefault(id, Integer.MIN_VALUE) > since) {
+            CLIENT_AWAIT.remove(id);
+            CLIENT_PULSE.remove(id);
+            return false;
+        }
+        return player.server.getTickCount() - since >= CLIENT_GRACE_TICKS;
+    }
+
+    /** 手元の自力復帰を待つ tick 数。位置の報せは最長 1 秒おきなので、その 3 回分。 */
+    private static final int CLIENT_GRACE_TICKS = 60;
+    /** 印を下ろして、手元の復帰を待っている相手と、待ち始めた tick。 */
+    private static final Map<UUID, Integer> CLIENT_AWAIT = new ConcurrentHashMap<>();
+    /** 待っている相手から最後に移動の報せが届いた tick。 */
+    private static final Map<UUID, Integer> CLIENT_PULSE = new ConcurrentHashMap<>();
+
+    /** 保護対象ごとの、前回の見回りで見た tick 回数。 */
+    private static final Map<UUID, Heartbeat> HEARTBEAT = new ConcurrentHashMap<>();
+    /** tick を飛ばされ続けている連続回数。始まりを一度だけ報告するために使う。 */
+    private static final Map<UUID, Integer> SKIPPED = new ConcurrentHashMap<>();
 
     private static boolean tracked(ServerLevel level, Entity entity) {
         return ((AccessorChunkMap) level.getChunkSource().chunkMap).tpsthings$entityMap()
@@ -364,6 +457,10 @@ public final class PresenceGuard {
         LAST_SANE.remove(id);
         STREAK.remove(id);
         TOTAL.remove(id);
+        HEARTBEAT.remove(id);
+        SKIPPED.remove(id);
+        CLIENT_AWAIT.remove(id);
+        CLIENT_PULSE.remove(id);
     }
 
     /** サーバ停止時に全部手放す。強参照なので、残すと世界ごと GC できなくなる。 */
@@ -372,5 +469,9 @@ public final class PresenceGuard {
         LAST_SANE.clear();
         STREAK.clear();
         TOTAL.clear();
+        HEARTBEAT.clear();
+        SKIPPED.clear();
+        CLIENT_AWAIT.clear();
+        CLIENT_PULSE.clear();
     }
 }

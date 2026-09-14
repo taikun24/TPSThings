@@ -74,6 +74,7 @@ public class ModItemModelProvider extends ItemModelProvider {
         ownTexture("sugoi_menu");
         ownTexture("attack_module");
         ownTexture("defense_module");
+        ownTexture("module_oo_unit");
         // 欠陥の段
         ownTexture("null_pointer");
         ownTexture("glitch");

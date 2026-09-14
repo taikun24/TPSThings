@@ -11,6 +11,7 @@ import jp.main.taikun.tpsthings.damage.PresenceGuard;
 import jp.main.taikun.tpsthings.damage.RepairGuard;
 import jp.main.taikun.tpsthings.damage.RespawnGuard;
 import jp.main.taikun.tpsthings.items.ItemOo;
+import jp.main.taikun.tpsthings.items.OoEquivalent;
 import jp.main.taikun.tpsthings.profile.TickProfiler;
 import jp.main.taikun.tpsthings.registries.ModItems;
 import jp.main.taikun.tpsthings.time.TickUtil;
@@ -46,6 +47,7 @@ import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
@@ -58,15 +60,37 @@ import org.spongepowered.asm.mixin.MixinEnvironment;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE, modid = Tpsthings.MODID)
 public class ServerEvents {
-    @SubscribeEvent
+    /**
+     * 殴打の入り口。<b>取り消された殴打も受け取る</b> ({@code receiveCanceled})。
+     *
+     * <p>守る側から見れば、殴打のイベントを取り消すのは一番安い守り方で、実際そうする相手が居る。
+     * 既定では取り消された時点で配送が止まるので、こちらの入り口は<b>一度も呼ばれない</b> —
+     * 深い層をいくら用意しても、そこへ降りる手前で終わっていた (実測: 層に一切触れていない
+     * 相手に「防がれる」と出ていたのはこれが理由)。
+     *
+     * <p>だから入り口だけは取り消しに従わない。取り消しを尊重するかどうかは<b>打ってから</b>
+     * 決めればよいことで、呼ばれないこととは別の話。特定の Mod を名指しする分岐は持たない。
+     */
+    @SubscribeEvent(receiveCanceled = true)
     public static void whenAttack(AttackEntityEvent event) {
+        boolean refused = event.isCanceled();
         // Player#attack はクライアント側でも走る。クライアントの実体を消しても表示が狂うだけ
-        if (event.getEntity().getMainHandItem().is(ModItems.OO.get()) && !event.getEntity().level().isClientSide()) {
+        if (OoEquivalent.isOo(event.getEntity().getMainHandItem()) && !event.getEntity().level().isClientSide()) {
+            if (refused) {
+                // 「どこで止められたか」を後から一発で見分けるため。層に入る前の取り消しは
+                // 層の報告には出ないので、ここでしか記録できない
+                GuardNotice.infoThrottled("attack-refused-" + event.getTarget().getUUID(),
+                        "貫通攻撃: " + event.getTarget().getName().getString()
+                                + " への殴打は層に入る手前で取り消されていました (構わず打ちます)");
+            }
             ItemOo.whenAttack(event.getEntity(), event.getTarget());
         }
         // 殴れる相手は生き物とは限らない (ボート・額縁・トロッコ)。生き物でなければ
-        // 体力も効果も無いので、普通の殴打に任せる
-        if (event.getEntity().getMainHandItem().is(ModItems.FLUORESCENT_LIGHT.get())
+        // 体力も効果も無いので、普通の殴打に任せる。
+        // こちらは取り消しに従う — 自分で取り消してから自分で殴る作りなので、
+        // 他所が取り消した殴打にまで割り込むと二重に効いてしまう
+        if (!refused
+                && event.getEntity().getMainHandItem().is(ModItems.FLUORESCENT_LIGHT.get())
                 && !event.getEntity().level().isClientSide()
                 && event.getTarget() instanceof LivingEntity target) {
             event.cancel();
@@ -137,10 +161,18 @@ public class ServerEvents {
             );
         }
     }
-    @SubscribeEvent
+    /**
+     * 着ている者が削られたら満たし直す。
+     *
+     * <p><b>取り消されていても</b>受け取り、<b>最後に</b>走る。普通の購読だと、相手がダメージの
+     * イベントを取り消した時点で配送が止まり、ここは一度も呼ばれない — 取り消しておいて体力は
+     * 別の道から直接削る、という攻め方の前で丸腰になる (攻撃側の入り口 {@link #whenAttack} で
+     * 同じ形の穴を実際に踏んだ)。優先度を最低にするのは、後から走る購読に上書きされないため。
+     */
+    @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = true)
     public static void whenDamaged(LivingDamageEvent event){
         event.getEntity().getArmorSlots().forEach(e -> {
-            if (e.is(ModItems.OO.get())){
+            if (OoEquivalent.isOo(e)){
                 event.getEntity().setHealth(Integer.MAX_VALUE);
                 // event.cancel();
             }
@@ -158,7 +190,8 @@ public class ServerEvents {
         if (event.getSlot() != EquipmentSlot.CHEST) {
             return;
         }
-        boolean wearing = event.getTo().is(ModItems.OO.get());
+        // おおモジュールの有効/無効の切り替えも中身 (NBT) の変化なので、この装備変更として届く
+        boolean wearing = OoEquivalent.isOo(event.getTo());
         if (event.getEntity() instanceof Player player) {
             player.getAbilities().mayfly = wearing;
             player.onUpdateAbilities();
@@ -298,7 +331,7 @@ public class ServerEvents {
 
         event.getServer().getPlayerList().getPlayers().forEach(player -> {
             player.getArmorSlots().forEach(e -> {
-                if (e.is(ModItems.OO.get())){
+                if (OoEquivalent.isOo(e)){
                     player.clearFire();
                     // 飛行を落とす経路はゲームモード切り替えだけではない。
                     // 誰が落としたかを追うより、着ている間は毎 tick 戻す方が確実
@@ -316,8 +349,13 @@ public class ServerEvents {
      *
      * 以前はここで「おぉを着ているか」を直接見ていたが、保護対象の判定は
      * Guard 側に 1 つだけにする (装備由来の保護は syncEquipProtection が同期済み)。
+     *
+     * <p>取り消しは<b>後から走る購読に取り消し返される</b>。普通の優先度で取り消しても、
+     * 後ろに居る相手が {@code setCanceled(false)} すれば死は通る。だから最後に走って、最後の一言を持つ。
+     * 取り消された死も受け取るのは、誰かが先に取り消したまま体力 0 で放置していても、
+     * ここで満たし直さないと次の tick でまた死ぬから。
      */
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = true)
     public static void whenDeath(LivingDeathEvent event){
         if (HealthGuard.shouldCancelDeathEvent(event.getEntity())) {
             event.setCanceled(true);

@@ -101,8 +101,15 @@ public final class AutoGuard {
     /** 自動で適用したものだけを覚えておく。手で入れたものを reset で巻き込まないため。 */
     private static final Set<String> AUTO_BLOCKED = ConcurrentHashMap.newKeySet();
     private static final Set<String> AUTO_DISABLED = ConcurrentHashMap.newKeySet();
+    /**
+     * disable した後に観測した連鎖。「効かなかった」かを<b>出所ごと</b>に見るために使う。
+     * 別の Mod が同時に殴ってくると、効いていても被弾は続くので、被弾だけで判断すると
+     * 効いた措置まで戻してしまう (実測で、2 つの攻撃を交互に戻し続けた)。
+     */
+    private static final Map<UUID, List<List<String>>> SINCE_DISABLE = new ConcurrentHashMap<>();
 
-    private static volatile boolean enabled = false;
+    // 着ただけで守りが効くよう、既定は ON (保護対象が居なければ何もしない)
+    private static volatile boolean enabled = true;
     /**
      * 減らされた HP をその tick のうちに書き戻すか。
      *
@@ -248,10 +255,14 @@ public final class AutoGuard {
     }
 
     /**
-     * 保護状態と自動対処の有無を、装備しているかどうかに合わせる。
+     * 保護状態を、装備しているかどうかに合わせる。
      *
      * 装備変更・ログイン・リスポーン・次元移動のたびにイベント側から呼ばれる。
      * 手動指定 ({@link #setManuallyProtected}) はここでは触らない。
+     *
+     * <p>自動対処のスイッチ ({@link #setEnabled}) も触らない。以前は着たら ON・脱いだら OFF に
+     * していたが、メニューで選んだ値が付け外しのたびに上書きされていた。スイッチの効き目は
+     * どの経路でも保護対象かどうかと組で見ているので、保護対象が居なければ ON のままでも何もしない。
      *
      * <p>対象は {@link LivingEntity} で受ける。関所はどれも実体単位で動いているので、
      * 着ているのがプレイヤーかどうかは保護の条件にならない。プレイヤー限定にしていると
@@ -262,11 +273,6 @@ public final class AutoGuard {
             return;
         }
         setProtected(wearer, wearing);
-        if (wearing) {
-            setEnabled(true);
-        } else if (protectedCount() == 0) {
-            setEnabled(false);
-        }
     }
 
     /** 手動 (コマンド) の保護。装備由来の同期に上書きされない。 */
@@ -326,6 +332,7 @@ public final class AutoGuard {
         REVERT_TOTAL.remove(id);
         KNOWN_GOOD.remove(id);
         CHAINS.remove(id);
+        SINCE_DISABLE.remove(id);
         CHAIN_AGE.remove(id);
         GATE_AGE.remove(id);
         ORDINARY_AGE.remove(id);
@@ -388,6 +395,12 @@ public final class AutoGuard {
             return;
         }
         CHAIN_AGE.put(id, 0);
+        if (STAGE.getOrDefault(id, Stage.NONE) == Stage.DISABLED) {
+            List<List<String>> after = SINCE_DISABLE.computeIfAbsent(id, key -> new CopyOnWriteArrayList<>());
+            if (!after.contains(candidates) && after.size() < MAX_CHAINS) {
+                after.add(candidates);
+            }
+        }
         List<List<String>> chains = CHAINS.computeIfAbsent(id, key -> new CopyOnWriteArrayList<>());
         if (chains.contains(candidates)) {
             return;
@@ -479,6 +492,40 @@ public final class AutoGuard {
         return !GuardContext.isInfrastructure(frame) || DamageGuard.mixinOwner(frame) != null;
     }
 
+    /**
+     * 呼び出し枠のコードがどこから来たか (おおよその Mod 単位)。
+     *
+     * <p>Mixin で合成された枠はバニラのクラス名を着ているので、合成元の Mixin クラスで見る。
+     * 名前はパッケージの頭で丸める。{@code com.author.mod} 型は 3 段、{@code author.mod} 型は 2 段
+     * (先頭が短い = ドメイン由来の頭なら 1 段深く見る)。Mod 名の知識は使わない。
+     */
+    static String codeRoot(String frame) {
+        String owner = DamageGuard.mixinOwner(frame);
+        String name = owner != null ? owner : frame;
+        int hash = name.indexOf('#');
+        if (hash >= 0) {
+            name = name.substring(0, hash);
+        }
+        String[] parts = name.split("\\.");
+        int keep = parts.length > 0 && parts[0].length() <= 3 ? 3 : 2;
+        keep = Math.min(keep, Math.max(1, parts.length - 1));
+        return String.join(".", java.util.Arrays.copyOf(parts, keep));
+    }
+
+    /**
+     * 連鎖の出所。一番内側でも、バニラの上書きや元の処理の代わりに立つ注入は<b>通り道に居るだけ</b>
+     * (索引を包み直す別 Mod 等) なので出所に数えない。それを出所にすると、本当に手を下した Mod を
+     * 「別の出所」として見逃した (実測)。自動で潰せる最初の枠の出所を採る。
+     */
+    private static String originRoot(List<String> chain) {
+        for (String frame : chain) {
+            if (!TickRoots.isRoot(frame) && MethodDisabler.autoRefusal(frame) == null) {
+                return codeRoot(frame);
+            }
+        }
+        return codeRoot(chain.get(0));
+    }
+
     /** 自動で潰してよいか。他所のコードでも、生き物を tick させる道の上に居るものは潰さない。 */
     private static boolean isSuspect(String frame) {
         return isForeignCode(frame) && !TickRoots.isRoot(frame);
@@ -528,12 +575,7 @@ public final class AutoGuard {
         // (シングルプレイでは静的な保護一覧が両側から見えるので、これで届く)
         HealthGuard.healDeathPose(entity);
         if (entity.level().isClientSide()) {
-            // 嘘はクライアントの中だけでもつける。自機が「自分は死んでいる」と答えれば、
-            // サーバが何と言おうと画面は死に、操作も止まる。材料探しは両側で回す
-            StateProbe.enforce(entity);
-            if (StateProbe.isLying(entity)) {
-                StateProbe.probe(entity);
-            }
+            watchClient(entity);
             return;
         }
         // 関所そのものが生きている証。ここが止まったら剥がされた疑いになる
@@ -594,6 +636,29 @@ public final class AutoGuard {
             return; // 減っていない = いまの手が効いている
         }
         escalate(entity, lost);
+    }
+
+    /**
+     * クライアント側の嘘の見張り。
+     *
+     * <p>嘘はクライアントの中だけでもつける。自機が「自分は死んでいる」と答えれば、
+     * サーバが何と言おうと画面は死に、操作も止まる。材料探しは両側で回す。
+     *
+     * <p>実体の tick からだけ呼ぶと、<b>tick 一覧から外された自機では永久に呼ばれない</b>。
+     * 外すのは嘘をつく側の定番の後始末なので、クライアント tick の側からも呼ぶ
+     * (二重に呼ばれても、実験は間隔待ちで、中和は同じ値を置くだけ)。
+     */
+    public static void watchClient(LivingEntity entity) {
+        if (!isProtected(entity)) {
+            return;
+        }
+        HealthGuard.healDeathPose(entity);
+        StateProbe.enforce(entity);
+        if (StateProbe.isLying(entity) && StateProbe.probe(entity) == null) {
+            // 当たらないまま黙っていると、見張りが走っているのかすら外から分からない
+            GuardNotice.warnThrottled("client-lie", "クライアント側で生死の答えが実データと食い違っていますが、"
+                    + "材料はまだ見つかっていません: " + StateProbe.diagnose(entity));
+        }
     }
 
     /**
@@ -806,17 +871,46 @@ public final class AutoGuard {
             return; // 打ち止め済み。報告は打ち止めた時に一度だけ出している
         }
 
+        Stage stage = STAGE.getOrDefault(id, Stage.NONE);
         // 同じ深さの枝を横断して集める。枝分かれした攻撃経路を、共通の親まで
         // 遡らずに浅い段で並べて潰すため
         List<String> targets = new ArrayList<>();
+        List<String> refused = new ArrayList<>();
         for (List<String> chain : chains) {
             // 記録した後で tick の道だと分かったものは、ここで外す
             if (depth < chain.size() && TickRoots.isRoot(chain.get(depth))) {
                 continue;
             }
-            if (depth < chain.size() && !targets.contains(chain.get(depth))) {
-                targets.add(chain.get(depth));
+            if (depth >= chain.size()) {
+                continue;
             }
+            String frame = chain.get(depth);
+            if (targets.contains(frame) || refused.contains(frame)) {
+                continue;
+            }
+            // 元の処理の代わりに立っているものは潰さない (空にすると元の処理ごと消える)。
+            // block で代用もしない。連鎖に居る間の書き込みを全部止めるので、被害が世界に広がる
+            if (stage == Stage.NONE) {
+                // 外側へ遡るうちに、攻撃してきた Mod を出て<b>それを呼んでいるだけの別の Mod</b>
+                // (自動クリッカーの偽プレイヤー等) に入ることがある。そこを潰すと、攻撃と無関係な
+                // 仕組みを巻き込む (実測で巻き込んだ)。連鎖の一番内側と出所が違う枠は触らない
+                String origin = originRoot(chain);
+                String here = codeRoot(frame);
+                if (!here.equals(origin)) {
+                    refused.add(frame + " (攻撃の出所 " + origin + " を呼んでいるだけの別の出所 "
+                            + here + " なので自動では潰しません)");
+                    continue;
+                }
+                String refusal = MethodDisabler.autoRefusal(frame);
+                if (refusal != null) {
+                    refused.add(frame + " (" + refusal + ")");
+                    continue;
+                }
+            }
+            targets.add(frame);
+        }
+        if (!refused.isEmpty()) {
+            GuardNotice.info("自動対処で触らなかったもの: " + String.join(" / ", refused));
         }
         if (targets.isEmpty()) {
             DEPTH.put(id, depth + 1);
@@ -824,7 +918,6 @@ public final class AutoGuard {
         }
 
         String candidate = String.join(", ", targets);
-        Stage stage = STAGE.getOrDefault(id, Stage.NONE);
 
         switch (stage) {
             case NONE -> {
@@ -842,6 +935,7 @@ public final class AutoGuard {
                         failures.add(target + " (" + failure + ")");
                     }
                 }
+                SINCE_DISABLE.remove(id);
                 STAGE.put(id, Stage.DISABLED);
                 report(victim, failures.isEmpty()
                         ? cause + "。disable しました: " + candidate
@@ -850,6 +944,39 @@ public final class AutoGuard {
                         !failures.isEmpty());
             }
             case DISABLED -> {
+                // 被弾が続いても、それが<b>別の出所</b>からだけなら、この段の措置は自分の相手には効いている。
+                // 効いた分は残し、その枝は追い終わったものとして外す
+                List<List<String>> after = SINCE_DISABLE.getOrDefault(id, List.of());
+                List<String> held = new ArrayList<>();
+                if (!after.isEmpty()) {
+                    Set<String> stillComing = new java.util.HashSet<>();
+                    after.forEach(chain -> stillComing.add(originRoot(chain)));
+                    for (String target : targets) {
+                        if (AUTO_DISABLED.contains(target) && !stillComing.contains(codeRoot(target))) {
+                            held.add(target);
+                        }
+                    }
+                }
+                SINCE_DISABLE.remove(id);
+                if (!held.isEmpty()) {
+                    CHAINS.getOrDefault(id, new ArrayList<>())
+                            .removeIf(chain -> depth < chain.size() && held.contains(chain.get(depth)));
+                    List<String> failed = new ArrayList<>(targets);
+                    failed.removeAll(held);
+                    failed.forEach(AutoGuard::rollback);
+                    boolean onlyOthers = failed.stream().noneMatch(AUTO_DISABLED::contains)
+                            && failed.stream().noneMatch(AUTO_BLOCKED::contains);
+                    // 戻したものが無ければ、残りの枝は別の相手。最初の段から追い直す
+                    DEPTH.put(id, onlyOthers ? 0 : depth + 1);
+                    STAGE.put(id, Stage.NONE);
+                    report(victim, String.join(", ", held) + " は効いているので残します。"
+                            + "続いている被弾は別の出所 (" + String.join(", ", after.stream()
+                                    .map(AutoGuard::originRoot).distinct().toList())
+                            + ") からなので、そちらを別に追います", false);
+                    COOLDOWN.put(id, COOLDOWN_TICKS);
+                    GuardConfig.save();
+                    return;
+                }
                 // この段は効かなかった。副作用を残さないよう、必ず戻してから外へ移る
                 targets.forEach(AutoGuard::rollback);
                 if (depth + 1 >= limit) {
@@ -901,6 +1028,7 @@ public final class AutoGuard {
         }
         DEPTH.clear();
         STAGE.clear();
+        SINCE_DISABLE.clear();
         COOLDOWN.clear();
         // 実験で当てた中和も自動でやったことのうち。巻き戻すなら一緒に外す
         StateProbe.reset();

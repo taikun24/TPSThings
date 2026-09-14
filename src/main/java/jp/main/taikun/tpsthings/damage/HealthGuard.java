@@ -1,5 +1,6 @@
 package jp.main.taikun.tpsthings.damage;
 
+import jp.main.taikun.tpsthings.mixin.AccessorEntity;
 import net.minecraft.network.protocol.game.ClientboundSetHealthPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -485,7 +486,7 @@ public final class HealthGuard {
         // 絞り所より先に見る。後にすると、正規の後始末の連鎖が自動対処の容疑者に並ぶ。
         // ただし印だけ直接書かれた偽の除去は正規ではない。印を立ててから索引を剥がすのが
         // この関所を黙らせる定石なので、印の真偽まで見る
-        if (victim.isRemoved() && !PresenceGuard.forgedRemoval(victim)) {
+        if (rawRemoved(victim) && !PresenceGuard.forgedRemoval(victim)) {
             return false;
         }
         if (DamageGuard.shouldBlock(victim, DamageGuard.Kind.UNREGISTER, 0.0F)) {
@@ -546,8 +547,19 @@ public final class HealthGuard {
      */
     public static boolean rawAlive(LivingEntity living) {
         // isRemoved() も印を直接書けば立つ。偽の印を信じると、生きている相手を作り直す (= 殺す)
-        boolean removed = living.isRemoved() && !PresenceGuard.forgedRemoval(living);
+        boolean removed = rawRemoved(living) && !PresenceGuard.forgedRemoval(living);
         return !removed && storedHealth(living) > 0.0F;
+    }
+
+    /**
+     * 偽装に影響されない「除去済みか」。印のフィールドを直に読む。
+     *
+     * <p>{@code isRemoved()} もただのメソッドで、本体を書き換えれば印が無くても true を返せる。
+     * それを信じると「削除済みだから死んでいる」で辻褄が合ってしまい、嘘そのものが見えなくなる
+     * (画面は {@code isRemoved()} を見て勝手に閉じるのに、見張る側は一致していると判断する)。
+     */
+    public static boolean rawRemoved(Entity entity) {
+        return ((AccessorEntity) entity).tpsthings$getRemovalReason() != null;
     }
 
     /**

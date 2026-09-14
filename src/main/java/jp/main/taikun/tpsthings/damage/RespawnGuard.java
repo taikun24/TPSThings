@@ -260,6 +260,44 @@ public final class RespawnGuard {
                 + (sinceDie < 0 ? "一度も通っていません" : sinceDie + " ミリ秒前に通りました"), false);
     }
 
+    /**
+     * 貫通攻撃で世界から消したプレイヤーを、正規のリスポーンで作り直す。
+     *
+     * <p>索引から剥がされたプレイヤーは通信路だけが残る。チャンクの送信も tick も止まるので、
+     * 本人の画面は<b>周りのブロックが見えず、掘っても戻される</b>状態になる (実測)。
+     * 消したこと自体は正しいので、消えた<b>あと</b>をバニラの死と同じ形で終わらせる。
+     *
+     * <p>死としてのリスポーン ({@code keepEverything = false})。死亡地点には戻さない —
+     * 殺された側なので、通常の死と同じくスポーン地点へ送る。
+     *
+     * <p><b>サーバ tick の終わりからしか呼んではいけない。</b>プレイヤーの tick 中に
+     * {@code PlayerList#respawn} を呼ぶと、反復中に世界から出し入れすることになり、
+     * 古い方が残ったまま新しい方が足されて UUID が二重になる (このクラスの先頭の注意と同じ)。
+     *
+     * @return 作り直した実体。作り直せなければ null
+     */
+    public static ServerPlayer respawnAfterRemoval(ServerPlayer player) {
+        MinecraftServer server = player.getServer();
+        if (server == null || server.getPlayerList().getPlayer(player.getUUID()) != player) {
+            return null; // もう繋がっていない / 既に作り直されている
+        }
+        ServerPlayer[] holder = new ServerPlayer[1];
+        // respawn は内部で remove を通る。自分の絞り所に「消されかけた」と誤認させない
+        DamageGuard.runAsSelf(() -> holder[0] = server.getPlayerList().respawn(player, false));
+        ServerPlayer revived = holder[0];
+        if (revived == null || revived == player) {
+            return null;
+        }
+        // 通信路の指す先は respawn では張り替わらない。忘れると操作も描画も
+        // 消したはずの古い実体へ流れ続ける
+        if (revived.connection != null) {
+            revived.connection.player = revived;
+        }
+        revived.invulnerableTime = RESPAWN_GRACE_TICKS;
+        reviveHook.accept(revived);
+        return revived;
+    }
+
     /** ログアウトした相手の観測状態を手放す。 */
     public static void forget(UUID id) {
         SPURIOUS_COOLDOWN.remove(id);

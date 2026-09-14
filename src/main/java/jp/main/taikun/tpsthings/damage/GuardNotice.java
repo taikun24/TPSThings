@@ -75,6 +75,22 @@ public final class GuardNotice {
         warn(message);
     }
 
+    /**
+     * 連打される報告。同じ鍵は {@link #REPEAT_MS} に 1 回だけ出す。
+     *
+     * <p>{@link #warnThrottled} の info 版。警告ではないが、間引かないと 1 tick に何度も鳴る
+     * 類の報告に使う。
+     */
+    public static void infoThrottled(String key, String message) {
+        long now = System.currentTimeMillis();
+        Long last = THROTTLED_AT.get(key);
+        if (last != null && now - last < REPEAT_MS) {
+            return;
+        }
+        THROTTLED_AT.put(key, now);
+        info(message);
+    }
+
     public static void setMode(Mode value) {
         mode = value;
     }

@@ -56,7 +56,7 @@ public final class OoMining {
             return;
         }
         ItemStack tool = player.getMainHandItem();
-        if (!tool.is(ModItems.OO.get())) {
+        if (!OoEquivalent.isOo(tool)) {
             return;
         }
         OoToolSettings.Mode mode = OoToolSettings.read(tool);
@@ -82,7 +82,7 @@ public final class OoMining {
             return;
         }
         ItemStack tool = player.getMainHandItem();
-        if (!tool.is(ModItems.OO.get())) {
+        if (!OoEquivalent.isOo(tool)) {
             return;
         }
         OoToolSettings.Mode mode = OoToolSettings.read(tool);
