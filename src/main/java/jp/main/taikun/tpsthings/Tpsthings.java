@@ -99,6 +99,8 @@ public class Tpsthings {
 
 
     public Tpsthings(FMLJavaModLoadingContext context) {
+        // 専用サーバーでは登録より先に止める (Mixin の段階でも止めているが、そちらを通らない構成に備える)
+        SingleplayerGate.refuseDedicatedServer();
         IEventBus modEventBus = context.getModEventBus();
         ModBlocks.register(modEventBus);
         ModBlockEntityTypes.register(modEventBus);

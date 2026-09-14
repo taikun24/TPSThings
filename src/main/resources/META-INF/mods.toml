@@ -71,6 +71,15 @@ versionRange = "${mekanism_version_range}"
 ordering = "AFTER"
 side = "BOTH"
 
+# Extended Crafting。おおのレシピは 9x9 の卓 (extendedcrafting:shaped_table) で組むので、
+# 無いとおおが作れない
+[[dependencies."${mod_id}"]]
+modId = "extendedcrafting"
+mandatory = true
+versionRange = "${extendedcrafting_version_range}"
+ordering = "AFTER"
+side = "BOTH"
+
 # JEI。@JeiPlugin は JEI 側から読まれるので、無ければ何も起きない
 [[dependencies."${mod_id}"]]
 modId = "jei"

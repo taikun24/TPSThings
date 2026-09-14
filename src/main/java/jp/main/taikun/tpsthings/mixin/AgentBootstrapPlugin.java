@@ -1,5 +1,6 @@
 package jp.main.taikun.tpsthings.mixin;
 
+import jp.main.taikun.tpsthings.SingleplayerGate;
 import jp.main.taikun.tpsthings.damage.AttachGuard;
 import jp.main.taikun.tpsthings.damage.MethodDisabler;
 import org.apache.logging.log4j.LogManager;
@@ -37,6 +38,13 @@ public final class AgentBootstrapPlugin implements IMixinConfigPlugin {
         // フル自己アタッチをこの最早期フェーズで試みる。attach は多数のクラスロードを
         // 誘発し、Mixin が変換中の再入になり得るので、何が起きても投げないよう全部握る。
         try {
+            // 専用サーバーでは Unsafe も agent も一切動かさない。ここで投げると Mixin のロードごと
+            // 壊すので投げずに素通りし、断るのは Mod の構築時 (SingleplayerGate) に任せる。
+            // それまでに危ない手は何も打っていない状態で止まる
+            if (SingleplayerGate.isDedicatedServer()) {
+                LOGGER.error("[tpsthings] {} agent は立てません", SingleplayerGate.TITLE);
+                return;
+            }
             String failure = MethodDisabler.ensureReady();
             if (failure == null) {
                 LOGGER.info("[tpsthings] 自前 agent を Mixin ロード時に確保しました (変換器を最早期に登録)");
