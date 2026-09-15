@@ -3,6 +3,7 @@ package jp.main.taikun.tpsthings.mixin;
 import jp.main.taikun.tpsthings.SingleplayerGate;
 import jp.main.taikun.tpsthings.damage.AttachGuard;
 import jp.main.taikun.tpsthings.damage.MethodDisabler;
+import jp.main.taikun.tpsthings.damage.UnsafeSwitch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
@@ -43,6 +44,11 @@ public final class AgentBootstrapPlugin implements IMixinConfigPlugin {
             // それまでに危ない手は何も打っていない状態で止まる
             if (SingleplayerGate.isDedicatedServer()) {
                 LOGGER.error("[tpsthings] {} agent は立てません", SingleplayerGate.TITLE);
+                return;
+            }
+            // 元栓は既定で切り。本人が警告を読んで入れていない限り、起動時にも立てない
+            if (!UnsafeSwitch.isEnabled()) {
+                LOGGER.info("[tpsthings] Unsafe / Java Agent は無効なので、起動時の agent 確保はしません");
                 return;
             }
             String failure = MethodDisabler.ensureReady();

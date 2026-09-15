@@ -46,6 +46,21 @@ public final class OoMining {
     private OoMining() {
     }
 
+    /**
+     * 攻撃モードでは、ブロックを叩き始めた時点で取り消す。
+     *
+     * <p>おお本体は {@code ItemOo#canAttackBlock} で止まるが、おおモジュールを入れた他所の道具には
+     * アイテム側の口が無い。叩き始めはクライアントとサーバの両方で起きるので、両側で取り消す
+     * (片側だけだと、手元では壊れかけの表示が進んで、離すとブロックが戻る)。
+     */
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void refuseInAttackMode(PlayerInteractEvent.LeftClickBlock event) {
+        ItemStack tool = event.getEntity().getMainHandItem();
+        if (OoEquivalent.isOo(tool) && !OoToolSettings.isMiningMode(tool)) {
+            event.setCanceled(true);
+        }
+    }
+
     /** 通常の採掘で壊れる瞬間。最低優先度なので、他の Mod が止めた破壊はここまで届かない。 */
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onBreak(BlockEvent.BreakEvent event) {
@@ -57,6 +72,12 @@ public final class OoMining {
         }
         ItemStack tool = player.getMainHandItem();
         if (!OoEquivalent.isOo(tool)) {
+            return;
+        }
+        if (!OoToolSettings.isMiningMode(tool)) {
+            // 攻撃モードではブロックを壊さない。叩き始めは refuseInAttackMode で止めているので、
+            // ここに来るのはそれをすり抜けた破壊 (他の Mod の道具の独自の壊し方など) だけ
+            event.setCanceled(true);
             return;
         }
         OoToolSettings.Mode mode = OoToolSettings.read(tool);
@@ -84,6 +105,9 @@ public final class OoMining {
         ItemStack tool = player.getMainHandItem();
         if (!OoEquivalent.isOo(tool)) {
             return;
+        }
+        if (!OoToolSettings.isMiningMode(tool)) {
+            return; // 攻撃モードでは岩盤も壊さない
         }
         OoToolSettings.Mode mode = OoToolSettings.read(tool);
         BlockPos pos = event.getPos();

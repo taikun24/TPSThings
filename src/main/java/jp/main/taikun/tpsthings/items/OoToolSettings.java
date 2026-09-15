@@ -34,6 +34,40 @@ public final class OoToolSettings {
     private static final int[] WIDTHS = {1, 3, 5, 9};
     private static final int[] DEPTHS = {1, 3, 5, 9};
     private static final int FORTUNE_LEVEL = 5;
+    private static final String SWEEP = "sweepRange";
+    /** 素振りの視野円錐の長さ (ブロック)。先頭が既定。広いほど巻き込みやすいので狭く始める */
+    private static final int[] SWEEP_RANGES = {5, 8, 16, 32, 64};
+
+    /** 採掘モードか。既定 (印が無い) は攻撃モード。 */
+    private static final String MINING = "miningMode";
+
+    /**
+     * 採掘モードか。
+     *
+     * <p>攻撃モードでは素振りで視野の相手を打ち、範囲破壊・岩盤破壊は止める。
+     * 採掘モードではその逆。直接殴った相手への貫通攻撃は、どちらのモードでも通す (狙って殴っているので)。
+     */
+    public static boolean isMiningMode(ItemStack stack) {
+        CompoundTag tag = stack.getTagElement(TAG);
+        return tag != null && tag.getBoolean(MINING);
+    }
+
+    /** モードを反転して、新しいモードの名前を返す。 */
+    public static String toggleMode(ItemStack stack) {
+        boolean mining = !isMiningMode(stack);
+        stack.getOrCreateTagElement(TAG).putBoolean(MINING, mining);
+        return modeName(mining);
+    }
+
+    public static String modeName(boolean mining) {
+        return mining ? "採掘モード" : "攻撃モード";
+    }
+
+    /** 素振りで打つ視野円錐の長さ。 */
+    public static int sweepRange(ItemStack stack) {
+        CompoundTag tag = stack.getTagElement(TAG);
+        return tag == null ? SWEEP_RANGES[0] : pick(SWEEP_RANGES, tag.getInt(SWEEP));
+    }
 
     public enum Drop {
         NORMAL("通常"),
@@ -204,7 +238,14 @@ public final class OoToolSettings {
         }
         Mode mode = read(oo);
         boolean area = mode.width() > 1 || mode.depth() > 1;
-        return List.of(
+        boolean mining = isMiningMode(oo);
+        return GuardSettings.grouped(List.of(
+                // グループの表に載せないので一番上に並ぶ。いちばん触る項目なので潜らずに押せるように
+                new GuardSettings.Entry(PREFIX + "mode", "モード", modeName(mining),
+                        mining ? GuardSettings.INFO : GuardSettings.WARN,
+                        "攻撃: 素振りで視野の相手を打つ (範囲破壊・岩盤破壊は止まる)。"
+                                + "採掘: 範囲破壊・岩盤破壊が効く (素振りでは打たない)。"
+                                + "おおを持って右クリックでも切り替わる (Shift+右クリックは着る)"),
                 new GuardSettings.Entry(PREFIX + "width", "範囲破壊: 幅",
                         mode.width() == 1 ? "OFF" : mode.width() + "×" + mode.width(),
                         mode.width() > 1 ? GuardSettings.ON : GuardSettings.OFF,
@@ -220,13 +261,28 @@ public final class OoToolSettings {
                         "通常 / シルクタッチ / 幸運 V を切り替える。Shift+右クリックで逆順"),
                 toggle(PREFIX + "collect", "直接回収", mode.collect(), GuardSettings.ON,
                         "壊したブロックのドロップと経験値を、その場に落とさずインベントリへ入れる"),
+                new GuardSettings.Entry(PREFIX + "sweep", "素振りの範囲", sweepRange(oo) + " ブロック",
+                        sweepRange(oo) > SWEEP_RANGES[0] ? GuardSettings.WARN : GuardSettings.ON,
+                        "振ったときに視野円錐の中の相手へ貫通攻撃を打つ距離。右クリックで遠く、Shift+右クリックで近く"),
                 toggle(PREFIX + "direct", "直接操縦", isDirectControl(directTarget(player)), GuardSettings.WARN,
                         "着ている間、位置と速度をキー入力だけから決めて毎 tick 書き込む。重力なし、"
                                 + "ジャンプで上昇・スニークで下降・ダッシュで加速。当たり判定はブロックの形だけ。"
                                 + "テレポートも上書きするので、受け入れたいときは一度 OFF → ON"),
                 toggle(PREFIX + "inertia", "直接操縦: 慣性", isDirectInertia(directTarget(player)), GuardSettings.ON,
-                        "ON なら速度が入力へ徐々に追いつき、離しても少し滑る。OFF なら入力どおりに即座に動いて止まる"));
+                        "ON なら速度が入力へ徐々に追いつき、離しても少し滑る。OFF なら入力どおりに即座に動いて止まる")), GROUPS, GROUP_ORDER);
     }
+
+    private static final List<String> GROUP_ORDER = List.of("おお: 攻撃", "おお: 採掘", "おお: 移動");
+
+    private static final java.util.Map<String, String> GROUPS = java.util.Map.of(
+            PREFIX + "sweep", "おお: 攻撃",
+            PREFIX + "width", "おお: 採掘",
+            PREFIX + "depth", "おお: 採掘",
+            PREFIX + "bedrock", "おお: 採掘",
+            PREFIX + "drop", "おお: 採掘",
+            PREFIX + "collect", "おお: 採掘",
+            PREFIX + "direct", "おお: 移動",
+            PREFIX + "inertia", "おお: 移動");
 
     private static GuardSettings.Entry toggle(String id, String label, boolean value, int onColor, String description) {
         return new GuardSettings.Entry(id, label, value ? "ON" : "OFF", value ? onColor : GuardSettings.OFF, description);
@@ -241,6 +297,14 @@ public final class OoToolSettings {
         ItemStack oo = find(player);
         if (oo.isEmpty()) {
             return "おおを持っていません";
+        }
+        if (id.equals(PREFIX + "mode")) {
+            return "モード: " + toggleMode(oo);
+        }
+        if (id.equals(PREFIX + "sweep")) {
+            int next = step(SWEEP_RANGES, sweepRange(oo), direction);
+            oo.getOrCreateTagElement(TAG).putInt(SWEEP, next);
+            return "素振りの範囲: " + next + " ブロック";
         }
         if (id.equals(PREFIX + "direct")) {
             ItemStack target = directTarget(player);

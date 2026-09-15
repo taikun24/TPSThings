@@ -8,6 +8,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -66,6 +67,29 @@ public class ItemOo extends ArmorItem implements WavyNameItem {
     }
 
 
+    /**
+     * 右クリックで攻撃モード / 採掘モードを切り替える。
+     *
+     * <p>防具としての右クリック (胴に着る) は Shift+右クリックに回す。
+     */
+    @Override
+    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player,
+                                                           @NotNull net.minecraft.world.InteractionHand hand) {
+        if (player.isShiftKeyDown()) {
+            return super.use(level, player, hand);
+        }
+        ItemStack stack = player.getItemInHand(hand);
+        if (!level.isClientSide()) {
+            String mode = OoToolSettings.toggleMode(stack);
+            player.displayClientMessage(Component.literal(mode)
+                    .withStyle(OoToolSettings.isMiningMode(stack) ? ChatFormatting.AQUA : ChatFormatting.RED), true);
+            level.playSound(null, player.getX(), player.getY(), player.getZ(),
+                    net.minecraft.sounds.SoundEvents.UI_BUTTON_CLICK.value(), net.minecraft.sounds.SoundSource.PLAYERS,
+                    0.6F, OoToolSettings.isMiningMode(stack) ? 0.8F : 1.4F);
+        }
+        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+    }
+
     @Override
     public @NotNull Component getDescription() {
         return Component.translatable("item.tpsthings.oo.description");
@@ -85,7 +109,11 @@ public class ItemOo extends ArmorItem implements WavyNameItem {
     public void appendHoverText(@NotNull ItemStack stack, @org.jetbrains.annotations.Nullable Level level,
                                 @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
         super.appendHoverText(stack, level, tooltip, flag);
-        String toolMode = OoToolSettings.read(stack).summary();
+        boolean mining = OoToolSettings.isMiningMode(stack);
+        tooltip.add(Component.literal(OoToolSettings.modeName(mining) + " (右クリックで切り替え)")
+                .withStyle(mining ? ChatFormatting.AQUA : ChatFormatting.RED));
+        // 範囲破壊などの設定は採掘モードでしか効かないので、そのときだけ出す
+        String toolMode = mining ? OoToolSettings.read(stack).summary() : null;
         if (toolMode != null) {
             tooltip.add(Component.literal(toolMode).withStyle(ChatFormatting.GRAY));
         }
@@ -117,8 +145,13 @@ public class ItemOo extends ArmorItem implements WavyNameItem {
         });
     }
 
-    public boolean canAttackBlock(BlockState p_43291_, Level p_43292_, BlockPos p_43293_, Player p_43294_) {
-        return true;
+    /**
+     * 攻撃モードではブロックを叩いても壊さない (クリエイティブで剣を振ったときと同じ)。
+     * クライアントもサーバもここを見るので、壊れかけの表示も出ない。
+     */
+    @Override
+    public boolean canAttackBlock(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, Player player) {
+        return OoToolSettings.isMiningMode(player.getMainHandItem());
     }
 
     @Override
@@ -236,13 +269,19 @@ public class ItemOo extends ArmorItem implements WavyNameItem {
         // isAlive() は偽装されうる。「死んで見える生者」を取り逃がさないよう、除去の印だけで数える。
         // プレイヤーも索引層まで通す設定のときは、円錐にプレイヤーも入れる (装備で不死になった相手向け)。
         // 既定では Mob だけ — スイングで周りのプレイヤーまで巻き込まないため
+        // 採掘モードでは素振りで打たない。ブロックを叩くたびに視野の相手まで巻き込むため
+        if (OoToolSettings.isMiningMode(player.getMainHandItem())) {
+            return;
+        }
         List<PiercingStrike.Result> results = new ArrayList<>();
+        // 距離は振ったおお (またはおおモジュール入りの道具) ごとの設定。既定は狭い
+        double range = OoToolSettings.sweepRange(player.getMainHandItem());
         if (PiercingStrike.isPlayersFullDepth()) {
-            for (LivingEntity living : ViewCone.livingInView(player, VIEW_RANGE, e -> !e.isRemoved())) {
+            for (LivingEntity living : ViewCone.livingInView(player, range, e -> !e.isRemoved())) {
                 results.add(PiercingStrike.strike(player, living));
             }
         } else {
-            for (Mob mob : ViewCone.mobsInView(player, VIEW_RANGE, mob -> !mob.isRemoved())) {
+            for (Mob mob : ViewCone.mobsInView(player, range, mob -> !mob.isRemoved())) {
                 results.add(PiercingStrike.strike(player, mob));
             }
         }

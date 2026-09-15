@@ -132,6 +132,22 @@ public final class PiercingStrike {
      */
     private static volatile boolean restoreOnFailure = false;
 
+    /**
+     * 耐えた相手に、他所の Mod の状態 (静的な名簿・実体のスイッチ・スレッドの門) を打つ間だけ書き換えるか。
+     *
+     * <p>書き換えたものは生き残った相手の分は戻すが、相手の後始末の途中に割り込む手なので、
+     * 不整合を残す可能性はゼロではない。層を通すだけに留めたいときに切る。
+     */
+    private static volatile boolean touchForeign = true;
+
+    public static boolean isTouchingForeign() {
+        return touchForeign;
+    }
+
+    public static void setTouchingForeign(boolean value) {
+        touchForeign = value;
+    }
+
     private static final class Pursuit {
         /** 索引から外すと世界から引けなくなるので強参照で持つ。期限で必ず手放す。 */
         private final LivingEntity body;
@@ -243,7 +259,7 @@ public final class PiercingStrike {
         // 名簿」であることが多い。注入と取り合うより、材料を抜いて正規の道を開け直す
         if (pursuit != null && refused(result)) {
             // 1. 実体の外の名簿 (UUID を名指しした static な集合) から外す
-            List<StrikeRosters.Taken> taken = StrikeRosters.strip(target, pursuit.taken);
+            List<StrikeRosters.Taken> taken = touchForeign ? StrikeRosters.strip(target, pursuit.taken) : List.of();
             if (!taken.isEmpty()) {
                 pursuit.taken.addAll(taken);
                 GuardNotice.info("貫通攻撃: " + target.getName().getString()
@@ -252,7 +268,7 @@ public final class PiercingStrike {
                 result = layers(attacker, target, level, healthKey, grace);
             }
             // 2. 実体に混ぜ込まれた不死のスイッチ (外来の同期真偽値・注入された真偽値) を倒す
-            if (refused(result)) {
+            if (touchForeign && refused(result)) {
                 List<StrikeState.Change> changes = StrikeState.neutralize(target);
                 if (!changes.isEmpty()) {
                     pursuit.stateChanges.addAll(changes);
@@ -269,7 +285,7 @@ public final class PiercingStrike {
             // 3. 相手が<b>自分の関所を自分で通り抜けるために</b>置いている門を、その場だけ開けて打つ。
             // 力ずくで入れ物を抜くのと違い、相手の後始末も相手自身の手で正しく走るので、
             // 中途半端に壊れた状態が残らない。開けた門は通った通らないに関わらず必ず閉じる
-            if (refused(result)) {
+            if (touchForeign && refused(result)) {
                 List<StrikeSwitches.Raised> raised = StrikeSwitches.raise();
                 try {
                     if (!raised.isEmpty()) {

@@ -99,6 +99,13 @@ public final class DamageGuardCommand {
 
         // 設定。一度決めたらしばらく触らないものをまとめる
         LiteralArgumentBuilder<CommandSourceStack> set = Commands.literal("set")
+                .then(Commands.literal("unsafe")
+                        .then(Commands.literal("false")
+                                .executes(ctx -> unsafe(ctx.getSource(), false, false)))
+                        .then(Commands.literal("true")
+                                .executes(ctx -> unsafe(ctx.getSource(), true, false))
+                                .then(Commands.literal("confirm")
+                                        .executes(ctx -> unsafe(ctx.getSource(), true, true)))))
                 .then(Commands.literal("motion")
                         .then(Commands.argument("enabled", BoolArgumentType.bool())
                                 .executes(ctx -> motion(ctx.getSource(), BoolArgumentType.getBool(ctx, "enabled")))))
@@ -131,6 +138,14 @@ public final class DamageGuardCommand {
                 .then(Commands.literal("strikeplayers")
                         .then(Commands.argument("enabled", BoolArgumentType.bool())
                                 .executes(ctx -> strikePlayers(ctx.getSource(),
+                                        BoolArgumentType.getBool(ctx, "enabled")))))
+                .then(Commands.literal("strikeforeign")
+                        .then(Commands.argument("enabled", BoolArgumentType.bool())
+                                .executes(ctx -> strikeForeign(ctx.getSource(),
+                                        BoolArgumentType.getBool(ctx, "enabled")))))
+                .then(Commands.literal("probe")
+                        .then(Commands.argument("enabled", BoolArgumentType.bool())
+                                .executes(ctx -> probe(ctx.getSource(),
                                         BoolArgumentType.getBool(ctx, "enabled")))))
                 .then(Commands.literal("strikerestore")
                         .then(Commands.argument("enabled", BoolArgumentType.bool())
@@ -391,6 +406,27 @@ public final class DamageGuardCommand {
      * getHealth() / isAlive() / isDeadOrDying() の本体を書き換えて「死んだことにする」
      * 相手への対抗。値ではなく仕組みを直すので、関所にも書き戻しにも映らない層に効く。
      */
+    /**
+     * Unsafe / Java Agent の元栓。入れる方向は、メニューの警告画面と同じ文面を読ませてから
+     * {@code confirm} を付けたときだけ通す。
+     */
+    private static int unsafe(CommandSourceStack source, boolean enabled, boolean confirmed) {
+        if (enabled && !confirmed) {
+            source.sendSuccess(() -> Component.literal(
+                    "⚠ Unsafe / Java Agent を有効にすると、sun.misc.Unsafe で JVM の自己アタッチ禁止を書き換え、"
+                            + "自分を Java Agent として付けて読み込み済みのクラスを実行中に書き換えます。"
+                            + "外れればクラッシュ・ワールドの破損・他の Mod の故障が起こり得ます。"
+                            + "OFF に戻しても、書き換えたクラスは再起動まで戻りません。\n"
+                            + "理解したうえで有効にするなら: /" + Tpsthings.MODID + " damage set unsafe true confirm")
+                    .withStyle(ChatFormatting.RED), false);
+            return 0;
+        }
+        String result = enabled ? GuardSettings.enableUnsafe() : GuardSettings.disableUnsafe();
+        source.sendSuccess(() -> Component.literal(result)
+                .withStyle(enabled ? ChatFormatting.GOLD : ChatFormatting.GREEN), true);
+        return 1;
+    }
+
     private static int canon(CommandSourceStack source, boolean enabled) {
         String failure = ReaderGuard.setCanonical(enabled);
         if (failure != null) {
@@ -445,6 +481,29 @@ public final class DamageGuardCommand {
      * 戻さないと、tick 一覧と索引からだけ外れた相手が「動けるのにブロックが壊せない」
      * 中途半端な状態で残る。無力化と見るか壊したと見るかは使う側が決める。
      */
+    /** 貫通攻撃が、他所の Mod の名簿・スイッチ・門を打つ間だけ書き換えるか。 */
+    private static int strikeForeign(CommandSourceStack source, boolean enabled) {
+        PiercingStrike.setTouchingForeign(enabled);
+        GuardConfig.save();
+        source.sendSuccess(() -> Component.literal(enabled
+                ? "貫通攻撃: 耐えた相手には、他の Mod の名簿・スイッチ・門を打つ間だけ書き換えます"
+                : "貫通攻撃: 他の Mod の状態には触りません (層を通すだけ)")
+                .withStyle(enabled ? ChatFormatting.GOLD : ChatFormatting.GREEN), true);
+        return 1;
+    }
+
+    /** 読み出しの嘘の出所を実験で探して中和するか。切ると押さえている出所も全部手放す。 */
+    private static int probe(CommandSourceStack source, boolean enabled) {
+        int released = StateProbe.count();
+        StateProbe.setEnabled(enabled);
+        GuardConfig.save();
+        source.sendSuccess(() -> Component.literal(enabled
+                ? "読み出しの嘘の出所を探して中和します"
+                : "嘘の出所探しを止めました (押さえていた " + released + " 件を解除)")
+                .withStyle(enabled ? ChatFormatting.GREEN : ChatFormatting.GOLD), true);
+        return 1;
+    }
+
     private static int strikeRestore(CommandSourceStack source, boolean enabled) {
         PiercingStrike.setRestoreOnFailure(enabled);
         GuardConfig.save();
@@ -658,6 +717,7 @@ public final class DamageGuardCommand {
                                 ? "(張り直し " + RepairGuard.repairCount() + ")" : "")
                         + " notify=" + GuardNotice.modeName()
                         + " protected=" + AutoGuard.protectedCount()
+                        + " unsafe=" + (UnsafeSwitch.isEnabled() ? "ON" : "OFF")
                         + " agent=" + (MethodDisabler.isReady() ? "attached" : "未アタッチ"))
                 .withStyle(ChatFormatting.AQUA), false);
         AutoGuard.autoApplied().forEach(line -> source.sendSuccess(
@@ -827,7 +887,7 @@ public final class DamageGuardCommand {
         }
         GuardConfig.save();
         source.sendSuccess(() -> Component.literal(
-                (disable ? "メソッドを無効化しました: " : "メソッドを復元しました: ") + signature)
+                (disable ? "メソッドを無効化しました (再起動で破棄されます): " : "メソッドを復元しました: ") + signature)
                 .withStyle(disable ? ChatFormatting.RED : ChatFormatting.GREEN), true);
         return 1;
     }

@@ -53,6 +53,9 @@ final class SelfAttach {
 
     /** {@code ALLOW_ATTACH_SELF} の今の値。読めなければ null。 */
     static Boolean allowAttachSelfState() {
+        if (!UnsafeSwitch.isEnabled()) {
+            return null; // 読むにも Unsafe が要る。切ってあるなら読めないのと同じ
+        }
         try {
             Class<?> hotspotVm = Class.forName(HOTSPOT_VM);
             Field allowSelf = hotspotVm.getDeclaredField(ALLOW_SELF_FIELD);
@@ -80,6 +83,9 @@ final class SelfAttach {
      * @return 失敗理由。成功なら null。
      */
     static String attach() {
+        if (!UnsafeSwitch.isEnabled()) {
+            return UnsafeSwitch.REFUSAL;
+        }
         try {
             allowSelfAttach();
         } catch (Throwable t) {
@@ -153,6 +159,9 @@ final class SelfAttach {
      * オフセット経由で読むのに使う。
      */
     static Object unsafeOrNull() {
+        if (!UnsafeSwitch.isEnabled()) {
+            return null;
+        }
         try {
             return theUnsafe();
         } catch (Throwable t) {

@@ -105,7 +105,28 @@ public final class StateProbe {
 
     private static volatile Field itemsField;
 
+    /**
+     * 出所探しと中和を動かすか。
+     *
+     * <p>当たりは「置いたら嘘が消え、戻したら復活した」という実験だけで決まるので、偶然そう見えた
+     * 無関係な状態 (他所の Mod の飛行や変身の印など) を押さえ続けてしまうことがあり得る。
+     * 困ったときに止められるよう、切り替えにしておく。
+     */
+    private static volatile boolean enabled = true;
+
     private StateProbe() {
+    }
+
+    public static boolean isEnabled() {
+        return enabled;
+    }
+
+    /** 切ると、押さえている出所も全部手放す (以後は元の値のまま)。 */
+    public static void setEnabled(boolean value) {
+        enabled = value;
+        if (!value) {
+            reset();
+        }
     }
 
     // ---- 判定 -------------------------------------------------------------------
@@ -150,6 +171,9 @@ public final class StateProbe {
      * @return 見つけた出所の説明。見つからなかった / 間隔待ちなら null
      */
     static String probe(LivingEntity entity) {
+        if (!enabled) {
+            return null;
+        }
         Side side = side(entity);
         long now = System.nanoTime();
         // 嘘が出た直後は間隔を詰める。初撃では名簿の候補がまだ揃っておらず 1 回目は外しがちで、
@@ -791,7 +815,7 @@ public final class StateProbe {
      */
     static void enforce(LivingEntity entity) {
         Side side = side(entity);
-        if (side.culprits.isEmpty()) {
+        if (!enabled || side.culprits.isEmpty()) {
             return;
         }
         for (Culprit culprit : side.culprits) {

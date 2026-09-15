@@ -23,9 +23,71 @@ public final class GuardSettings {
     public static final int WARN = 0xFFD84A;
     public static final int INFO = 0x7FD8FF;
 
-    /** メニューに並ぶ 1 行。 */
-    public record Entry(String id, String label, String value, int color, String description) {
+    /**
+     * メニューに並ぶ 1 行。
+     *
+     * @param group 入るグループの表示名。空ならグループに入れず一番上の階層に直接並ぶ
+     */
+    public record Entry(String id, String label, String value, int color, String description, String group) {
+
+        public Entry(String id, String label, String value, int color, String description) {
+            this(id, label, value, color, description, "");
+        }
+
+        public Entry withGroup(String group) {
+            return new Entry(id, label, value, color, description, group);
+        }
     }
+
+    /** グループの並び順。ここに無いグループは後ろに回る。 */
+    private static final List<String> GROUP_ORDER = List.of("防御", "自動対処の詳細", "攻撃", "記録・通知", "上級 (危険)");
+
+    /** 項目 → グループ。並べ方はここだけで決める。 */
+    private static final Map<String, String> GROUPS = Map.ofEntries(
+            Map.entry("protect", "防御"),
+            Map.entry("auto", "防御"),
+            Map.entry("revert", "防御"),
+            Map.entry("seal", "防御"),
+            Map.entry("repair", "防御"),
+            Map.entry("maxdepth", "自動対処の詳細"),
+            Map.entry("stale", "自動対処の詳細"),
+            Map.entry("reset", "自動対処の詳細"),
+            Map.entry("strikeplayers", "攻撃"),
+            Map.entry("strikerestore", "攻撃"),
+            Map.entry("killall", "攻撃"),
+            Map.entry("killself", "攻撃"),
+            Map.entry("watch", "記録・通知"),
+            Map.entry("motion", "記録・通知"),
+            Map.entry("notify", "記録・通知"),
+            Map.entry("unsafe", "上級 (危険)"),
+            Map.entry("canon", "上級 (危険)"),
+            Map.entry("probe", "上級 (危険)"),
+            Map.entry("probereset", "上級 (危険)"),
+            Map.entry("strikeforeign", "上級 (危険)"));
+
+    /**
+     * 表に従ってグループを付け、グループの順に並べ直す (同じグループの中は元の順)。
+     * 表に無い項目はグループに入れず先頭に置く。
+     */
+    public static List<Entry> grouped(List<Entry> entries, Map<String, String> groupOfId, List<String> order) {
+        List<Entry> result = new ArrayList<>();
+        for (Entry entry : entries) {
+            result.add(entry.withGroup(groupOfId.getOrDefault(entry.id(), "")));
+        }
+        result.sort(java.util.Comparator.comparingInt(entry -> {
+            if (entry.group().isEmpty()) {
+                return -1;
+            }
+            int index = order.indexOf(entry.group());
+            return index < 0 ? order.size() : index;
+        }));
+        return result;
+    }
+
+    /** Unsafe の元栓。メニューで押すと、切る方向ならそのまま切り、入れる方向なら警告画面を出す。 */
+    public static final String UNSAFE = "unsafe";
+    /** 警告画面で同意したときだけ送られる、入れる方向の操作。 */
+    public static final String UNSAFE_CONFIRMED = "unsafe_confirmed";
 
     /** 全殺害は 2 回押して打つ。1 回目からこの時間内の 2 回目だけを本物とみなす。 */
     private static final long KILL_ALL_CONFIRM_MS = 5000L;
@@ -42,6 +104,10 @@ public final class GuardSettings {
 
     public static List<Entry> snapshot(ServerPlayer player) {
         List<Entry> entries = new ArrayList<>();
+        entries.add(toggle(UNSAFE, "Unsafe / Java Agent", UnsafeSwitch.isEnabled(), WARN,
+                "JVM の禁止を折って自分を Java Agent として付け、読み込み済みのクラスを書き換える手の元栓。"
+                        + "disable・読み出しの正規化・関所の張り直し・外部 agent の深掘り・全クラスの走査がこれを使う。"
+                        + "入れるときは警告画面が出る"));
         entries.add(toggle("protect", "自分を保護", AutoGuard.isManuallyProtected(player), ON,
                 "装備に関係なく、外すまで自分を保護対象にする (入れると自動対処も有効になる)"));
         entries.add(toggle("auto", "自動対処", AutoGuard.isEnabled(), ON,
@@ -52,6 +118,16 @@ public final class GuardSettings {
                 "保護対象の HP 減少と殺意のある削除を、呼び出し元を問わず全部拒否する"));
         entries.add(toggle("canon", "読み出しの正規化", ReaderGuard.isCanonical(), WARN,
                 "getHealth / isAlive / isDeadOrDying を正規の実装に戻す (再起動では戻さない)"));
+        entries.add(toggle("probe", "読み出しの嘘の中和", StateProbe.isEnabled(), ON,
+                "保護対象の生死の読み出しが嘘をついたら、材料の状態を実験で当てて無害な値に押さえ続ける。"
+                        + "無関係な状態を押さえてしまったら切る (押さえている分も全部解除)"));
+        int held = StateProbe.count();
+        entries.add(new Entry("probereset", "中和を全部解除", held + " 件", held > 0 ? WARN : OFF,
+                "いま押さえている嘘の出所を全部手放す (中和そのものは ON のまま、次に嘘が出たら探し直す)。"
+                        + String.join(" / ", StateProbe.describe())));
+        entries.add(toggle("strikeforeign", "貫通攻撃: 他の Mod の状態に触る", PiercingStrike.isTouchingForeign(), WARN,
+                "耐えた相手に、他の Mod の名簿・スイッチ・門を打つ間だけ書き換えて打ち直す (生き残れば戻す)。"
+                        + "切ると層を通すだけになる"));
         entries.add(toggle("repair", "関所の張り直し", RepairGuard.isEnabled(), ON,
                 "剥がされた関所を自動で張り直す"));
         entries.add(new Entry("notify", "報告の出し先", GuardNotice.modeName(), INFO,
@@ -77,11 +153,29 @@ public final class GuardSettings {
                         + "検索に映らない相手も拾う。取り返しがつかないので 5 秒以内に 2 回押して実行"));
         entries.add(new Entry("killself", "自身を殺害", "実行", WARN,
                 "自分に貫通攻撃を打つ (装備型の不死の確認用)。保護対象のままだと、こちらの防御に拒否される"));
-        return entries;
+        return grouped(entries, GROUPS, GROUP_ORDER);
     }
 
     private static Entry toggle(String id, String label, boolean value, int onColor, String description) {
         return new Entry(id, label, value ? "ON" : "OFF", value ? onColor : OFF, description);
+    }
+
+    /** 元栓を入れ、その場で agent を確保して結果を返す。コマンドと共用。 */
+    public static String enableUnsafe() {
+        String saveFailure = UnsafeSwitch.setEnabled(true);
+        String attachFailure = MethodDisabler.ensureReady();
+        return "Unsafe / Java Agent: ON"
+                + (attachFailure == null ? " (agent を確保しました)" : " (agent の確保に失敗: " + attachFailure + ")")
+                + (saveFailure == null ? "" : " / 保存に失敗: " + saveFailure);
+    }
+
+    /** 元栓を切る。既に書き換えたものは再起動まで残ることを添える。コマンドと共用。 */
+    public static String disableUnsafe() {
+        boolean attached = MethodDisabler.isReady();
+        String saveFailure = UnsafeSwitch.setEnabled(false);
+        return "Unsafe / Java Agent: OFF"
+                + (attached ? " (以後は使いません。既に書き換えたクラスと登録済みの変換器は再起動まで残ります)" : "")
+                + (saveFailure == null ? "" : " / 保存に失敗: " + saveFailure);
     }
 
     private static String onOff(boolean value) {
@@ -97,6 +191,19 @@ public final class GuardSettings {
         String result;
         boolean save = true;
         switch (id) {
+            case UNSAFE -> {
+                save = false; // 元栓は自分のファイルに保存する
+                if (UnsafeSwitch.isEnabled()) {
+                    result = disableUnsafe();
+                } else {
+                    // 警告画面を経ずに届いた入れる操作 (古いクライアント等) は通さない
+                    result = "Unsafe / Java Agent を有効にするには、警告画面で同意してください";
+                }
+            }
+            case UNSAFE_CONFIRMED -> {
+                save = false;
+                result = enableUnsafe();
+            }
             case "protect" -> {
                 // 装備由来の同期に上書きされないよう、コマンドと同じく手動枠に入れる
                 boolean next = !AutoGuard.isManuallyProtected(player);
@@ -131,6 +238,23 @@ public final class GuardSettings {
                 } else {
                     result = "読み出しの正規化: " + onOff(next);
                 }
+            }
+            case "probe" -> {
+                int released = StateProbe.count();
+                boolean next = !StateProbe.isEnabled();
+                StateProbe.setEnabled(next);
+                result = "読み出しの嘘の中和: " + onOff(next) + (next ? "" : " (押さえていた " + released + " 件を解除)");
+            }
+            case "probereset" -> {
+                save = false;
+                int released = StateProbe.count();
+                StateProbe.reset();
+                result = "押さえていた嘘の出所 " + released + " 件を解除しました";
+            }
+            case "strikeforeign" -> {
+                boolean next = !PiercingStrike.isTouchingForeign();
+                PiercingStrike.setTouchingForeign(next);
+                result = "貫通攻撃: 他の Mod の状態に触る: " + onOff(next);
             }
             case "repair" -> {
                 boolean next = !RepairGuard.isEnabled();

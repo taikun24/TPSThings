@@ -43,6 +43,7 @@ public record PacketGuardState(boolean permitted, List<GuardSettings.Entry> entr
             buffer.writeUtf(entry.value());
             buffer.writeInt(entry.color());
             buffer.writeUtf(entry.description());
+            buffer.writeUtf(entry.group());
         }
         buffer.writeUtf(packet.message());
     }
@@ -53,7 +54,7 @@ public record PacketGuardState(boolean permitted, List<GuardSettings.Entry> entr
         List<GuardSettings.Entry> entries = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             entries.add(new GuardSettings.Entry(buffer.readUtf(), buffer.readUtf(), buffer.readUtf(),
-                    buffer.readInt(), buffer.readUtf()));
+                    buffer.readInt(), buffer.readUtf(), buffer.readUtf()));
         }
         return new PacketGuardState(permitted, entries, buffer.readUtf());
     }

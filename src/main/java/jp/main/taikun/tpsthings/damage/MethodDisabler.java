@@ -51,15 +51,21 @@ public final class MethodDisabler {
     }
 
     public static boolean isReady() {
-        return instrumentation != null;
+        return instrumentation != null && UnsafeSwitch.isEnabled();
     }
 
     /**
      * Instrumentation を確保する。まだなら自己アタッチを試みる。
      *
+     * <p>{@link UnsafeSwitch} が切ってあれば、確保済みでも「無い」と答える。
+     * 起動時に入れてから途中で切った場合も、以後は新しく使わない。
+     *
      * @return 失敗理由。成功なら null。
      */
     public static synchronized String ensureReady() {
+        if (!UnsafeSwitch.isEnabled()) {
+            return UnsafeSwitch.REFUSAL;
+        }
         if (instrumentation != null) {
             return null;
         }
@@ -234,12 +240,12 @@ public final class MethodDisabler {
 
     /** 同じ Instrumentation を他の変換器 ({@link ReaderGuard}) と共用する。 */
     static Instrumentation instrumentationOrNull() {
-        return instrumentation;
+        return UnsafeSwitch.isEnabled() ? instrumentation : null;
     }
 
     /** ロード済みクラス一覧。走査系がバイトコードを見に行くために使う。 */
     static Class<?>[] loadedClasses() {
-        if (instrumentation == null && ensureReady() != null) {
+        if (ensureReady() != null) {
             return new Class<?>[0];
         }
         return instrumentation.getAllLoadedClasses();

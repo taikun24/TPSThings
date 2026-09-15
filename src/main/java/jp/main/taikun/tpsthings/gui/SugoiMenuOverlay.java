@@ -86,6 +86,13 @@ public class SugoiMenuOverlay implements IGuiOverlay {
     // 値が変わった瞬間の時刻 (id ごと)。変わった項目を光らせる
     private static final Map<String, Long> changedAt = new HashMap<>();
 
+    // ---- グループ ----
+    // いま開いているグループ。null なら一番上の階層 (グループの一覧)。閉じても覚えておく
+    private static String currentGroup = null;
+    // 手元だけで使う行の id。サーバの項目 id とぶつからないよう記号で始める
+    private static final String GROUP_ID = "#group:";
+    private static final String BACK_ID = "#back";
+
     private static final List<GuardSettings.Entry> LOADING_ROWS = List.of(
             new GuardSettings.Entry("", "読み込み中…", "", GuardSettings.OFF, ""));
     private static final List<GuardSettings.Entry> DENIED_ROWS = List.of(
@@ -112,6 +119,29 @@ public class SugoiMenuOverlay implements IGuiOverlay {
         List<GuardSettings.Entry> rows = rows();
         GuardSettings.Entry selected = rows.get(clampIndex(targetIndex, rows.size()));
         if (selected.id().isEmpty()) return;
+        // グループの出入りは手元だけで済ませる。サーバには送らない
+        if (selected.id().startsWith(GROUP_ID)) {
+            currentGroup = selected.id().substring(GROUP_ID.length());
+            targetIndex = rows().size() > 1 ? 1 : 0; // 「戻る」の次、最初の項目に合わせる
+            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.2F));
+            return;
+        }
+        if (selected.id().equals(BACK_ID)) {
+            String leaving = currentGroup;
+            currentGroup = null;
+            List<GuardSettings.Entry> top = rows();
+            targetIndex = 0;
+            for (int i = 0; i < top.size(); i++) {
+                if (top.get(i).id().equals(GROUP_ID + leaving)) targetIndex = i;
+            }
+            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 0.8F));
+            return;
+        }
+        // Unsafe を入れる方向だけは、送る前に警告を読ませる
+        if (GuardSettings.UNSAFE.equals(selected.id()) && "OFF".equals(selected.value())) {
+            UnsafeWarningScreen.open();
+            return;
+        }
         ModNetwork.CHANNEL.sendToServer(new PacketGuardChange(selected.id(), Screen.hasShiftDown() ? -1 : 1));
         Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1F));
     }
@@ -150,7 +180,40 @@ public class SugoiMenuOverlay implements IGuiOverlay {
     private static List<GuardSettings.Entry> rows() {
         if (!loaded) return LOADING_ROWS;
         if (entries.isEmpty()) return DENIED_ROWS;
-        return entries;
+        if (currentGroup != null) {
+            List<GuardSettings.Entry> inside = new java.util.ArrayList<>();
+            inside.add(new GuardSettings.Entry(BACK_ID, "‹ 戻る", "", GuardSettings.OFF, "グループの一覧に戻る"));
+            for (GuardSettings.Entry entry : entries) {
+                if (entry.group().equals(currentGroup)) inside.add(entry);
+            }
+            if (inside.size() > 1) return inside;
+            currentGroup = null; // 権限や持ち物が変わってグループごと無くなった
+        }
+        // 一番上の階層: グループ 1 つにつき 1 行。グループに入らない行 (未所持・権限なし等) はそのまま並べる
+        List<GuardSettings.Entry> top = new java.util.ArrayList<>();
+        Map<String, List<String>> labels = new java.util.LinkedHashMap<>();
+        for (GuardSettings.Entry entry : entries) {
+            if (entry.group().isEmpty()) {
+                top.add(entry);
+                continue;
+            }
+            List<String> members = labels.get(entry.group());
+            if (members == null) {
+                members = new java.util.ArrayList<>();
+                labels.put(entry.group(), members);
+                top.add(null); // 位置だけ取っておき、数え終えてから埋める
+            }
+            members.add(entry.label());
+        }
+        java.util.Iterator<Map.Entry<String, List<String>>> groups = labels.entrySet().iterator();
+        for (int i = 0; i < top.size(); i++) {
+            if (top.get(i) != null) continue;
+            Map.Entry<String, List<String>> group = groups.next();
+            top.set(i, new GuardSettings.Entry(GROUP_ID + group.getKey(), group.getKey(),
+                    group.getValue().size() + " 項目 ›", GuardSettings.INFO,
+                    String.join(" / ", group.getValue())));
+        }
+        return top;
     }
 
     private static int clampIndex(int index, int size) {
@@ -432,7 +495,7 @@ public class SugoiMenuOverlay implements IGuiOverlay {
     }
 
     private static void renderTitle(GuiGraphics guiGraphics, Font font, float ms, int tint) {
-        String label = "Sugoi Menu " + Math.floor(ms / 100) / 10;
+        String label = "Sugoi Menu " + Math.floor(ms / 100) / 10 + (currentGroup == null ? "" : "  › " + currentGroup);
         float e = easeOut(openness);
         int x = Math.round(10 - (1 - e) * 60);
         int y = 10;

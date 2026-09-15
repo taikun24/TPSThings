@@ -60,10 +60,12 @@ public final class GuardConfig {
         root.addProperty("maxDepth", AutoGuard.getMaxDepth());
         root.addProperty("strikePlayers", PiercingStrike.isPlayersFullDepth());
         root.addProperty("strikeRestore", PiercingStrike.isRestoreOnFailure());
+        root.addProperty("strikeForeign", PiercingStrike.isTouchingForeign());
+        root.addProperty("probe", StateProbe.isEnabled());
         root.add("blocked", GSON.toJsonTree(new ArrayList<>(DamageGuard.blocked())));
-        root.add("disabled", GSON.toJsonTree(new ArrayList<>(MethodDisabler.disabled())));
+        // disable は保存しない。本体ごと消す手を次の起動に持ち越すと、外れていたときに
+        // 起動やワールド読み込みの時点で落ち、メニューを開いて戻す機会すら無くなる
         root.add("autoBlocked", GSON.toJsonTree(new ArrayList<>(AutoGuard.autoBlockedSignatures())));
-        root.add("autoDisabled", GSON.toJsonTree(new ArrayList<>(AutoGuard.autoDisabledSignatures())));
         root.add("manualProtected", GSON.toJsonTree(new ArrayList<>(AutoGuard.manualProtectedIds())));
 
         try {
@@ -112,6 +114,8 @@ public final class GuardConfig {
             RepairGuard.setEnabled(bool(root, "repair", true));
             PiercingStrike.setPlayersFullDepth(bool(root, "strikePlayers", false));
             PiercingStrike.setRestoreOnFailure(bool(root, "strikeRestore", false));
+            PiercingStrike.setTouchingForeign(bool(root, "strikeForeign", true));
+            StateProbe.setEnabled(bool(root, "probe", true));
             // 読み出しの正規化 (canon) は<b>復元しない</b>。
             //
             // 本体の取り合いは「最後に変換した者が勝つ」ゲームで、勝った瞬間に
@@ -133,40 +137,28 @@ public final class GuardConfig {
             }
 
             Set<String> autoBlocked = strings(root, "autoBlocked");
-            Set<String> autoDisabled = strings(root, "autoDisabled");
 
             Set<String> blocked = strings(root, "blocked");
             blocked.forEach(DamageGuard::block);
 
-            // 自動で当てた disable は<b>持ち越さない</b>。
+            // disable は<b>手動も自動も持ち越さない</b>。
             //
             // disable はメソッドの本体を丸ごと捨てる手で、世界中のあらゆる呼び出しに効く。
-            // 自動で選んだ相手はその場の観測に基づく暫定の当て推量でしかないので、
-            // 次の起動にまで引き継ぐと、当たっていたかどうかも分からないまま
-            // 世界からメソッドが消えたままになる (エンティティの tick を潰していた例がある)。
-            // 手で入れたものは本人の判断なので今までどおり戻す。
-            List<String> failures = new ArrayList<>();
-            Set<String> disabled = strings(root, "disabled");
-            disabled.removeAll(autoDisabled);
-            for (String signature : disabled) {
-                String failure = MethodDisabler.disable(signature);
-                if (failure != null) {
-                    failures.add(signature + " (" + failure + ")");
-                }
-            }
+            // 外れていたときに次の起動へ引き継ぐと、起動やワールド読み込みの途中で落ちて、
+            // メニューもコマンドも使えないまま戻せなくなる。要るならその場で入れ直す。
+            // (古い設定ファイルに残っている分は、読んで捨てるだけ)
+            Set<String> staleDisabled = strings(root, "disabled");
 
             AutoGuard.markAutoBlocked(autoBlocked);
             AutoGuard.restoreManualProtected(strings(root, "manualProtected"));
 
-            if (!blocked.isEmpty() || !disabled.isEmpty()) {
-                GuardNotice.info("前回の設定を復元しました: block " + blocked.size()
-                        + " 件 / disable " + (disabled.size() - failures.size()) + " 件");
+            if (!blocked.isEmpty()) {
+                GuardNotice.info("前回の設定を復元しました: block " + blocked.size() + " 件");
             }
-            if (!autoDisabled.isEmpty()) {
-                GuardNotice.info("自動で当てた disable " + autoDisabled.size()
-                        + " 件は持ち越しません (本体ごと消す手なので、当て推量を引き継がない)");
+            if (!staleDisabled.isEmpty()) {
+                GuardNotice.info("前回の disable " + staleDisabled.size()
+                        + " 件は破棄しました (disable は再起動をまたいで持ち越しません)");
             }
-            failures.forEach(line -> GuardNotice.warn("復元できませんでした: " + line));
         } finally {
             restoring = false;
         }
